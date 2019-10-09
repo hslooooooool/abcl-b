@@ -2,7 +2,7 @@
 
 名称 | 版本
 --- | ---
-core_vision | [![](https://jitpack.io/v/hslooooooool/abcl-b.svg)](https://jitpack.io/#hslooooooool/abcl-b)
+base_vision | [![](https://jitpack.io/v/hslooooooool/abcl-b.svg)](https://jitpack.io/#hslooooooool/abcl-b)
 
 ABCL-B层提供一些独立业务供使用。
 
