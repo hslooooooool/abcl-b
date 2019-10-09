@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<!--刷新加载-->
+	<declare-styleable name="RefreshLayout">
+		<attr name="direction">
+			<enum name="top" value="0" />
+			<enum name="bottom" value="1" />
+			<enum name="both" value="2" />
+		</attr>
+	</declare-styleable>
+
+</resources>
