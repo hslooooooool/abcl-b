@@ -1,14 +1,13 @@
-package qsos.app.demo
+package qsos.base.demo
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
-import com.scwang.smartrefresh.layout.api.RefreshHeader
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
-import qsos.app.demo.config.PlayerConfig
+import qsos.base.demo.config.PlayerConfig
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
 import qsos.core.lib.config.BaseConfig

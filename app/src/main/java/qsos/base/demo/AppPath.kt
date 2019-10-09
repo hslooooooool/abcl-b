@@ -1,4 +1,4 @@
-package qsos.app.demo
+package qsos.base.demo
 
 /**
  * @author : 华清松

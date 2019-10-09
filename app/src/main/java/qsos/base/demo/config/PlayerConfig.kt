@@ -1,4 +1,4 @@
-package qsos.app.demo.config
+package qsos.base.demo.config
 
 import android.app.Activity
 import android.content.Context

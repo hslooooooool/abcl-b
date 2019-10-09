@@ -33,7 +33,7 @@ android {
         // 增加对vector图片的支持
         vectorDrawables.useSupportLibrary = true
         ndk {
-            abiFilters "armeabi", 'armeabi-v7a'
+            abiFilters "x86", "armeabi", 'armeabi-v7a'
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // apk 方法数超过 65536 限制，进行分包处理

@@ -1,4 +1,4 @@
-package qsos.app.demo
+package qsos.base.demo
 
 import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
