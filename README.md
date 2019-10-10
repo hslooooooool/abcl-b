@@ -6,6 +6,23 @@ base_vision | [![](https://jitpack.io/v/hslooooooool/abcl-b.svg)](https://jitpac
 
 ABCL-B层提供一些独立业务供使用。
 
+```
+dependencies {
+    ...
+    api "com.github.hslooooooool:abcl-b:base_vision"
+}
+```
+
+# 业务清单
+## IM系统
+参考[阿里表格数据库]("https://github.com/aliyun/tablestore-examples") IMChart Demo设计
+```
+dependencies {
+    ...
+    api "com.github.hslooooooool.abcl-b:base-chat:base_vision"
+}
+```
+ 
 # 项目清单
 - [ABCL安卓快速开发框架](https://github.com/hslooooooool/abcl)
 - [ABCL安卓快速开发框架之L层](https://github.com/hslooooooool/abcl-l)

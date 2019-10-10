@@ -89,5 +89,24 @@ interface IChatModel {
          * @return 会话数据
          * */
         fun createSession(userIdList: List<Long>, message: ChatMessage? = null): ChatSession
+
+        /**往已有会话中增加用户
+         * @param userIdList 被添加用户ID集合
+         * @param sessionId 会话ID
+         * @return 加入的会话数据
+         * */
+        fun addUserListToSession(userIdList: List<Long>, sessionId: Long): ChatSession
+
+        /**更新聊天群公告
+         * @param notice 需更新的聊天群公告
+         * @return 已更新的聊天群数据
+         * */
+        fun updateGroupNotice(notice: String): ChatGroup
+
+        /**更新聊天群名称
+         * @param name 需更新的聊天群名称
+         * @return 已更新的聊天群数据
+         * */
+        fun updateGroupName(name: String): ChatGroup
     }
 }
