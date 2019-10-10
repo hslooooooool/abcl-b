@@ -108,5 +108,26 @@ interface IChatModel {
          * @return 已更新的聊天群数据
          * */
         fun updateGroupName(name: String): ChatGroup
+
+    }
+
+    interface Delete {
+
+        /**解散会话
+         * @param sessionId 会话ID
+         * */
+        fun deleteSession(sessionId: Long)
+
+        /**将用户移除会话
+         * @param sessionId 会话ID
+         * @param userId 需要移除的用户ID
+         * */
+        fun deleteUser(sessionId: Long, userId: Long)
+
+        /**撤回消息
+         * @param messageId 消息ID
+         * */
+        fun deleteMessage(messageId: Long)
+
     }
 }
