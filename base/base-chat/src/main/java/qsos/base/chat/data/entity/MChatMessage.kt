@@ -23,11 +23,11 @@ data class MChatMessage(
         val readStatus: Boolean = true
 ) {
 
-    /**布局类型*/
-    var viewType: Int = -1
+    /**消息内容类型*/
+    var contentType: Int = -1
         get() {
             field = when (val type = message.content.fields[VIEW_TYPE_KEY]) {
-                is Int -> type
+                is Number -> type.toInt()
                 else -> -1
             }
             return field
@@ -36,12 +36,12 @@ data class MChatMessage(
     /**消息内容实体*/
     var content: Any? = null
         get() {
-            if (viewType == -1) field = "" else {
+            if (contentType == -1) field = "" else {
                 if (field == null) {
                     val gson = Gson()
                     field = try {
                         val json = gson.toJson(message.content.fields)
-                        val type = ChatMessageHelper.configBeenType(viewType)
+                        val type = ChatMessageHelper.configBeenType(contentType)
                         gson.fromJson(json, type)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -55,10 +55,13 @@ data class MChatMessage(
 
     /**消息内容配置接口*/
     interface MessageConfig {
-        /**配置布局类型判定逻辑*/
+        /**配置消息内容类型*/
+        fun configViewType(contentType: Int): Int
+
+        /**配置布局*/
         fun configHolder(view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
 
-        /**消息内容类型判定逻辑*/
+        /**配置消息内容类型转化*/
         fun configBeenType(contentType: Int): Type
     }
 
@@ -134,6 +137,20 @@ enum class MChatMessageType(val k: String, @LayoutRes val v: Int) : IChatMessage
         override val layoutId: Int
             get() = this.v
     };
+
+    companion object {
+        /**通过内容类型获取对应布局*/
+        fun getValueByContentType(contentType: Int): Int {
+            var v: Int = -1
+            for (e in values()) {
+                if (e.contentType == contentType) {
+                    v = e.v
+                    break
+                }
+            }
+            return v
+        }
+    }
 }
 
 /**

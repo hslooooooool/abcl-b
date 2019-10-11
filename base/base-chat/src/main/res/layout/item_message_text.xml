@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
-	
-	<TextView
-		android:id="@+id/item_message_text"
-		style="@style/ChatMessageTextStyle"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:minWidth="@dimen/item_message_text_width"
-		android:minHeight="@dimen/item_message_text_height"
-		tools:text="文本消息内容" />
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/item_message_text"
+        style="@style/ChatMessageTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minWidth="@dimen/item_message_text_width"
+        android:minHeight="@dimen/item_message_text_height"
+        tools:text="文本消息内容" />
 </LinearLayout>

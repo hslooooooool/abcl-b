@@ -18,6 +18,10 @@ class ChatMessageAdapter(list: ArrayList<MChatMessage>) : BaseAdapter<MChatMessa
         return ChatMessageHelper.configHolder(view, viewType)
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return ChatMessageHelper.configViewType(data[position].contentType)
+    }
+
     override fun onItemClick(view: View, position: Int, obj: Any?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

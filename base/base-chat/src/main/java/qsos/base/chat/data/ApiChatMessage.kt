@@ -21,4 +21,7 @@ interface ApiChatMessage {
             @Query("sessionId") sessionId: Long
     ): Call<BaseResponse<List<ChatMessage>>>
 
+    @GET(value = "/chat/test")
+    fun test(): Call<BaseResponse<String>>
+
 }

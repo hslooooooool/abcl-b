@@ -6,10 +6,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.*
+import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitWithSuccess
+import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 
 /**
  * @author : 华清松
@@ -50,6 +52,12 @@ class DefChatModelIml : IChatModelConfig {
     }
 
     override fun getMessageListBySessionId(sessionId: Long) {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<String> {
+            api = ApiEngine.createService(ApiChatMessage::class.java).test()
+            onSuccess {
+                LogUtil.i(it ?: "测试")
+            }
+        }
         CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessage>>> {
             api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(sessionId = 1)
             onSuccess {
@@ -62,10 +70,10 @@ class DefChatModelIml : IChatModelConfig {
                                         message = message
                                 )
                         )
-                        mDataOfChatMessageList.postValue(BaseResponse(
-                                code = it.code, msg = it.msg, data = messages
-                        ))
                     }
+                    mDataOfChatMessageList.postValue(BaseResponse(
+                            code = it.code, msg = it.msg, data = messages
+                    ))
                 }
             }
         }
