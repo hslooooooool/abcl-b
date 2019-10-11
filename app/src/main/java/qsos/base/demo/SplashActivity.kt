@@ -20,7 +20,7 @@ class SplashActivity(
         override val reload: Boolean = false
 ) : BaseActivity() {
 
-    private val mList = arrayListOf("朋友圈", "表单", "表单2")
+    private val mList = arrayListOf("聊天界面")
     private val mJob = Dispatchers.Main + Job()
 
     override fun initData(savedInstanceState: Bundle?) {}
@@ -33,8 +33,8 @@ class SplashActivity(
             holder.itemView.tv_item_component.text = data
             holder.itemView.tv_item_component.setOnClickListener {
                 when (data) {
-                    "朋友圈" -> {
-                        ARouter.getInstance().build(AppPath.TWEET).navigation()
+                    "聊天界面" -> {
+                        ARouter.getInstance().build("/CHAT/MAIN").navigation()
                     }
                 }
             }

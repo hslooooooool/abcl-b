@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<style name="ChatMessageTextStyle">
+		<item name="android:background">@drawable/selector_button</item>
+		<item name="android:textColor">@color/white</item>
+		<item name="android:textSize">@dimen/item_message_text_size</item>
+		<item name="android:padding">@dimen/item_message_text_size</item>
+	</style>
+</resources>

@@ -1,4 +1,4 @@
-package qsos.base.chat.data.entity
+package qsos.base.chat.data.db
 
 /**
  * @author : 华清松
@@ -6,4 +6,4 @@ package qsos.base.chat.data.entity
  * @param userId 用户ID
  * @param sessionId 会话ID
  */
-data class ATSessionWithUser(val userId: Long, val sessionId: Long)
+data class RelationSessionWithUser(val userId: Long, val sessionId: Long)

@@ -1,1 +1,7 @@
-<manifest package="qsos.base.chat" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="qsos.base.chat">
+	<application>
+		<!--聊天消息界面-->
+		<activity android:name="qsos.base.chat.view.activity.ChatActivity" />
+	</application>
+</manifest>

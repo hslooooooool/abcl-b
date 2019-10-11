@@ -1,12 +1,14 @@
 package qsos.base.chat.data.model
 
 import qsos.base.chat.data.entity.*
+import qsos.lib.netservice.data.BaseHttpLiveData
 
 /**
  * @author : 华清松
  * 聊天接口定义
  */
 interface IChatModel {
+
     interface Base {
 
         /**获取会话数据
@@ -57,9 +59,9 @@ interface IChatModel {
 
         /**获取会话下的消息列表
          * @param sessionId 会话ID
-         * @return 会话下的消息列表
+         * @return 会话下的消息列表 List<ChatMessage>
          * */
-        fun getMessageListBySessionId(sessionId: Long): List<ChatMessage>
+        fun getMessageListBySessionId(sessionId: Long)
 
         /**获取用户发送的消息
          * @param userId 用户ID
@@ -130,4 +132,8 @@ interface IChatModel {
         fun deleteMessage(messageId: Long)
 
     }
+}
+
+interface IChatModelConfig : IChatModel.Delete, IChatModel.Post, IChatModel.Get, IChatModel.Base {
+    val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>>
 }

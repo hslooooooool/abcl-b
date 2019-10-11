@@ -1,0 +1,12 @@
+<resources>
+	<!--聊天消息布局尺寸配置-->
+	
+	<!--文本消息内容最小宽度-->
+	<dimen name="item_message_text_width">80dp</dimen>
+	<!--文本消息内容最小高度-->
+	<dimen name="item_message_text_height">50dp</dimen>
+	<!--文本消息内容字号-->
+	<dimen name="item_message_text_size">16sp</dimen>
+	<!--文本消息内容内边距-->
+	<dimen name="item_message_text_padding">8dp</dimen>
+</resources>
