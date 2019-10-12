@@ -10,7 +10,7 @@ package qsos.base.chat.data.entity
  * @param sexuality 用户性别
  */
 data class ChatUser(
-        var userId: Long,
+        var userId: Int,
         var userName: String,
         var avatar: String? = null,
         var birth: String? = null,

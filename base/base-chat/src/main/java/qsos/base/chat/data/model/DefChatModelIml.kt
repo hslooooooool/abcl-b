@@ -6,12 +6,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.*
-import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitWithSuccess
-import qsos.lib.netservice.expand.retrofitWithSuccessByDef
+import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
@@ -19,15 +19,15 @@ import qsos.lib.netservice.expand.retrofitWithSuccessByDef
  */
 class DefChatModelIml : IChatModelConfig {
 
-    private val mJob = Dispatchers.Main + Job()
+    override val mJob: CoroutineContext = Dispatchers.Main + Job()
 
     override val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>> = BaseHttpLiveData()
 
-    override fun getSessionById(sessionId: Long): ChatSession {
+    override fun getSessionById(sessionId: Int): ChatSession {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getMessageById(messageId: Long): ChatMessage {
+    override fun getMessageById(messageId: Int): ChatMessage {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -43,21 +43,15 @@ class DefChatModelIml : IChatModelConfig {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getGroupByBySessionId(sessionId: Long): ChatGroup {
+    override fun getGroupByBySessionId(sessionId: Int): ChatGroup {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getUserListBySessionId(sessionId: Long): List<ChatUser> {
+    override fun getUserListBySessionId(sessionId: Int): List<ChatUser> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getMessageListBySessionId(sessionId: Long) {
-        CoroutineScope(mJob).retrofitWithSuccessByDef<String> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).test()
-            onSuccess {
-                LogUtil.i(it ?: "测试")
-            }
-        }
+    override fun getMessageListBySessionId(sessionId: Int) {
         CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessage>>> {
             api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(sessionId = 1)
             onSuccess {
@@ -67,6 +61,7 @@ class DefChatModelIml : IChatModelConfig {
                         messages.add(
                                 MChatMessage(
                                         user = ChatUser(userId = 1, userName = "测试"),
+                                        createTime = Date().time,
                                         message = message
                                 )
                         )
@@ -95,7 +90,7 @@ class DefChatModelIml : IChatModelConfig {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addUserListToSession(userIdList: List<Long>, sessionId: Long): ChatSession {
+    override fun addUserListToSession(userIdList: List<Long>, sessionId: Int): ChatSession {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -107,15 +102,15 @@ class DefChatModelIml : IChatModelConfig {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteSession(sessionId: Long) {
+    override fun deleteSession(sessionId: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteUser(sessionId: Long, userId: Long) {
+    override fun deleteUser(sessionId: Int, userId: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteMessage(messageId: Long) {
+    override fun deleteMessage(messageId: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

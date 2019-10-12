@@ -2,6 +2,7 @@ package qsos.base.chat.data.model
 
 import qsos.base.chat.data.entity.*
 import qsos.lib.netservice.data.BaseHttpLiveData
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
@@ -15,13 +16,13 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 会话数据
          * */
-        fun getSessionById(sessionId: Long): ChatSession
+        fun getSessionById(sessionId: Int): ChatSession
 
         /**获取消息数据
          * @param messageId 消息ID
          * @return 消息数据
          * */
-        fun getMessageById(messageId: Long): ChatMessage
+        fun getMessageById(messageId: Int): ChatMessage
 
         /**获取用户数据
          * @param userId 用户ID
@@ -49,19 +50,19 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 聊天群数据
          * */
-        fun getGroupByBySessionId(sessionId: Long): ChatGroup
+        fun getGroupByBySessionId(sessionId: Int): ChatGroup
 
         /**获取会话下的用户列表
          * @param sessionId 会话ID
          * @return 用户列表
          * */
-        fun getUserListBySessionId(sessionId: Long): List<ChatUser>
+        fun getUserListBySessionId(sessionId: Int): List<ChatUser>
 
         /**获取会话下的消息列表
          * @param sessionId 会话ID
          * @return 会话下的消息列表 List<ChatMessage>
          * */
-        fun getMessageListBySessionId(sessionId: Long)
+        fun getMessageListBySessionId(sessionId: Int)
 
         /**获取用户发送的消息
          * @param userId 用户ID
@@ -97,7 +98,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 加入的会话数据
          * */
-        fun addUserListToSession(userIdList: List<Long>, sessionId: Long): ChatSession
+        fun addUserListToSession(userIdList: List<Long>, sessionId: Int): ChatSession
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告
@@ -118,22 +119,23 @@ interface IChatModel {
         /**解散会话
          * @param sessionId 会话ID
          * */
-        fun deleteSession(sessionId: Long)
+        fun deleteSession(sessionId: Int)
 
         /**将用户移除会话
          * @param sessionId 会话ID
          * @param userId 需要移除的用户ID
          * */
-        fun deleteUser(sessionId: Long, userId: Long)
+        fun deleteUser(sessionId: Int, userId: Long)
 
         /**撤回消息
          * @param messageId 消息ID
          * */
-        fun deleteMessage(messageId: Long)
+        fun deleteMessage(messageId: Int)
 
     }
 }
 
 interface IChatModelConfig : IChatModel.Delete, IChatModel.Post, IChatModel.Get, IChatModel.Base {
+    val mJob: CoroutineContext
     val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>>
 }

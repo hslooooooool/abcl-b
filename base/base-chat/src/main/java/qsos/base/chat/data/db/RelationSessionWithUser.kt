@@ -6,4 +6,4 @@ package qsos.base.chat.data.db
  * @param userId 用户ID
  * @param sessionId 会话ID
  */
-data class RelationSessionWithUser(val userId: Long, val sessionId: Long)
+data class RelationSessionWithUser(val userId: Long, val sessionId: Int)

@@ -22,11 +22,7 @@ class ChatMessageAdapter(list: ArrayList<MChatMessage>) : BaseAdapter<MChatMessa
         return ChatMessageHelper.configViewType(data[position].contentType)
     }
 
-    override fun onItemClick(view: View, position: Int, obj: Any?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun onItemClick(view: View, position: Int, obj: Any?) {}
 
-    override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun onItemLongClick(view: View, position: Int, obj: Any?) {}
 }

@@ -13,11 +13,14 @@ import java.lang.reflect.Type
  * 聊天消息列表项展示数据
  * @param user 消息发送用户
  * @param message 消息数据
- * @param sendStatus 消息发送状态
- * @param readStatus 消息读取状态
+ * @param createTime 创建时间,毫秒数
+ *
+ * @param sendStatus 消息发送状态,本地存储
+ * @param readStatus 消息读取状态,本地存储
  */
 data class MChatMessage(
         val user: ChatUser,
+        val createTime: Long,
         val message: ChatMessage,
         val sendStatus: MChatSendStatus = MChatSendStatus.SUCCESS,
         val readStatus: Boolean = true

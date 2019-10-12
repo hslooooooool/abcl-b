@@ -10,6 +10,6 @@ package qsos.base.chat.data.entity
  * @see ChatGroup
  */
 data class ChatSession(
-        var sessionId: Long,
+        var sessionId: Int,
         var type: ChatType
 )

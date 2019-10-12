@@ -6,5 +6,10 @@ package qsos.base.chat.data.entity
  * @param fields 内容map集合
  */
 data class ChatContent(
-        val fields: Map<String, Any?>
-)
+        val fields: HashMap<String, Any?>
+) {
+    /**设置消息类型*/
+    fun setContentType(contentType: Int) {
+        this.fields["contentType"] = contentType
+    }
+}
