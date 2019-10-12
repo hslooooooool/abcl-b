@@ -4,7 +4,6 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageHelper
-import qsos.base.chat.R
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
 
@@ -14,18 +13,16 @@ import java.lang.reflect.Type
  * @param user 消息发送用户
  * @param message 消息数据
  * @param createTime 创建时间,毫秒数
- *
- * @param sendStatus 消息发送状态,本地存储
- * @param readStatus 消息读取状态,本地存储
  */
 data class MChatMessage(
         val user: ChatUser,
         val createTime: Long,
-        val message: ChatMessage,
-        val sendStatus: MChatSendStatus = MChatSendStatus.SUCCESS,
-        val readStatus: Boolean = true
+        val message: ChatMessage
 ) {
-
+    /**消息发送状态,本地存储*/
+    val sendStatus: MChatSendStatus = MChatSendStatus.SUCCESS
+    /**消息读取状态,本地存储*/
+    val readStatus: Boolean = true
     /**消息内容类型*/
     var contentType: Int = -1
         get() {
@@ -44,7 +41,7 @@ data class MChatMessage(
                     val gson = Gson()
                     field = try {
                         val json = gson.toJson(message.content.fields)
-                        val type = ChatMessageHelper.configBeenType(contentType)
+                        val type = ChatMessageHelper.getContentType(contentType)
                         gson.fromJson(json, type)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -58,14 +55,12 @@ data class MChatMessage(
 
     /**消息内容配置接口*/
     interface MessageConfig {
-        /**配置消息内容类型*/
-        fun configViewType(contentType: Int): Int
 
-        /**配置布局*/
-        fun configHolder(view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
+        /**判定消息内容布局*/
+        fun getHolder(view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
 
-        /**配置消息内容类型转化*/
-        fun configBeenType(contentType: Int): Type
+        /**判定消息内容解析类型*/
+        fun getContentType(contentType: Int): Type
     }
 
     companion object {
@@ -91,69 +86,39 @@ enum class MChatSendStatus(val k: String) {
  * @author : 华清松
  * 自定义消息内容类型
  */
-enum class MChatMessageType(val k: String, @LayoutRes val v: Int) : IChatMessage {
-    TEXT("文本消息", R.layout.item_message_text) {
+enum class MChatMessageType(val k: String) : IChatMessage {
+    TEXT("文本消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    IMAGE("图片消息", R.layout.item_message_text) {
+    IMAGE("图片消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    VIDEO("视频消息", R.layout.item_message_text) {
+    VIDEO("视频消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    AUDIO("语音消息", R.layout.item_message_text) {
+    AUDIO("语音消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    FILE("附件消息", R.layout.item_message_text) {
+    FILE("附件消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    LINK("链接消息", R.layout.item_message_text) {
+    LINK("链接消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    CARD("名片消息", R.layout.item_message_text) {
+    CARD("名片消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     },
-    LOCATION("位置消息", R.layout.item_message_text) {
+    LOCATION("位置消息") {
         override val contentType: Int
             get() = this.ordinal
-        override val layoutId: Int
-            get() = this.v
     };
-
-    companion object {
-        /**通过内容类型获取对应布局*/
-        fun getValueByContentType(contentType: Int): Int {
-            var v: Int = -1
-            for (e in values()) {
-                if (e.contentType == contentType) {
-                    v = e.v
-                    break
-                }
-            }
-            return v
-        }
-    }
 }
 
 /**
@@ -165,6 +130,4 @@ interface IChatMessage {
      * @see MChatMessage.VIEW_TYPE_KEY
      * */
     val contentType: Int
-    /**消息内容类型对应的布局ID*/
-    val layoutId: Int
 }

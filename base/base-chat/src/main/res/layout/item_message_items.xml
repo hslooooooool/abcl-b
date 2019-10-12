@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content">
+	
+	<include
+		android:id="@+id/item_message_view_text"
+		layout="@layout/item_message_text"
+		android:visibility="gone"
+		tools:visibility="visible" />
+	
+	<include
+		android:id="@+id/item_message_view_image"
+		layout="@layout/item_message_image"
+		android:visibility="gone"
+		tools:visibility="visible" />
+</merge>

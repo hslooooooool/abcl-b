@@ -5,13 +5,12 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 	
-	<TextView
-		android:id="@+id/item_message_text"
-		style="@style/ChatMessageTextStyle"
+	<ImageView
+		android:id="@+id/item_message_image"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:minWidth="@dimen/item_message_text_width"
-		android:minHeight="@dimen/item_message_text_height"
-		tools:text="文本消息内容" />
+		android:maxWidth="100dp"
+		android:maxHeight="100dp"
+		android:scaleType="centerInside"
+		tools:srcCompat="@drawable/ic_launcher" />
 </LinearLayout>

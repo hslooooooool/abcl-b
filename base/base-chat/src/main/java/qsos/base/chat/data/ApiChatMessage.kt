@@ -1,6 +1,6 @@
 package qsos.base.chat.data
 
-import qsos.base.chat.data.entity.ChatMessage
+import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.core.config.BaseConfig
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
@@ -21,7 +21,7 @@ interface ApiChatMessage {
     @GET(value = "/chat/message/getMessageListBySessionId")
     fun getMessageListBySessionId(
             @Query(value = "sessionId") sessionId: Int
-    ): Call<BaseResponse<List<ChatMessage>>>
+    ): Call<BaseResponse<List<MChatMessage>>>
 
     /**获取用户发送的消息列表
      * @param userId 用户ID
@@ -30,6 +30,6 @@ interface ApiChatMessage {
     @GET(value = "/chat/message/getMessageListByUserId")
     fun getMessageListByUserId(
             @Header(value = "userId") userId: Int = BaseConfig.userId
-    ): Call<BaseResponse<List<ChatMessage>>>
+    ): Call<BaseResponse<List<MChatMessage>>>
 
 }

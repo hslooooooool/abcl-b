@@ -40,7 +40,10 @@ class ChatFragment(
 
         mMessageAdapter = ChatMessageAdapter(mMessageData.value!!)
 
-        chat_message_list.layoutManager = LinearLayoutManager(mContext)
+        val mLinearLayoutManager = LinearLayoutManager(mContext)
+        mLinearLayoutManager.stackFromEnd = true
+        mLinearLayoutManager.reverseLayout = true
+        chat_message_list.layoutManager = mLinearLayoutManager
         chat_message_list.adapter = mMessageAdapter
 
         mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {

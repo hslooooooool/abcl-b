@@ -10,7 +10,6 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitWithSuccess
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -52,22 +51,12 @@ class DefChatModelIml : IChatModelConfig {
     }
 
     override fun getMessageListBySessionId(sessionId: Int) {
-        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessage>>> {
+        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<MChatMessage>>> {
             api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(sessionId = 1)
             onSuccess {
                 it?.data?.let { list ->
-                    val messages: ArrayList<MChatMessage> = arrayListOf()
-                    list.forEach { message ->
-                        messages.add(
-                                MChatMessage(
-                                        user = ChatUser(userId = 1, userName = "测试"),
-                                        createTime = Date().time,
-                                        message = message
-                                )
-                        )
-                    }
                     mDataOfChatMessageList.postValue(BaseResponse(
-                            code = it.code, msg = it.msg, data = messages
+                            code = it.code, msg = it.msg, data = list
                     ))
                 }
             }

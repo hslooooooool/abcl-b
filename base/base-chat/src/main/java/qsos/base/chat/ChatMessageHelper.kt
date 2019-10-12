@@ -1,11 +1,12 @@
 package qsos.base.chat
 
 import android.view.View
-import androidx.annotation.LayoutRes
 import com.google.gson.reflect.TypeToken
 import qsos.base.chat.data.entity.MChatMessage
+import qsos.base.chat.data.entity.MChatMessageImage
 import qsos.base.chat.data.entity.MChatMessageText
 import qsos.base.chat.data.entity.MChatMessageType
+import qsos.base.chat.view.holder.ItemChatMessageImageViewHolder
 import qsos.base.chat.view.holder.ItemChatMessageTextViewHolder
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
@@ -23,41 +24,36 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         this.mChatMessageConfig = config
     }
 
-    override fun configViewType(contentType: Int): Int {
-        return mChatMessageConfig?.configViewType(contentType)
-                ?: defConfigViewType(contentType)
+    override fun getHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
+        return mChatMessageConfig?.getHolder(view, viewType)
+                ?: getDefHolder(view, viewType)
     }
 
-    override fun configHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
-        return mChatMessageConfig?.configHolder(view, viewType)
-                ?: defConfigHolder(view, viewType)
+    override fun getContentType(contentType: Int): Type {
+        return mChatMessageConfig?.getContentType(contentType)
+                ?: getDefContentType(contentType)
     }
 
-    override fun configBeenType(contentType: Int): Type {
-        return mChatMessageConfig?.configBeenType(contentType)
-                ?: defConfigBeenType(contentType)
-    }
-
-    private fun defConfigHolder(view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage> {
+    private fun getDefHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
         return when (viewType) {
-            MChatMessageType.TEXT.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.IMAGE.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.VIDEO.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.AUDIO.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.FILE.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.LINK.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.CARD.v -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.LOCATION.v -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(view)
+            MChatMessageType.VIDEO.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.AUDIO.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.FILE.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.LINK.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.CARD.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.LOCATION.contentType -> ItemChatMessageTextViewHolder(view)
             else -> {
                 ItemChatMessageTextViewHolder(view)
             }
         }
     }
 
-    private fun defConfigBeenType(contentType: Int): Type {
+    private fun getDefContentType(contentType: Int): Type {
         return when (contentType) {
             MChatMessageType.TEXT.contentType -> object : TypeToken<MChatMessageText>() {}.type
-            MChatMessageType.IMAGE.contentType -> object : TypeToken<MChatMessageText>() {}.type
+            MChatMessageType.IMAGE.contentType -> object : TypeToken<MChatMessageImage>() {}.type
             MChatMessageType.VIDEO.contentType -> object : TypeToken<MChatMessageText>() {}.type
             MChatMessageType.AUDIO.contentType -> object : TypeToken<MChatMessageText>() {}.type
             MChatMessageType.FILE.contentType -> object : TypeToken<MChatMessageText>() {}.type
@@ -68,7 +64,4 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         }
     }
 
-    private fun defConfigViewType(contentType: Int): Int {
-        return MChatMessageType.getValueByContentType(contentType)
-    }
 }
