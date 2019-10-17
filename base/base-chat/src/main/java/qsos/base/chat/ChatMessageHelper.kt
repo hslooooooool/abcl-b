@@ -2,12 +2,11 @@ package qsos.base.chat
 
 import android.view.View
 import com.google.gson.reflect.TypeToken
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.base.chat.data.entity.MChatMessageImage
-import qsos.base.chat.data.entity.MChatMessageText
-import qsos.base.chat.data.entity.MChatMessageType
+import qsos.base.chat.data.entity.*
+import qsos.base.chat.view.holder.ItemChatMessageAudioViewHolder
 import qsos.base.chat.view.holder.ItemChatMessageImageViewHolder
 import qsos.base.chat.view.holder.ItemChatMessageTextViewHolder
+import qsos.base.chat.view.holder.ItemChatMessageVideoViewHolder
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
 
@@ -38,8 +37,8 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         return when (viewType) {
             MChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(view)
             MChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(view)
-            MChatMessageType.VIDEO.contentType -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.AUDIO.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(view)
+            MChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(view)
             MChatMessageType.FILE.contentType -> ItemChatMessageTextViewHolder(view)
             MChatMessageType.LINK.contentType -> ItemChatMessageTextViewHolder(view)
             MChatMessageType.CARD.contentType -> ItemChatMessageTextViewHolder(view)
@@ -54,8 +53,8 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         return when (contentType) {
             MChatMessageType.TEXT.contentType -> object : TypeToken<MChatMessageText>() {}.type
             MChatMessageType.IMAGE.contentType -> object : TypeToken<MChatMessageImage>() {}.type
-            MChatMessageType.VIDEO.contentType -> object : TypeToken<MChatMessageText>() {}.type
-            MChatMessageType.AUDIO.contentType -> object : TypeToken<MChatMessageText>() {}.type
+            MChatMessageType.VIDEO.contentType -> object : TypeToken<MChatMessageVideo>() {}.type
+            MChatMessageType.AUDIO.contentType -> object : TypeToken<MChatMessageAudio>() {}.type
             MChatMessageType.FILE.contentType -> object : TypeToken<MChatMessageText>() {}.type
             MChatMessageType.LINK.contentType -> object : TypeToken<MChatMessageText>() {}.type
             MChatMessageType.CARD.contentType -> object : TypeToken<MChatMessageText>() {}.type

@@ -86,7 +86,7 @@ enum class MChatSendStatus(val k: String) {
  * @author : 华清松
  * 自定义消息内容类型
  */
-enum class MChatMessageType(val k: String) : IChatMessage {
+enum class MChatMessageType(val k: String) : IChatMessageType {
     TEXT("文本消息") {
         override val contentType: Int
             get() = this.ordinal
@@ -125,7 +125,7 @@ enum class MChatMessageType(val k: String) : IChatMessage {
  * @author : 华清松
  * 消息内容接口,自定义消息实体需实现此接口
  */
-interface IChatMessage {
+interface IChatMessageType {
     /**消息内容类型值,属性名需要和 VIEW_TYPE_KEY 保持相同
      * @see MChatMessage.VIEW_TYPE_KEY
      * */

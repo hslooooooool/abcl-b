@@ -9,7 +9,7 @@ package qsos.base.chat.data.entity
 data class MChatMessageImage(
         val name: String,
         val url: String
-) : IChatMessage {
+) : IChatMessageType {
 
     override val contentType: Int = MChatMessageType.IMAGE.contentType
 }
