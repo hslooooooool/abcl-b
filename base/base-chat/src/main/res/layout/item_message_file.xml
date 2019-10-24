@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@color/gray_low">
+	
+	<ImageView
+		android:id="@+id/item_message_file_avatar"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:background="@color/colorPrimary"
+		android:scaleType="centerInside"
+		app:layout_constraintBottom_toBottomOf="@+id/item_message_file_progress"
+		app:layout_constraintDimensionRatio="H,1:1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@id/item_message_file_name" />
+	
+	<ImageView
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:padding="10dp"
+		android:scaleType="centerInside"
+		app:layout_constraintBottom_toBottomOf="@id/item_message_file_avatar"
+		app:layout_constraintDimensionRatio="H,1:1"
+		app:layout_constraintEnd_toEndOf="@id/item_message_file_avatar"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@id/item_message_file_avatar"
+		app:srcCompat="@drawable/icon_download" />
+	
+	<TextView
+		android:id="@+id/item_message_file_name"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:ellipsize="marquee"
+		android:padding="3dp"
+		android:singleLine="true"
+		android:textColor="@color/colorAccent"
+		android:textSize="12sp"
+		app:layout_constraintStart_toEndOf="@id/item_message_file_avatar"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="测试文件" />
+	
+	<TextView
+		android:id="@+id/item_message_file_length"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:gravity="center_vertical|end"
+		android:textSize="10sp"
+		app:layout_constraintBottom_toTopOf="@id/item_message_file_progress"
+		app:layout_constraintEnd_toEndOf="@id/item_message_file_progress"
+		app:layout_constraintStart_toEndOf="@+id/item_message_file_avatar"
+		app:layout_constraintTop_toBottomOf="@id/item_message_file_name"
+		tools:ignore="SmallSp"
+		tools:text="1000.1kb/102400kb" />
+	
+	<ProgressBar
+		android:id="@+id/item_message_file_progress"
+		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+		android:layout_width="120dp"
+		android:layout_height="2dp"
+		android:background="@color/gray_low"
+		android:max="100"
+		android:progressTint="@color/colorPrimary"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@id/item_message_file_avatar"
+		tools:progress="50" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

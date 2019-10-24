@@ -5,8 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/gray_low">
-
-
+    
     <ImageView
         android:id="@+id/item_message_audio_avatar"
         android:layout_width="0dp"

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@color/gray_low">
+	
+	<ImageView
+		android:id="@+id/item_message_card_avatar"
+		android:layout_width="60dp"
+		android:layout_height="0dp"
+		android:background="@color/colorPrimary"
+		android:scaleType="centerInside"
+		app:layout_constraintDimensionRatio="H,1:1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@id/item_message_card_name" />
+	
+	<TextView
+		android:id="@+id/item_message_card_name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:minWidth="100dp"
+		android:padding="3dp"
+		android:singleLine="true"
+		android:textColor="@color/colorAccent"
+		android:textSize="16sp"
+		app:layout_constraintStart_toEndOf="@id/item_message_card_avatar"
+		app:layout_constraintTop_toTopOf="@id/item_message_card_avatar"
+		tools:text="测试文件" />
+	
+	<TextView
+		android:id="@+id/item_message_card_desc"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:minWidth="100dp"
+		android:gravity="bottom"
+		android:padding="3dp"
+		android:textSize="16sp"
+		app:layout_constraintBottom_toBottomOf="@+id/item_message_card_avatar"
+		app:layout_constraintStart_toEndOf="@+id/item_message_card_avatar"
+		app:layout_constraintTop_toBottomOf="@id/item_message_card_name"
+		tools:ignore="SmallSp"
+		tools:text="18227555555" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

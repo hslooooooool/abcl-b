@@ -9,5 +9,5 @@ data class MChatMessageText(
         val content: String
 ) : IChatMessageType {
 
-    override val contentType: Int = 0
+    override val contentType: Int = MChatMessageType.TEXT.contentType
 }
