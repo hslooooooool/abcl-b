@@ -30,6 +30,6 @@
 			android:id="@+id/item_message_right"
 			layout="@layout/item_message_right"
 			android:visibility="gone"
-			tools:visibility="visible" />
+			tools:visibility="invisible" />
 	</RelativeLayout>
 </LinearLayout>

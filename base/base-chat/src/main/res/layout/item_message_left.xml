@@ -10,19 +10,18 @@
 		android:id="@+id/item_message_user_avatar"
 		android:layout_width="50dp"
 		android:layout_height="0dp"
-		android:background="@color/gray"
 		android:contentDescription="@string/app_name"
+		android:padding="@dimen/item_message_padding"
 		app:layout_constraintDimensionRatio="1:1"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="@color/gray" />
 	
 	<TextView
 		android:id="@+id/item_message_user_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingStart="10dp"
 		android:paddingTop="3dp"
-		android:paddingEnd="10dp"
 		android:paddingBottom="3dp"
 		android:textColor="@color/black_light"
 		android:textSize="@dimen/item_message_text_size_smaller"
@@ -43,4 +42,27 @@
 		<include layout="@layout/item_message_items" />
 	
 	</FrameLayout>
+	
+	<ImageView
+		android:id="@+id/item_message_send_state"
+		android:layout_width="25dp"
+		android:layout_height="25dp"
+		android:layout_marginStart="5dp"
+		android:scaleType="centerInside"
+		android:visibility="invisible"
+		app:layout_constraintBottom_toBottomOf="@id/item_message_content"
+		app:layout_constraintStart_toEndOf="@id/item_message_content"
+		app:srcCompat="@drawable/icon_error"
+		tools:visibility="visible" />
+	
+	<TextView
+		android:id="@+id/item_message_read_state"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/item_message_padding"
+		android:textColor="@color/colorPrimary"
+		android:textSize="@dimen/item_message_text_size_smallest"
+		app:layout_constraintEnd_toEndOf="@id/item_message_content"
+		app:layout_constraintTop_toBottomOf="@id/item_message_content"
+		tools:text="10人已读" />
 </androidx.constraintlayout.widget.ConstraintLayout>

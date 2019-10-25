@@ -11,6 +11,7 @@ package qsos.base.chat.data.entity
 enum class ChatType {
     SINGLE,
     GROUP,
+
     NOTICE,
     SUBSCRIPTION
 }

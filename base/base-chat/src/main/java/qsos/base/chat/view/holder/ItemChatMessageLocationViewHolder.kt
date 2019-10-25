@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import kotlinx.android.synthetic.main.item_message_location.view.*
+import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatMessageLocation
 import qsos.core.lib.utils.image.ImageLoaderUtils
@@ -12,9 +13,9 @@ import qsos.core.lib.utils.image.ImageLoaderUtils
  * @author : 华清松
  * 消息内容-位置布局
  */
-class ItemChatMessageLocationViewHolder(view: View) : ItemChatMessageBaseViewHolder(view) {
+class ItemChatMessageLocationViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: MChatMessage, position: Int) {
+    override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
         contentView.item_message_view_location.visibility = View.VISIBLE
         val content = data.content as MChatMessageLocation
 

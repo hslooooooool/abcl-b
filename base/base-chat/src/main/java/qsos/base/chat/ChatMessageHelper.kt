@@ -20,9 +20,9 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         this.mChatMessageConfig = config
     }
 
-    override fun getHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
-        return mChatMessageConfig?.getHolder(view, viewType)
-                ?: getDefHolder(view, viewType)
+    override fun getHolder(session: ChatSession, view: View, viewType: Int): BaseHolder<MChatMessage> {
+        return mChatMessageConfig?.getHolder(session, view, viewType)
+                ?: getDefHolder(session, view, viewType)
     }
 
     override fun getContentType(contentType: Int): Type {
@@ -30,18 +30,18 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
                 ?: getDefContentType(contentType)
     }
 
-    private fun getDefHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
+    private fun getDefHolder(session: ChatSession, view: View, viewType: Int): BaseHolder<MChatMessage> {
         return when (viewType) {
-            MChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(view)
-            MChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(view)
-            MChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(view)
-            MChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(view)
-            MChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(view)
-            MChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(view)
-            MChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(view)
-            MChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(view)
+            MChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(session, view)
+            MChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(session, view)
+            MChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(session, view)
+            MChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(session, view)
+            MChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(session, view)
+            MChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(session, view)
+            MChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(session, view)
+            MChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(session, view)
             else -> {
-                ItemChatMessageTextViewHolder(view)
+                ItemChatMessageTextViewHolder(session, view)
             }
         }
     }

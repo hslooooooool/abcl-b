@@ -16,7 +16,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 会话数据
          * */
-        fun getSessionById(sessionId: Int): ChatSession
+        fun getSessionById(sessionId: Int)
 
         /**获取消息数据
          * @param messageId 消息ID
@@ -138,4 +138,5 @@ interface IChatModel {
 interface IChatModelConfig : IChatModel.Delete, IChatModel.Post, IChatModel.Get, IChatModel.Base {
     val mJob: CoroutineContext
     val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>>
+    val mDataOfChatSession: BaseHttpLiveData<ChatSession>
 }

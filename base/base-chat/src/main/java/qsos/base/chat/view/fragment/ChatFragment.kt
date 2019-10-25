@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.coroutines.cancel
 import qsos.base.chat.R
+import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.model.DefChatModelIml
 import qsos.base.chat.data.model.IChatModelConfig
@@ -19,6 +20,7 @@ import qsos.lib.base.base.fragment.BaseFragment
  * 聊天页面
  */
 class ChatFragment(
+        val mSession: ChatSession,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment() {
@@ -27,10 +29,6 @@ class ChatFragment(
     private var mMessageAdapter: ChatMessageAdapter? = null
     private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
 
-    override fun getData() {
-        mChatMessageModel?.getMessageListBySessionId(sessionId = 1)
-    }
-
     override fun initData(savedInstanceState: Bundle?) {
         mChatMessageModel = DefChatModelIml()
         mMessageData.value = arrayListOf()
@@ -38,7 +36,7 @@ class ChatFragment(
 
     override fun initView(view: View) {
 
-        mMessageAdapter = ChatMessageAdapter(mMessageData.value!!)
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!)
 
         val mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager.stackFromEnd = true
@@ -55,6 +53,10 @@ class ChatFragment(
         })
 
         getData()
+    }
+
+    override fun getData() {
+        mChatMessageModel?.getMessageListBySessionId(sessionId = 1)
     }
 
     override fun onDestroy() {

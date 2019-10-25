@@ -5,10 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
+import qsos.base.chat.data.ApiChatSession
 import qsos.base.chat.data.entity.*
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
+import qsos.lib.netservice.expand.retrofitWithLiveDataByDef
 import qsos.lib.netservice.expand.retrofitWithSuccess
 import kotlin.coroutines.CoroutineContext
 
@@ -21,9 +23,13 @@ class DefChatModelIml : IChatModelConfig {
     override val mJob: CoroutineContext = Dispatchers.Main + Job()
 
     override val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>> = BaseHttpLiveData()
+    override val mDataOfChatSession: BaseHttpLiveData<ChatSession> = BaseHttpLiveData()
 
-    override fun getSessionById(sessionId: Int): ChatSession {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getSessionById(sessionId: Int) {
+        CoroutineScope(mJob).retrofitWithLiveDataByDef<ChatSession> {
+            api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(sessionId)
+            data = mDataOfChatSession
+        }
     }
 
     override fun getMessageById(messageId: Int): ChatMessage {

@@ -20,9 +20,9 @@ data class MChatMessage(
         val message: ChatMessage
 ) {
     /**消息发送状态,本地存储*/
-    val sendStatus: MChatSendStatus = MChatSendStatus.SUCCESS
-    /**消息读取状态,本地存储*/
-    val readStatus: Boolean = true
+    var sendStatus: MChatSendStatus = MChatSendStatus.SUCCESS
+    /**消息读取人数,本地存储*/
+    var readStatus: Int = 0
     /**消息内容类型*/
     var contentType: Int = -1
         get() {
@@ -57,7 +57,7 @@ data class MChatMessage(
     interface MessageConfig {
 
         /**判定消息内容布局*/
-        fun getHolder(view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
+        fun getHolder(session: ChatSession, view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
 
         /**判定消息内容解析类型*/
         fun getContentType(contentType: Int): Type
