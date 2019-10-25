@@ -6,7 +6,6 @@ import kotlinx.android.synthetic.main.item_message_audio.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.data.PreAudioEntity
 
@@ -19,11 +18,9 @@ class ItemChatMessageAudioViewHolder(view: View) : ItemChatMessageBaseViewHolder
     override fun setContent(contentView: View, data: MChatMessage, position: Int) {
         contentView.item_message_view_audio.visibility = View.VISIBLE
         val content = data.content as MChatMessageAudio
-        contentView.item_message_audio_name.text = content.name
         contentView.item_message_audio_time.text = "${content.length.toFloat() * 0.001}`"
-        ImageLoaderUtils.display(itemView.context, contentView.item_message_audio_avatar, content.avatar)
 
-        contentView.item_message_audio_avatar.setOnClickListener {
+        contentView.setOnClickListener {
             PlayerConfigHelper.previewAudio(
                     context = itemView.context,
                     position = 0,

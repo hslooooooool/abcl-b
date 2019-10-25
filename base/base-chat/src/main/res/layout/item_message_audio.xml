@@ -1,71 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/gray_low">
-    
-    <ImageView
-        android:id="@+id/item_message_audio_avatar"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/colorPrimary"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@+id/item_message_audio_length"
-        app:layout_constraintDimensionRatio="H,1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/item_message_audio_name" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"
+	android:background="@color/colorPrimary"
+	android:gravity="center_vertical"
+	android:orientation="horizontal">
+	
+	<ImageView
+		android:layout_width="32dp"
+		android:layout_height="32dp"
+		android:padding="@dimen/item_message_padding"
+		android:scaleType="centerInside"
+		app:srcCompat="@drawable/icon_play" />
+	
+	<TextView
+		android:id="@+id/item_message_audio_time"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:minWidth="@dimen/item_message_min_width"
+		android:minHeight="@dimen/item_message_min_height"
+		android:padding="@dimen/item_message_padding"
+		android:textColor="@color/white"
+		android:textSize="@dimen/item_message_text_size"
+		tools:ignore="SmallSp"
+		tools:text="5`" />
 
-    <ImageView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@id/item_message_audio_avatar"
-        app:layout_constraintDimensionRatio="H,1:1"
-        app:layout_constraintEnd_toEndOf="@id/item_message_audio_avatar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/item_message_audio_avatar"
-        app:srcCompat="@drawable/icon_play" />
-
-    <TextView
-        android:id="@+id/item_message_audio_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ellipsize="marquee"
-        android:padding="3dp"
-        android:singleLine="true"
-        android:textColor="@color/colorAccent"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/item_message_audio_time"
-        app:layout_constraintEnd_toStartOf="@id/item_message_audio_time"
-        app:layout_constraintStart_toEndOf="@id/item_message_audio_avatar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="测试音频" />
-
-    <TextView
-        android:id="@+id/item_message_audio_time"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:gravity="center_vertical"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@id/item_message_audio_name"
-        app:layout_constraintEnd_toEndOf="@id/item_message_audio_length"
-        app:layout_constraintTop_toTopOf="@id/item_message_audio_name"
-        tools:ignore="SmallSp"
-        tools:text="10.1`" />
-
-    <ProgressBar
-        android:id="@+id/item_message_audio_length"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="100dp"
-        android:layout_height="2dp"
-        android:background="@color/gray_low"
-        android:max="100"
-        android:progressTint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/item_message_audio_avatar"
-        tools:progress="50" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

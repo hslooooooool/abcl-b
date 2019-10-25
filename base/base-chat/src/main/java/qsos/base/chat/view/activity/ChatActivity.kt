@@ -21,6 +21,6 @@ class ChatActivity(
     override fun initData(savedInstanceState: Bundle?) {}
 
     override fun initView() {
-        supportFragmentManager.beginTransaction().add(R.id.chat_message_frg, ChatFragment(),"1").commit()
+        supportFragmentManager.beginTransaction().add(R.id.chat_message_frg, ChatFragment(), "ChatFragment").commit()
     }
 }

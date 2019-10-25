@@ -11,9 +11,9 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="5dp"
 		android:gravity="center"
-		android:padding="3dp"
+		android:padding="@dimen/item_message_padding"
 		android:textColor="@color/gray"
-		android:textSize="10sp"
+		android:textSize="@dimen/item_message_text_size_smallest"
 		tools:text="2011-11-11 11：11：11" />
 	
 	<RelativeLayout

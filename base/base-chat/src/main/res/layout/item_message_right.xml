@@ -25,7 +25,7 @@
 		android:paddingEnd="10dp"
 		android:paddingBottom="3dp"
 		android:textColor="@color/black_light"
-		android:textSize="12sp"
+		android:textSize="@dimen/item_message_text_size_smaller"
 		app:layout_constraintEnd_toStartOf="@id/item_message_user_avatar"
 		app:layout_constraintTop_toTopOf="@id/item_message_user_avatar"
 		tools:text="用户姓名" />
@@ -35,8 +35,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:background="@color/gray_low"
-		android:minWidth="50dp"
-		android:minHeight="50dp"
+		android:minWidth="@dimen/item_message_min_width"
+		android:minHeight="@dimen/item_message_min_height"
 		app:layout_constraintRight_toLeftOf="@id/item_message_user_avatar"
 		app:layout_constraintTop_toBottomOf="@id/item_message_user_name">
 		

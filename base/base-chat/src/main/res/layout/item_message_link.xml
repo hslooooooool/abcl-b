@@ -1,38 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="150dp"
+	android:layout_width="200dp"
 	android:layout_height="wrap_content"
+	android:layout_gravity="center"
 	android:orientation="vertical">
 	
-	<TextView
-		android:id="@+id/item_message_link_name"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:singleLine="true"
-		android:textColor="@color/black"
-		android:textSize="16sp"
-		tools:text="链接标题测试测试测试" />
+		android:background="@color/gray_low"
+		android:orientation="vertical">
+		
+		<TextView
+			android:id="@+id/item_message_link_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:padding="@dimen/item_message_padding"
+			android:singleLine="true"
+			android:textColor="@color/black"
+			android:textSize="@dimen/item_message_text_size"
+			tools:text="链接标题测试测试测试" />
+		
+		<TextView
+			android:id="@+id/item_message_link_desc"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:maxLines="2"
+			android:padding="@dimen/item_message_padding"
+			android:textColor="@color/gray"
+			android:textSize="@dimen/item_message_text_size_smallest"
+			tools:text="链接描述测试测试测试测试测试测试测试测试测试测试测试测试测试" />
+		
+		<TextView
+			android:id="@+id/item_message_link_url"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:autoLink="all"
+			android:ellipsize="end"
+			android:padding="@dimen/item_message_padding"
+			android:singleLine="true"
+			android:textColor="@color/gray"
+			android:textSize="@dimen/item_message_text_size_small"
+			tools:text="http://www.baidu.com/index.html" />
+	</LinearLayout>
 	
-	<TextView
-		android:id="@+id/item_message_link_desc"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:maxLines="2"
-		android:textColor="@color/gray"
-		android:textSize="12sp"
-		tools:text="链接描述测试测试测试测试测试测试测试测试测试测试测试测试测试" />
-	
-	<TextView
-		android:id="@+id/item_message_link_url"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:autoLink="all"
-		android:ellipsize="end"
-		android:singleLine="true"
-		android:textColor="@color/gray"
-		android:textSize="12sp"
-		tools:text="http://www.baidu.com/index.html" />
-</LinearLayout>
+	<qsos.base.core.widgets.CornerLabelView
+		android:layout_width="50dp"
+		android:layout_height="50dp"
+		app:bg_color="#00BCD4"
+		app:layout_constraintDimensionRatio="H,1:1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:position="left_top"
+		app:side_length="20dp"
+		app:text="链接"
+		app:text_color="#FFFFFF"
+		app:text_size="12sp" />
+</RelativeLayout>

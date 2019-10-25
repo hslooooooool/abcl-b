@@ -51,10 +51,8 @@ class PlayerConfig : IPlayerConfig {
     }
 
     override fun previewDocument(context: Context, data: PreDocumentEntity) {
-        // 测试数据 mTestUrl = "http://resource.qsos.vip/test.mp4"
-        val mTestUrl = data.path
         when {
-            mTestUrl.startsWith("http") || mTestUrl.startsWith("ftp") -> {
+            data.path.startsWith("http") || data.path.startsWith("ftp") -> {
                 // 网络文件，先下载再调用本地软件打开
                 val mFileHelper = FileHelper()
                 BottomDialogUtils.showCustomerView(context, R.layout.file_download_dialog,
@@ -72,7 +70,7 @@ class PlayerConfig : IPlayerConfig {
                                             action.text = "取消"
                                             state.text = "开始下载"
                                             progress.progress = 0
-                                            mFileHelper.downloadFile(HttpFileEntity(mTestUrl, null, "test.mp4", 0),
+                                            mFileHelper.downloadFile(HttpFileEntity(data.path, null, data.name, 0),
                                                     object : OnTListener<HttpFileEntity> {
                                                         override fun back(t: HttpFileEntity) {
                                                             if (t.progress == 100) mFilePath = t.path

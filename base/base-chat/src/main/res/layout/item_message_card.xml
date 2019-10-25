@@ -4,11 +4,12 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
+	android:layout_gravity="center"
 	android:background="@color/gray_low">
 	
 	<ImageView
 		android:id="@+id/item_message_card_avatar"
-		android:layout_width="60dp"
+		android:layout_width="70dp"
 		android:layout_height="0dp"
 		android:background="@color/colorPrimary"
 		android:scaleType="centerInside"
@@ -16,31 +17,44 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@id/item_message_card_name" />
 	
+	<qsos.base.core.widgets.CornerLabelView
+		android:layout_width="50dp"
+		android:layout_height="50dp"
+		app:bg_color="#00BCD4"
+		app:layout_constraintDimensionRatio="H,1:1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:position="left_top"
+		app:side_length="20dp"
+		app:text="名片"
+		app:text_color="#FFFFFF"
+		app:text_size="12sp" />
+	
 	<TextView
 		android:id="@+id/item_message_card_name"
-		android:layout_width="wrap_content"
+		android:layout_width="120dp"
 		android:layout_height="wrap_content"
-		android:minWidth="100dp"
-		android:padding="3dp"
+		android:ellipsize="end"
+		android:padding="@dimen/item_message_padding"
 		android:singleLine="true"
 		android:textColor="@color/colorAccent"
-		android:textSize="16sp"
+		android:textSize="@dimen/item_message_text_size"
 		app:layout_constraintStart_toEndOf="@id/item_message_card_avatar"
 		app:layout_constraintTop_toTopOf="@id/item_message_card_avatar"
-		tools:text="测试文件" />
+		tools:text="测试名片名称名称" />
 	
 	<TextView
 		android:id="@+id/item_message_card_desc"
-		android:layout_width="wrap_content"
+		android:layout_width="120dp"
 		android:layout_height="0dp"
+		android:ellipsize="end"
 		android:gravity="bottom"
-		android:minWidth="100dp"
-		android:padding="3dp"
-		android:textSize="16sp"
+		android:padding="@dimen/item_message_padding"
+		android:singleLine="true"
+		android:textSize="@dimen/item_message_text_size_small"
 		app:layout_constraintBottom_toBottomOf="@+id/item_message_card_avatar"
 		app:layout_constraintStart_toEndOf="@+id/item_message_card_avatar"
 		app:layout_constraintTop_toBottomOf="@id/item_message_card_name"
-		tools:ignore="SmallSp"
-		tools:text="18227555555" />
+		tools:text="软件部开发员工" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
