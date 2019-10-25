@@ -33,4 +33,22 @@
 		layout="@layout/item_message_file"
 		android:visibility="gone"
 		tools:visibility="visible" />
+	
+	<include
+		android:id="@+id/item_message_view_link"
+		layout="@layout/item_message_link"
+		android:visibility="gone"
+		tools:visibility="visible" />
+	
+	<include
+		android:id="@+id/item_message_view_card"
+		layout="@layout/item_message_card"
+		android:visibility="gone"
+		tools:visibility="visible" />
+	
+	<include
+		android:id="@+id/item_message_view_location"
+		layout="@layout/item_message_location"
+		android:visibility="gone"
+		tools:visibility="visible" />
 </merge>

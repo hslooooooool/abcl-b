@@ -13,7 +13,7 @@ import qsos.core.lib.utils.image.ImageLoaderUtils
  */
 class ItemChatMessageCardViewHolder(view: View) : ItemChatMessageBaseViewHolder(view) {
     override fun setContent(contentView: View, data: MChatMessage, position: Int) {
-        contentView.item_message_view_text.visibility = View.VISIBLE
+        contentView.item_message_view_card.visibility = View.VISIBLE
         val content = data.content as MChatMessageCard
 
         ImageLoaderUtils.display(itemView.context, contentView.item_message_card_avatar, content.avatar)

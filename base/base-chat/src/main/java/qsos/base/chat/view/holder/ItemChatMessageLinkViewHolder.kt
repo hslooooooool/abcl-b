@@ -12,7 +12,7 @@ import qsos.base.chat.data.entity.MChatMessageLink
  */
 class ItemChatMessageLinkViewHolder(view: View) : ItemChatMessageBaseViewHolder(view) {
     override fun setContent(contentView: View, data: MChatMessage, position: Int) {
-        contentView.item_message_view_text.visibility = View.VISIBLE
+        contentView.item_message_view_link.visibility = View.VISIBLE
         val content = data.content as MChatMessageLink
         contentView.item_message_link_name.text = content.name
         contentView.item_message_link_desc.text = content.desc

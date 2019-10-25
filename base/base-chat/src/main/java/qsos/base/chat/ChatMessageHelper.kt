@@ -39,7 +39,7 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
             MChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(view)
             MChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(view)
             MChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(view)
-            MChatMessageType.LOCATION.contentType -> ItemChatMessageTextViewHolder(view)
+            MChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(view)
             else -> {
                 ItemChatMessageTextViewHolder(view)
             }
@@ -55,7 +55,7 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
             MChatMessageType.FILE.contentType -> object : TypeToken<MChatMessageFile>() {}.type
             MChatMessageType.LINK.contentType -> object : TypeToken<MChatMessageLink>() {}.type
             MChatMessageType.CARD.contentType -> object : TypeToken<MChatMessageCard>() {}.type
-            MChatMessageType.LOCATION.contentType -> object : TypeToken<MChatMessageText>() {}.type
+            MChatMessageType.LOCATION.contentType -> object : TypeToken<MChatMessageLocation>() {}.type
             else -> String::class.java
         }
     }

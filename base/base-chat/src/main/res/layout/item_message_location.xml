@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="200dp"
+	android:layout_height="wrap_content"
+	android:background="@color/gray_low">
+	
+	<ImageView
+		android:id="@+id/item_message_location_avatar"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:background="@color/white"
+		android:scaleType="fitXY"
+		app:layout_constraintDimensionRatio="H,5:3"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:srcCompat="@drawable/icon_map" />
+	
+	<TextView
+		android:id="@+id/item_message_location_desc"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="end"
+		android:padding="3dp"
+		android:textColor="@color/colorPrimary"
+		android:textSize="10sp"
+		app:layout_constraintEnd_toEndOf="@+id/item_message_location_avatar"
+		app:layout_constraintStart_toStartOf="@+id/item_message_location_avatar"
+		app:layout_constraintTop_toTopOf="@id/item_message_location_avatar"
+		tools:ignore="SmallSp"
+		tools:text="32.001，104.0002" />
+	
+	<TextView
+		android:id="@+id/item_message_location_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/colorPrimary"
+		android:ellipsize="end"
+		android:minWidth="100dp"
+		android:padding="3dp"
+		android:singleLine="true"
+		android:textColor="@color/white"
+		android:textSize="14sp"
+		app:layout_constraintBottom_toBottomOf="@id/item_message_location_avatar"
+		app:layout_constraintStart_toStartOf="parent"
+		tools:text="测试位置测试位置测试位置测试位置" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
