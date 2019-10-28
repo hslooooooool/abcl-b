@@ -29,7 +29,8 @@ interface ApiChatMessage {
      * */
     @GET(value = "/chat/message/getMessageListByUserId")
     fun getMessageListByUserId(
-            @Header(value = "userId") userId: Int = BaseConfig.userId
+            @Header(value = "userId")
+            userId: Int = BaseConfig.userId
     ): Call<BaseResponse<List<MChatMessage>>>
 
 }

@@ -10,6 +10,22 @@ import kotlin.coroutines.CoroutineContext
  */
 interface IChatModel {
 
+    interface IUser {
+
+    }
+
+    interface ISession {
+
+    }
+
+    interface IMessage {
+
+    }
+
+    interface IGroup {
+
+    }
+
     interface Base {
 
         /**获取会话数据
@@ -28,19 +44,19 @@ interface IChatModel {
          * @param userId 用户ID
          * @return 用户数据
          * */
-        fun getUserById(userId: Long): ChatUser
+        fun getUserById(userId: Int): ChatUser
 
         /**获取聊天群数据
          * @param groupId 聊天群ID
          * @return 聊天群数据
          * */
-        fun getGroupById(groupId: Long): ChatGroup
+        fun getGroupById(groupId: Int): ChatGroup
 
         /**获取消息内容数据
          * @param contentId 消息内容ID
          * @return 消息内容数据
          * */
-        fun getContentById(contentId: Long): ChatContent
+        fun getContentById(contentId: Int): ChatContent
 
     }
 
@@ -68,17 +84,21 @@ interface IChatModel {
          * @param userId 用户ID
          * @return 用户发送的消息
          * */
-        fun getMessageListByUserId(userId: Long): List<ChatMessage>
+        fun getMessageListByUserId(userId: Int): List<ChatMessage>
 
         /**获取用户订阅的会话
          * @param userId 用户ID
          * @return 用户订阅的会话
          * */
-        fun getSessionListByUserId(userId: Long): List<ChatSession>
+        fun getSessionListByUserId(userId: Int): List<ChatSession>
 
     }
 
     interface Post {
+        /**创建用户
+         * @param user 用户
+         * */
+        fun createUser(user: ChatUser, failed: (msg: String) -> Unit, success: (user: ChatUser) -> Unit)
 
         /**发送消息
          * @param message 消息数据
@@ -91,14 +111,14 @@ interface IChatModel {
          * @param message 发送的消息
          * @return 会话数据
          * */
-        fun createSession(userIdList: List<Long>, message: ChatMessage? = null): ChatSession
+        fun createSession(userIdList: List<Int>, message: ChatMessage? = null, failed: (msg: String) -> Unit, success: () -> Unit)
 
         /**往已有会话中增加用户
          * @param userIdList 被添加用户ID集合
          * @param sessionId 会话ID
          * @return 加入的会话数据
          * */
-        fun addUserListToSession(userIdList: List<Long>, sessionId: Int): ChatSession
+        fun addUserListToSession(userIdList: List<Int>, sessionId: Int): ChatSession
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告
@@ -125,7 +145,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @param userId 需要移除的用户ID
          * */
-        fun deleteUser(sessionId: Int, userId: Long)
+        fun deleteUser(sessionId: Int, userId: Int)
 
         /**撤回消息
          * @param messageId 消息ID
