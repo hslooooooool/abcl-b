@@ -1,15 +1,12 @@
 package qsos.base.chat.view.activity
 
 import android.os.Bundle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
-import kotlinx.coroutines.cancel
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.model.DefChatModelIml
-import qsos.base.chat.data.model.IChatModelConfig
+import qsos.base.chat.data.model.DefChatSessionModelIml
+import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.view.fragment.ChatFragment
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.utils.ToastUtils
@@ -24,14 +21,14 @@ class ChatSessionActivity(
         override val reload: Boolean = false
 ) : BaseActivity() {
 
-    @Autowired(name = "/CHAT/SESSION")
+    @Autowired(name = "/CHAT/SESSION_ID")
+    @JvmField
     var mSessionId: Int? = null
 
-    private var mChatMessageModel: IChatModelConfig? = null
-    private var mSessionLiveData = MutableLiveData<ChatSession>()
+    private var mChatSessionModel: IChatModel.ISession? = null
 
     override fun initData(savedInstanceState: Bundle?) {
-        mChatMessageModel = DefChatModelIml()
+        mChatSessionModel = DefChatSessionModelIml()
     }
 
     override fun initView() {
@@ -41,7 +38,7 @@ class ChatSessionActivity(
             return
         }
 
-        mChatMessageModel?.mDataOfChatSession?.observe(this, Observer {
+        mChatSessionModel?.mDataOfChatSession?.observe(this, Observer {
             it.data?.let { session ->
                 supportFragmentManager.beginTransaction().add(
                         R.id.chat_message_frg,
@@ -56,11 +53,11 @@ class ChatSessionActivity(
     }
 
     override fun getData() {
-        mChatMessageModel?.getSessionById(mSessionId!!)
+        mChatSessionModel?.getSessionById(mSessionId!!)
     }
 
     override fun onDestroy() {
-        mChatMessageModel?.mJob?.cancel()
+        mChatSessionModel?.clear()
         super.onDestroy()
     }
 }

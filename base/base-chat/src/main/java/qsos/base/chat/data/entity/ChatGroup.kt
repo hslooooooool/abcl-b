@@ -6,14 +6,16 @@ package qsos.base.chat.data.entity
  * @param groupId 群ID,设计上等于会话ID
  * @param name 群名称
  * @param createTime 创建时间,毫秒数
+ * @param avatar 群封面
  * @param notice 群公告
  *
  * @see ChatSession
  */
 data class ChatGroup(
         /** @see ChatSession.sessionId */
-        val groupId: Long,
+        val groupId: Int,
         val name: String,
         val createTime: Long,
+        val avatar: String?,
         val notice: String? = null
 )

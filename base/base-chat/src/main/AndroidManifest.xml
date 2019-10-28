@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="qsos.base.chat">
 	<application>
-		<!--聊天消息界面-->
+		<!--聊天群界面-->
+		<activity android:name="qsos.base.chat.view.activity.ChatMainActivity" />
+		<!--聊天会话页面-->
 		<activity android:name="qsos.base.chat.view.activity.ChatSessionActivity" />
 	</application>
 </manifest>

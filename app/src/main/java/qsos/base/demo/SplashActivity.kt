@@ -5,11 +5,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
 import kotlinx.android.synthetic.main.app_activity_splash.*
 import kotlinx.android.synthetic.main.app_item_component.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import qsos.base.chat.data.entity.ChatUser
-import qsos.base.chat.data.model.DefChatModelIml
-import qsos.base.chat.data.model.IChatModelConfig
+import qsos.base.chat.data.model.DefChatUserModelIml
+import qsos.base.chat.data.model.IChatModel
 import qsos.base.core.config.BaseConfig
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseNormalAdapter
@@ -25,12 +23,12 @@ class SplashActivity(
         override val reload: Boolean = false
 ) : BaseActivity() {
 
-    private val mList = arrayListOf("聊天界面")
-    private val mJob = Dispatchers.Main + Job()
-    private var mChatMessageModel: IChatModelConfig? = null
+    private val mList = arrayListOf("聊天")
+
+    private var mChatUserModel: IChatModel.IUser? = null
 
     override fun initData(savedInstanceState: Bundle?) {
-        mChatMessageModel = DefChatModelIml()
+        mChatUserModel = DefChatUserModelIml()
     }
 
     override fun initView() {
@@ -42,7 +40,7 @@ class SplashActivity(
             holder.itemView.tv_item_component.setOnClickListener {
                 when (data) {
                     "聊天" -> {
-                        mChatMessageModel?.createUser(
+                        mChatUserModel?.createUser(
                                 user = ChatUser(
                                         userName = "测试用户" + System.currentTimeMillis(),
                                         avatar = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
@@ -52,9 +50,11 @@ class SplashActivity(
                                 failed = {
                                     ToastUtils.showToastLong(this, it)
                                 },
-                                success = {
-                                    BaseConfig.userId = it.userId
-                                    ARouter.getInstance().build("/CHAT/SESSION").navigation()
+                                success = { user ->
+                                    BaseConfig.userId = user.userId
+                                    ARouter.getInstance()
+                                            .build("/CHAT/MAIN")
+                                            .navigation()
                                 })
                     }
                 }
