@@ -1,7 +1,6 @@
 package qsos.base.chat.view.activity
 
 import android.os.Bundle
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import qsos.base.chat.R
@@ -23,7 +22,7 @@ class ChatSessionActivity(
 
     @Autowired(name = "/CHAT/SESSION_ID")
     @JvmField
-    var mSessionId: Int? = null
+    var mSessionId: Int? = -1
 
     private var mChatSessionModel: IChatModel.ISession? = null
 
@@ -32,28 +31,29 @@ class ChatSessionActivity(
     }
 
     override fun initView() {
-        if (mSessionId == null) {
+        if (mSessionId == null || mSessionId!! < 0) {
             ToastUtils.showToastLong(this, "聊天不存在")
             finish()
             return
         }
 
-        mChatSessionModel?.mDataOfChatSession?.observe(this, Observer {
-            it.data?.let { session ->
-                supportFragmentManager.beginTransaction().add(
-                        R.id.chat_message_frg,
-                        ChatFragment(session),
-                        "ChatFragment"
-                ).commit()
-            }
-            ToastUtils.showToast(this, it.msg ?: "未知错误")
-        })
-
-        getData()
+        mChatSessionModel?.getSessionById(
+                sessionId = mSessionId!!,
+                failed = {
+                    ToastUtils.showToast(this, it)
+                },
+                success = {
+                    supportFragmentManager.beginTransaction().add(
+                            R.id.chat_message_frg,
+                            ChatFragment(it),
+                            "ChatFragment"
+                    ).commit()
+                }
+        )
     }
 
     override fun getData() {
-        mChatSessionModel?.getSessionById(mSessionId!!)
+
     }
 
     override fun onDestroy() {

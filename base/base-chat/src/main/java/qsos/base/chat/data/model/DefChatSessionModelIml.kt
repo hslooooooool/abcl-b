@@ -8,10 +8,9 @@ import qsos.base.chat.data.ApiChatSession
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatSession
 import qsos.lib.netservice.ApiEngine
-import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import qsos.lib.netservice.expand.retrofitWithLiveDataByDef
+import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,20 +18,32 @@ import kotlin.coroutines.CoroutineContext
  * 聊天会话接口默认实现
  */
 class DefChatSessionModelIml(
-        override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mDataOfChatSession: BaseHttpLiveData<ChatSession> = BaseHttpLiveData()
+        override val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : IChatModel.ISession {
 
-    override fun getSessionById(sessionId: Int) {
-        CoroutineScope(mJob).retrofitWithLiveDataByDef<ChatSession> {
+    override fun getSessionById(
+            sessionId: Int,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSession) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSession> {
             api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(
                     sessionId = sessionId
             )
-            data = mDataOfChatSession
+            onSuccess {
+                it?.let {
+                    success.invoke(it)
+                } ?: failed.invoke("会话请求错误")
+            }
         }
     }
 
-    override fun createSession(userIdList: List<Int>, message: ChatMessage?, failed: (msg: String) -> Unit, success: () -> Unit) {
+    override fun createSession(
+            userIdList: List<Int>,
+            message: ChatMessage?,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSession) -> Unit
+    ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
             api = ApiEngine.createService(ApiChatSession::class.java).createSession(
                     form = ApiChatSession.FormCreateSession(
@@ -43,7 +54,9 @@ class DefChatSessionModelIml(
                 failed.invoke(msg ?: "创建失败${error.toString()}")
             }
             onSuccess {
-                success.invoke()
+                it?.let {
+                    success.invoke(it.data!!)
+                } ?: failed.invoke(it?.msg ?: "创建失败")
             }
         }
     }

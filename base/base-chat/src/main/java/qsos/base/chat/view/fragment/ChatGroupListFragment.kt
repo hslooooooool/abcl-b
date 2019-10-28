@@ -36,8 +36,6 @@ class ChatGroupListFragment(
         mGroupAdapter = ChatGroupAdapter(mGroupList)
 
         val mLinearLayoutManager = LinearLayoutManager(mContext)
-        mLinearLayoutManager.stackFromEnd = true
-        mLinearLayoutManager.reverseLayout = true
         chat_group_list.layoutManager = mLinearLayoutManager
         chat_group_list.adapter = mGroupAdapter
 

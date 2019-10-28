@@ -13,17 +13,28 @@ interface IChatModel {
     interface IUser {
 
         val mJob: CoroutineContext
+        fun clear()
+        val mDataOfChatUserList: BaseHttpLiveData<List<ChatUser>>
 
         /**创建用户
          * @param user 用户
          * */
         fun createUser(user: ChatUser, failed: (msg: String) -> Unit, success: (user: ChatUser) -> Unit)
 
+        /**获取所有用户列表数据
+         * @return 用户数据
+         * */
+        fun getAllChatUser()
+
         /**获取用户数据
          * @param userId 用户ID
          * @return 用户数据
          * */
-        fun getUserById(userId: Int): ChatUser
+        fun getUserById(
+                userId: Int,
+                failed: (msg: String) -> Unit,
+                success: (user: ChatUser) -> Unit
+        )
 
         /**获取会话下的用户列表
          * @param sessionId 会话ID
@@ -43,20 +54,28 @@ interface IChatModel {
 
         val mJob: CoroutineContext
         fun clear()
-        val mDataOfChatSession: BaseHttpLiveData<ChatSession>
 
         /**创建会话,可同时往会话发送一条消息,适用于发起单聊/群聊/分享等场景
          * @param userIdList 用户ID集合
          * @param message 发送的消息
          * @return 会话数据
          * */
-        fun createSession(userIdList: List<Int>, message: ChatMessage? = null, failed: (msg: String) -> Unit, success: () -> Unit)
+        fun createSession(
+                userIdList: List<Int>,
+                message: ChatMessage? = null,
+                failed: (msg: String) -> Unit,
+                success: (session: ChatSession) -> Unit
+        )
 
         /**获取会话数据
          * @param sessionId 会话ID
          * @return 会话数据
          * */
-        fun getSessionById(sessionId: Int)
+        fun getSessionById(
+                sessionId: Int,
+                failed: (msg: String) -> Unit,
+                success: (session: ChatSession) -> Unit
+        )
 
         /**获取用户订阅的会话
          * @param userId 用户ID

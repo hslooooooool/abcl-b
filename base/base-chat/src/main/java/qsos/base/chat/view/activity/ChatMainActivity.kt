@@ -9,6 +9,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_chat_main.*
 import kotlinx.android.synthetic.main.tab_chat.view.*
 import qsos.base.chat.R
+import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatGroupListFragment
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
@@ -31,7 +32,7 @@ class ChatMainActivity(
 
     override fun initData(savedInstanceState: Bundle?) {
         val fragment1 = ChatGroupListFragment()
-        val fragment2 = ChatGroupListFragment()
+        val fragment2 = ChatFriendListFragment()
         fragments.clear()
         fragments.add(fragment1)
         fragments.add(fragment2)

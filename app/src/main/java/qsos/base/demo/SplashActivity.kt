@@ -23,7 +23,7 @@ class SplashActivity(
         override val reload: Boolean = false
 ) : BaseActivity() {
 
-    private val mList = arrayListOf("聊天")
+    private val mList = arrayListOf("聊天注册", "聊天登录")
 
     private var mChatUserModel: IChatModel.IUser? = null
 
@@ -39,7 +39,7 @@ class SplashActivity(
             holder.itemView.tv_item_component.text = data
             holder.itemView.tv_item_component.setOnClickListener {
                 when (data) {
-                    "聊天" -> {
+                    "聊天注册" -> {
                         mChatUserModel?.createUser(
                                 user = ChatUser(
                                         userName = "测试用户" + System.currentTimeMillis(),
@@ -52,10 +52,14 @@ class SplashActivity(
                                 },
                                 success = { user ->
                                     BaseConfig.userId = user.userId
-                                    ARouter.getInstance()
-                                            .build("/CHAT/MAIN")
-                                            .navigation()
+                                    ToastUtils.showToastLong(this, "已注册用户" + user.userId)
                                 })
+                    }
+                    "聊天登录" -> {
+                        BaseConfig.userId = 1
+                        ARouter.getInstance()
+                                .build("/CHAT/MAIN")
+                                .navigation()
                     }
                 }
             }

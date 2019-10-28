@@ -5,5 +5,7 @@
 		<activity android:name="qsos.base.chat.view.activity.ChatMainActivity" />
 		<!--聊天会话页面-->
 		<activity android:name="qsos.base.chat.view.activity.ChatSessionActivity" />
+		<!--聊天用户页面-->
+		<activity android:name="qsos.base.chat.view.activity.ChatUserActivity" />
 	</application>
 </manifest>
