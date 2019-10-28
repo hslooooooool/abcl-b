@@ -14,7 +14,7 @@ import qsos.lib.base.base.holder.BaseHolder
  */
 class ChatGroupAdapter(list: ArrayList<ChatGroup>) : BaseAdapter<ChatGroup>(list) {
     override fun getHolder(view: View, viewType: Int): BaseHolder<ChatGroup> {
-        return ItemChatGroupViewHolder(view)
+        return ItemChatGroupViewHolder(view, this)
     }
 
     override fun getLayoutId(viewType: Int): Int {
