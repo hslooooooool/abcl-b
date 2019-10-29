@@ -109,7 +109,7 @@ interface IChatModel {
          * */
         fun sendMessage(
                 message: MChatMessage,
-                failed: (msg: String,message: MChatMessage) -> Unit,
+                failed: (msg: String, message: MChatMessage) -> Unit,
                 success: (message: MChatMessage) -> Unit
         )
 

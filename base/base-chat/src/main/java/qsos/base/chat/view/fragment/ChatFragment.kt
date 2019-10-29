@@ -11,8 +11,8 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
-import qsos.base.core.config.BaseConfig
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.ToastUtils
@@ -63,7 +63,7 @@ class ChatFragment(
                 map["contentType"] = MChatMessageType.TEXT.contentType
                 map["content"] = content
                 val message = MChatMessage(
-                        user = ChatUser(userId = BaseConfig.userId, userName = ""),
+                        user = ChatMainActivity.mLoginUser.value!!,
                         createTime = System.currentTimeMillis(),
                         message = ChatMessage(
                                 sessionId = mSession.sessionId,
