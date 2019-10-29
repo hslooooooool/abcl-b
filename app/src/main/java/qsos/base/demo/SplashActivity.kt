@@ -30,7 +30,7 @@ class SplashActivity(
         override val reload: Boolean = false
 ) : BaseActivity() {
 
-    private val mList = arrayListOf("聊天注册", "聊天登录")
+    private val mList = arrayListOf("聊天注册", "聊天登录", "登录")
 
     private var mChatUserModel: IChatModel.IUser? = null
 
@@ -65,6 +65,9 @@ class SplashActivity(
                             }
                             "聊天登录" -> {
                                 mChatUserModel?.getAllChatUser()
+                            }
+                            "登录" -> {
+                                ARouter.getInstance().build("/LOGIN/MAIN").navigation()
                             }
                         }
                     }

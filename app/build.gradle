@@ -29,6 +29,10 @@ android {
 
 dependencies {
     api project(':base:base-chat')
+    api project(':base:base-user')
+    api project(':base:base-idea')
+    api project(':base:base-experience')
+    api project(':base:base-home')
 
     // 上拉加载下拉刷新
     api deps.smartrefresh
