@@ -29,31 +29,36 @@
 		app:layout_constraintTop_toTopOf="@id/item_message_user_avatar"
 		tools:text="用户姓名" />
 	
-	<FrameLayout
+	<LinearLayout
 		android:id="@+id/item_message_content"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:background="@color/gray_low"
+		android:gravity="center_vertical|end"
 		android:minWidth="@dimen/item_message_min_width"
 		android:minHeight="@dimen/item_message_min_height"
-		app:layout_constraintRight_toLeftOf="@id/item_message_user_avatar"
-		app:layout_constraintTop_toBottomOf="@id/item_message_user_name">
+		android:orientation="horizontal"
+		app:layout_constraintEnd_toStartOf="@id/item_message_user_avatar"
+		app:layout_constraintHorizontal_weight="0.8"
+		app:layout_constraintTop_toBottomOf="@id/item_message_user_name"
+		app:layout_constraintWidth_default="percent"
+		app:layout_constraintWidth_percent="0.8">
 		
-		<include layout="@layout/item_message_items" />
+		<ImageView
+			android:id="@+id/item_message_send_state"
+			android:layout_width="25dp"
+			android:layout_height="25dp"
+			android:layout_margin="5dp"
+			android:scaleType="centerInside"
+			android:visibility="invisible"
+			app:srcCompat="@drawable/icon_error"
+			tools:visibility="visible" />
+		
+		<include
+			layout="@layout/item_message_items"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
 	
-	</FrameLayout>
-	
-	<ImageView
-		android:id="@+id/item_message_send_state"
-		android:layout_width="25dp"
-		android:layout_height="25dp"
-		android:layout_marginEnd="5dp"
-		android:scaleType="centerInside"
-		android:visibility="invisible"
-		app:layout_constraintBottom_toBottomOf="@id/item_message_content"
-		app:layout_constraintEnd_toStartOf="@id/item_message_content"
-		app:srcCompat="@drawable/icon_error"
-		tools:visibility="visible" />
+	</LinearLayout>
 	
 	<TextView
 		android:id="@+id/item_message_read_state"
@@ -62,7 +67,7 @@
 		android:padding="@dimen/item_message_padding"
 		android:textColor="@color/colorPrimary"
 		android:textSize="@dimen/item_message_text_size_smallest"
-		app:layout_constraintStart_toStartOf="@id/item_message_content"
+		app:layout_constraintEnd_toEndOf="@id/item_message_content"
 		app:layout_constraintTop_toBottomOf="@id/item_message_content"
 		tools:text="10人已读" />
 </androidx.constraintlayout.widget.ConstraintLayout>

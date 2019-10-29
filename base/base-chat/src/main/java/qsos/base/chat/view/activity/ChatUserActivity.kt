@@ -5,6 +5,7 @@ import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_chat_user.*
 import qsos.base.chat.R
 import qsos.base.chat.data.model.DefChatSessionModelIml
@@ -66,7 +67,7 @@ class ChatUserActivity(
                 },
                 success = {
                     ImageLoaderUtils.display(this, chat_user_avatar, it.avatar)
-                    chat_user_desc.text = it.userName + "\n" + it.birth
+                    chat_user_desc.text = Gson().toJson(it)
                 }
         )
     }

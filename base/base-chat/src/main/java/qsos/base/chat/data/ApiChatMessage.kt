@@ -22,7 +22,7 @@ interface ApiChatMessage {
     fun sendMessage(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Body message: ChatMessage
-    ): Call<BaseResponse<MChatMessage>>
+    ): Call<BaseResponse<ChatMessage>>
 
     @GET(value = "$GROUP/getMessageById")
     fun getMessageById(

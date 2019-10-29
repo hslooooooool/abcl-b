@@ -53,6 +53,9 @@ data class MChatMessage(
             return field
         }
 
+    /**消息唯一判定值*/
+    var hashCode: Int? = null
+
     /**消息内容配置接口*/
     interface MessageConfig {
 

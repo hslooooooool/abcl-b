@@ -10,8 +10,8 @@ package qsos.base.chat.data.entity
  */
 data class ChatMessage(
         /**@see ChatSession.sessionId*/
-        val sessionId: Int,
-        val messageId: Int,
-        val sequence: Int,
-        val content: ChatContent
+        var sessionId: Int = -1,
+        var messageId: Int = -1,
+        var sequence: Int = -1,
+        var content: ChatContent
 )

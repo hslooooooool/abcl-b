@@ -107,7 +107,11 @@ interface IChatModel {
          * @param message 消息数据
          * @return 消息数据
          * */
-        fun sendMessage(message: ChatMessage): ChatMessage
+        fun sendMessage(
+                message: MChatMessage,
+                failed: (msg: String,message: MChatMessage) -> Unit,
+                success: (message: MChatMessage) -> Unit
+        )
 
         /**获取消息数据
          * @param messageId 消息ID
