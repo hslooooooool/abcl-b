@@ -3,7 +3,15 @@
 include ':app'
 
 /*****************************************功能组件 CORE***************************************************/
-// 通用聊天模块
+// 首页模块-智能推荐
+include ':base:base-home'
+// 经验模块-信息流于论坛
+include ':base:base-experience'
+// 灵感模块-写作
+include ':base:base-idea'
+// 用户模块-登录注册于个人信息
+include ':base:base-user'
+// 聊天模块
 include ':base:base-chat'
 // 基础依赖集合
 include ':base:base-core'

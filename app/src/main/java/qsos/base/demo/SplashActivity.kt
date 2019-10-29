@@ -41,33 +41,34 @@ class SplashActivity(
     override fun initView() {
         ActivityManager.finishAllButNotMe(this)
 
-        splash_rv.layoutManager = GridLayoutManager(this, 3)
-        splash_rv.adapter = BaseNormalAdapter(R.layout.app_item_component, mList, setHolder = { holder, data, _ ->
-            holder.itemView.tv_item_component.text = data
-            holder.itemView.tv_item_component.setOnClickListener {
-                when (data) {
-                    "聊天注册" -> {
-                        mChatUserModel?.createUser(
-                                user = ChatUser(
-                                        userName = "测试用户" + System.currentTimeMillis(),
-                                        avatar = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
-                                        birth = "2019-11-11 11:11:11",
-                                        sexuality = true
-                                ),
-                                failed = {
-                                    ToastUtils.showToastLong(this, it)
-                                },
-                                success = { user ->
-                                    BaseConfig.userId = user.userId
-                                    ToastUtils.showToastLong(this, "已注册用户" + user.userId)
-                                })
+        splash_rv.layoutManager = GridLayoutManager(this, 3) as RecyclerView.LayoutManager?
+        splash_rv.adapter = BaseNormalAdapter(R.layout.app_item_component, mList,
+                setHolder = { holder, data, _ ->
+                    holder.itemView.tv_item_component.text = data
+                    holder.itemView.tv_item_component.setOnClickListener {
+                        when (data) {
+                            "聊天注册" -> {
+                                mChatUserModel?.createUser(
+                                        user = ChatUser(
+                                                userName = "测试用户" + System.currentTimeMillis(),
+                                                avatar = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
+                                                birth = "2019-11-11 11:11:11",
+                                                sexuality = true
+                                        ),
+                                        failed = {
+                                            ToastUtils.showToastLong(this, it)
+                                        },
+                                        success = { user ->
+                                            BaseConfig.userId = user.userId
+                                            ToastUtils.showToastLong(this, "已注册用户" + user.userId)
+                                        })
+                            }
+                            "聊天登录" -> {
+                                mChatUserModel?.getAllChatUser()
+                            }
+                        }
                     }
-                    "聊天登录" -> {
-                        mChatUserModel?.getAllChatUser()
-                    }
-                }
-            }
-        })
+                })
         splash_rv.adapter?.notifyDataSetChanged()
 
         mChatUserModel?.mDataOfChatUserList?.observe(this, Observer { result ->
