@@ -1,14 +1,21 @@
 package qsos.base.demo
 
 import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.android.arouter.launcher.ARouter
 import kotlinx.android.synthetic.main.app_activity_splash.*
 import kotlinx.android.synthetic.main.app_item_component.view.*
+import kotlinx.android.synthetic.main.dialog_chat_user.view.*
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
 import qsos.base.core.config.BaseConfig
+import qsos.core.lib.utils.dialog.AbsBottomDialog
+import qsos.core.lib.utils.dialog.BottomDialog
+import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseNormalAdapter
 import qsos.lib.base.utils.ActivityManager
@@ -56,15 +63,40 @@ class SplashActivity(
                                 })
                     }
                     "聊天登录" -> {
-                        BaseConfig.userId = 1
-                        ARouter.getInstance()
-                                .build("/CHAT/MAIN")
-                                .navigation()
+                        mChatUserModel?.getAllChatUser()
                     }
                 }
             }
         })
         splash_rv.adapter?.notifyDataSetChanged()
+
+        mChatUserModel?.mDataOfChatUserList?.observe(this, Observer { result ->
+            val userList: ArrayList<ChatUser> = arrayListOf()
+            result.data?.let {
+                userList.addAll(it)
+            }
+            BottomDialogUtils.showCustomerView(
+                    this, R.layout.activity_chat_user,
+                    object : BottomDialog.ViewListener {
+                        override fun bindView(dialog: AbsBottomDialog) {
+                            val mUserRecyclerView = dialog.findViewById<RecyclerView>(R.id.dialog_chat_user_list)
+                            mUserRecyclerView.layoutManager = LinearLayoutManager(mContext)
+                            mUserRecyclerView.adapter = BaseNormalAdapter<ChatUser>(
+                                    layoutId = R.layout.dialog_chat_user,
+                                    list = userList,
+                                    setHolder = { holder, data, position ->
+                                        holder.itemView.dialog_chat_user_name.text = data.userName
+                                        holder.itemView.setOnClickListener {
+                                            BaseConfig.userId = data.userId
+                                            ARouter.getInstance()
+                                                    .build("/CHAT/MAIN")
+                                                    .navigation()
+                                        }
+                                    }
+                            )
+                        }
+                    }, false)
+        })
     }
 
     override fun getData() {}
