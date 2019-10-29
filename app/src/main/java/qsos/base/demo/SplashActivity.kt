@@ -95,7 +95,7 @@ class SplashActivity(
                                     }
                             )
                         }
-                    }, false)
+                    }, true)
         })
     }
 
