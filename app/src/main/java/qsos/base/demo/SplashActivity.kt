@@ -53,7 +53,7 @@ class SplashActivity(
                                                 userName = "测试用户" + System.currentTimeMillis(),
                                                 avatar = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
                                                 birth = "2019-11-11 11:11:11",
-                                                sexuality = true
+                                                sexuality = 0
                                         ),
                                         failed = {
                                             ToastUtils.showToastLong(this, it)

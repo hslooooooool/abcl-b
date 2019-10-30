@@ -14,5 +14,5 @@ data class ChatUser(
         var userName: String,
         var avatar: String? = null,
         var birth: String? = null,
-        var sexuality: Boolean? = null
+        var sexuality: Int? = null
 )

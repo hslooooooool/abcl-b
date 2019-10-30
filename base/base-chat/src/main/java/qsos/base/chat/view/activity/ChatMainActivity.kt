@@ -30,6 +30,7 @@ class ChatMainActivity(
         override val layoutId: Int = R.layout.activity_chat_main,
         override val reload: Boolean = false
 ) : BaseActivity() {
+
     companion object {
         val mLoginUser: MutableLiveData<ChatUser> = MutableLiveData()
     }

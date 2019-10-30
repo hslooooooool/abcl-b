@@ -27,7 +27,7 @@ class ChatAboutMeFragment(
             context?.let { context ->
                 ImageLoaderUtils.display(context, chat_about_me_avatar, it.avatar)
                 chat_about_me_name.text = it.userName
-                chat_about_me_desc.text = "${it.birth}\n${if (it.sexuality == true) "男" else "女"}"
+                chat_about_me_desc.text = "${it.birth}\n${if (it.sexuality == 0) "男" else "女"}"
             }
         })
     }
