@@ -41,17 +41,18 @@ class ChatFragment(
         mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!)
 
         val mLinearLayoutManager = LinearLayoutManager(mContext)
-        mLinearLayoutManager.stackFromEnd = true
-        mLinearLayoutManager.reverseLayout = true
+        mLinearLayoutManager.stackFromEnd = false
+        mLinearLayoutManager.reverseLayout = false
         chat_message_list.layoutManager = mLinearLayoutManager
         chat_message_list.adapter = mMessageAdapter
 
         mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
             mMessageData.value?.clear()
             it.data?.let { messages ->
-                mMessageData.value?.addAll(messages)
+                mMessageData.value!!.addAll(messages)
+                mMessageAdapter?.notifyDataSetChanged()
+                mLinearLayoutManager.scrollToPosition(mMessageData.value!!.size - 1)
             }
-            mMessageAdapter?.notifyDataSetChanged()
         })
 
         chat_message_send.setOnClickListener {
@@ -61,6 +62,7 @@ class ChatFragment(
             } else {
                 val map = HashMap<String, Any?>()
                 map["contentType"] = MChatMessageType.TEXT.contentType
+                map["contentDesc"] = content
                 map["content"] = content
                 val message = MChatMessage(
                         user = ChatMainActivity.mLoginUser.value!!,
@@ -73,12 +75,12 @@ class ChatFragment(
                         )
                 )
                 message.sendStatus = MChatSendStatus.SENDING
-                message.readStatus = 0
                 val hashCode = message.hashCode()
                 message.hashCode = hashCode
 
-                mMessageData.value?.add(0, message)
+                mMessageData.value!!.add(message)
                 mMessageAdapter?.notifyDataSetChanged()
+                mLinearLayoutManager.scrollToPosition(mMessageData.value!!.size - 1)
                 mChatMessageModel?.sendMessage(
                         message = message,
                         failed = { msg, result ->

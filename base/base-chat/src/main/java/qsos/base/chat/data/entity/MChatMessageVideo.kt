@@ -12,6 +12,6 @@ data class MChatMessageVideo(
         val url: String,
         val avatar: String
 ) : IChatMessageType {
-
+    override val contentDesc: String = MChatMessageType.VIDEO.contentDesc
     override val contentType: Int = MChatMessageType.VIDEO.contentType
 }

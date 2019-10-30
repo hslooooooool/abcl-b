@@ -91,34 +91,50 @@ enum class MChatSendStatus(val k: String) {
  */
 enum class MChatMessageType(val k: String) : IChatMessageType {
     TEXT("文本消息") {
+        override val contentDesc: String
+            get() = "文本消息"
         override val contentType: Int
             get() = this.ordinal
     },
     IMAGE("图片消息") {
+        override val contentDesc: String
+            get() = "图片消息"
         override val contentType: Int
             get() = this.ordinal
     },
     VIDEO("视频消息") {
+        override val contentDesc: String
+            get() = "视频消息"
         override val contentType: Int
             get() = this.ordinal
     },
     AUDIO("语音消息") {
+        override val contentDesc: String
+            get() = "语音消息"
         override val contentType: Int
             get() = this.ordinal
     },
     FILE("附件消息") {
+        override val contentDesc: String
+            get() = "附件消息"
         override val contentType: Int
             get() = this.ordinal
     },
     LINK("链接消息") {
+        override val contentDesc: String
+            get() = "链接消息"
         override val contentType: Int
             get() = this.ordinal
     },
     CARD("名片消息") {
+        override val contentDesc: String
+            get() = "名片消息"
         override val contentType: Int
             get() = this.ordinal
     },
     LOCATION("位置消息") {
+        override val contentDesc: String
+            get() = "位置消息"
         override val contentType: Int
             get() = this.ordinal
     };
@@ -129,6 +145,8 @@ enum class MChatMessageType(val k: String) : IChatMessageType {
  * 消息内容接口,自定义消息实体需实现此接口
  */
 interface IChatMessageType {
+    /**消息摘要*/
+    val contentDesc: String
     /**消息内容类型值,属性名需要和 VIEW_TYPE_KEY 保持相同
      * @see MChatMessage.VIEW_TYPE_KEY
      * */

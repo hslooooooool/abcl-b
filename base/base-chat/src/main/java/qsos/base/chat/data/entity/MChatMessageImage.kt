@@ -10,6 +10,6 @@ data class MChatMessageImage(
         val name: String,
         val url: String
 ) : IChatMessageType {
-
+    override val contentDesc: String = MChatMessageType.IMAGE.contentDesc
     override val contentType: Int = MChatMessageType.IMAGE.contentType
 }

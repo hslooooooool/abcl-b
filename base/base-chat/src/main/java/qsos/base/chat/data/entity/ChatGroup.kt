@@ -18,4 +18,7 @@ data class ChatGroup(
         val createTime: Long,
         val avatar: String?,
         val notice: String? = null
-)
+) {
+    /**此会话最后一条消息*/
+    var lastMessage: ChatMessage? = null
+}

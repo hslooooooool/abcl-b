@@ -59,5 +59,4 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
             else -> String::class.java
         }
     }
-
 }

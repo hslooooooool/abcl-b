@@ -18,7 +18,7 @@ import qsos.lib.base.base.fragment.BaseFragment
  */
 class ChatGroupListFragment(
         override val layoutId: Int = R.layout.fragment_chat_group_list,
-        override val reload: Boolean = false
+        override val reload: Boolean = true
 ) : BaseFragment() {
 
     private var mGroupAdapter: ChatGroupAdapter? = null

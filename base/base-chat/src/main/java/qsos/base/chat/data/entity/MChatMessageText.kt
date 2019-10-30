@@ -8,6 +8,6 @@ package qsos.base.chat.data.entity
 data class MChatMessageText(
         val content: String
 ) : IChatMessageType {
-
+    override val contentDesc: String = content
     override val contentType: Int = MChatMessageType.TEXT.contentType
 }

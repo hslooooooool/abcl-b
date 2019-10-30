@@ -16,7 +16,7 @@ import qsos.lib.base.base.fragment.BaseFragment
  */
 class ChatAboutMeFragment(
         override val layoutId: Int = R.layout.fragment_chat_about_me,
-        override val reload: Boolean = false
+        override val reload: Boolean = true
 ) : BaseFragment() {
 
     override fun initData(savedInstanceState: Bundle?) {}

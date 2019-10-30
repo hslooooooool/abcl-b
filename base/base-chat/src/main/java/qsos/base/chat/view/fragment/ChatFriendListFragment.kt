@@ -18,7 +18,7 @@ import qsos.lib.base.base.fragment.BaseFragment
  */
 class ChatFriendListFragment(
         override val layoutId: Int = R.layout.fragment_chat_friend_list,
-        override val reload: Boolean = false
+        override val reload: Boolean = true
 ) : BaseFragment() {
 
     private var mFriendAdapter: ChatFriendAdapter? = null

@@ -18,6 +18,7 @@ class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItem
         ImageLoaderUtils.display(itemView.context, itemView.item_chat_group_avatar, data.avatar)
 
         itemView.item_chat_group_name.text = data.name
+        itemView.item_chat_group_desc.text = data.lastMessage?.content?.getContentDesc() ?: ""
 
         itemView.setOnClickListener {
             mClickListener.onItemClick(it, position, data)

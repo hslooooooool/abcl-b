@@ -52,6 +52,7 @@ class LoginFragment(
                     mLoginUserModel.login(account, password,
                             failed = {
                                 ToastUtils.showToast(context, it)
+                                login.isClickable = true
                             },
                             success = { user ->
                                 LoginUserDatabase.DefLoginUserDao.insert(

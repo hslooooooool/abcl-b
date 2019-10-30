@@ -14,6 +14,6 @@ data class MChatMessageFile(
         val avatar: String,
         val url: String
 ) : IChatMessageType {
-
+    override val contentDesc: String = MChatMessageType.FILE.contentDesc
     override val contentType: Int = MChatMessageType.FILE.contentType
 }

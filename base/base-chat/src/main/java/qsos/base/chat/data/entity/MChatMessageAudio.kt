@@ -12,6 +12,6 @@ data class MChatMessageAudio(
         val name: String,
         val url: String
 ) : IChatMessageType {
-
+    override val contentDesc: String = MChatMessageType.AUDIO.contentDesc
     override val contentType: Int = MChatMessageType.AUDIO.contentType
 }
