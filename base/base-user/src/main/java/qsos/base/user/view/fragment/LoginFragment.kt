@@ -42,7 +42,7 @@ class LoginFragment(
         register.setOnClickListener {
             Navigation.findNavController(it).navigate(R.id.action_loginFragment_to_registerFragment)
         }
-        login.setOnClickListener { login ->
+        login.setOnClickListener {
             login.isClickable = false
             val account = login_account.text.toString().trim()
             val password = login_password.text.toString().trim()
@@ -54,37 +54,7 @@ class LoginFragment(
                     login.isClickable = true
                 }
                 else -> {
-                    mLoginUserModel.login(account, password,
-                            failed = {
-                                ToastUtils.showToast(context, it)
-                                login.isClickable = true
-                            },
-                            success = { user ->
-                                LoginUserDatabase.DefLoginUserDao.insert(
-                                        user = DBLoginUser(
-                                                userId = user.userId,
-                                                userName = user.userName,
-                                                account = user.account,
-                                                password = user.password,
-                                                avatar = user.avatar,
-                                                birth = user.birth,
-                                                sexuality = user.sexuality
-                                        ),
-                                        result = {
-                                            if (it == null) {
-                                                ToastUtils.showToast(context, "登录失败")
-                                                login.isClickable = true
-                                            } else {
-                                                ToastUtils.showToast(context, "登录成功")
-                                                BaseConfig.userId = user.userId
-                                                mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                                                        .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
-                                                ARouter.getInstance().build("/CHAT/MAIN").navigation()
-                                                (context as Activity?)?.finish()
-                                            }
-                                        }
-                                )
-                            })
+                    login(account, password)
                 }
             }
         }
@@ -96,6 +66,42 @@ class LoginFragment(
                         login_account.setText(it.account)
                         login_password.setText(it.password)
                     }
+                }
+        )
+    }
+
+    /**账号密码登录*/
+    private fun login(account: String, password: String) {
+        mLoginUserModel.login(account, password,
+                failed = {
+                    ToastUtils.showToast(context, it)
+                    login.isClickable = true
+                },
+                success = { user ->
+                    LoginUserDatabase.DefLoginUserDao.insert(
+                            user = DBLoginUser(
+                                    userId = user.userId,
+                                    userName = user.userName,
+                                    account = user.account,
+                                    password = user.password,
+                                    avatar = user.avatar,
+                                    birth = user.birth,
+                                    sexuality = user.sexuality
+                            ),
+                            result = {
+                                if (it == null) {
+                                    ToastUtils.showToast(context, "登录失败")
+                                    login.isClickable = true
+                                } else {
+                                    ToastUtils.showToast(context, "登录成功")
+                                    BaseConfig.userId = user.userId
+                                    mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
+                                            .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
+                                    ARouter.getInstance().build("/CHAT/MAIN").navigation()
+                                    (context as Activity?)?.finish()
+                                }
+                            }
+                    )
                 })
     }
 }
