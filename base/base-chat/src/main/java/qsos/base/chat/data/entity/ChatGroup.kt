@@ -20,5 +20,5 @@ data class ChatGroup(
         val notice: String? = null
 ) {
     /**此会话最后一条消息*/
-    var lastMessage: ChatMessage? = null
+    var lastMessage: MChatMessage? = null
 }

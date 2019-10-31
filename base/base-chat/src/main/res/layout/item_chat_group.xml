@@ -4,43 +4,65 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_marginBottom="10dp"
+	android:layout_marginBottom="1px"
 	android:background="@color/white"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	android:padding="5dp">
 	
 	<ImageView
 		android:id="@+id/item_chat_group_avatar"
-		android:layout_width="60dp"
-		android:layout_height="60dp"
-		android:layout_marginBottom="5dp"
-		android:background="@color/gray"
+		android:layout_width="50dp"
+		android:layout_height="50dp"
+		android:background="@color/gray_low"
 		android:contentDescription="@string/app_name"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 	
-	<TextView
-		android:id="@+id/item_chat_group_name"
+	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:ellipsize="end"
 		android:gravity="center_vertical"
-		android:padding="@dimen/item_message_padding"
-		android:singleLine="true"
+		android:orientation="horizontal"
 		android:textColor="@color/gray"
-		android:textSize="@dimen/item_message_text_size"
+		android:textSize="@dimen/item_message_text_size_smallest"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@id/item_chat_group_avatar"
-		app:layout_constraintTop_toTopOf="@id/item_chat_group_avatar"
-		tools:text="聊天群XXX" />
+		app:layout_constraintTop_toTopOf="@id/item_chat_group_avatar">
+		
+		<TextView
+			android:id="@+id/item_chat_group_name"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:ellipsize="end"
+			android:paddingStart="@dimen/item_message_padding"
+			android:paddingEnd="@dimen/item_message_padding"
+			android:singleLine="true"
+			android:textColor="@color/gray"
+			android:textSize="@dimen/item_message_text_size"
+			tools:text="聊天群XXX聊天群XXX聊天群XXX聊天群XXX" />
+		
+		<TextView
+			android:id="@+id/item_chat_group_last_send_time"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingStart="@dimen/item_message_padding"
+			android:paddingEnd="@dimen/item_message_padding"
+			android:singleLine="true"
+			android:textColor="@color/gray"
+			android:textSize="@dimen/item_message_text_size_smallest"
+			tools:text="早上10:15" />
+	
+	</LinearLayout>
 	
 	<TextView
 		android:id="@+id/item_chat_group_desc"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="5dp"
 		android:ellipsize="end"
-		android:gravity="center_vertical"
-		android:padding="@dimen/item_message_padding"
+		android:gravity="bottom"
+		android:paddingStart="@dimen/item_message_padding"
+		android:paddingEnd="@dimen/item_message_padding"
 		android:singleLine="true"
 		android:textColor="@color/gray"
 		android:textSize="@dimen/item_message_text_size_smallest"

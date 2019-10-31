@@ -1,6 +1,7 @@
 package qsos.base.user.view.fragment
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -73,6 +74,8 @@ class RegisterFragment(
                                             } else {
                                                 ToastUtils.showToast(context, "注册成功")
                                                 BaseConfig.userId = user.userId
+                                                mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
+                                                        .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
                                                 ARouter.getInstance().build("/CHAT/MAIN").navigation()
                                                 (context as Activity?)?.finish()
                                             }
