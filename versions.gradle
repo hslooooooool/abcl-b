@@ -116,10 +116,10 @@ build_versions.SDK_COMPILE = 28
 ext.build_versions = build_versions
 
 def work = [:]
-work.runtime = "androidx.work:work-runtime:2.1.0-alpha01"
-work.testing = "androidx.work:work-testing:2.1.0-alpha01"
-work.firebase = "androidx.work:work-firebase:2.1.0-alpha01"
-work.runtime_ktx = "androidx.work:work-runtime-ktx:2.1.0-alpha01"
+work.runtime = "androidx.work:work-runtime:2.1.0"
+work.testing = "androidx.work:work-testing:2.1.0"
+work.firebase = "androidx.work:work-firebase:2.1.0"
+work.runtime_ktx = "androidx.work:work-runtime-ktx:2.1.0"
 deps.work = work
 
 def navigation = [:]

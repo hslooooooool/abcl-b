@@ -112,6 +112,8 @@ dependencies {
     api deps.gson
     // glide
     kapt deps.glide.compiler
+    // WorkManager
+    api deps.work.runtime_ktx
 }
 
 repositories {

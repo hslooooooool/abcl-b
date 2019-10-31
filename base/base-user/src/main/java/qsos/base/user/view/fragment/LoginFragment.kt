@@ -1,6 +1,7 @@
 package qsos.base.user.view.fragment
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -26,11 +27,15 @@ class LoginFragment(
         override val reload: Boolean = false
 ) : BaseFragment() {
 
+    private var mLastLoginUserId: Int = -1
+
     override fun getData() {
 
     }
 
     override fun initData(savedInstanceState: Bundle?) {
+        mLastLoginUserId = activity!!.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
+                .getInt("LAST_LOGIN_USER_ID", BaseConfig.userId)
     }
 
     override fun initView(view: View) {
@@ -72,6 +77,8 @@ class LoginFragment(
                                             } else {
                                                 ToastUtils.showToast(context, "登录成功")
                                                 BaseConfig.userId = user.userId
+                                                mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
+                                                        .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
                                                 ARouter.getInstance().build("/CHAT/MAIN").navigation()
                                                 (context as Activity?)?.finish()
                                             }
@@ -81,5 +88,14 @@ class LoginFragment(
                 }
             }
         }
+
+        LoginUserDatabase.DefLoginUserDao.getLoginUserByUserId(
+                userId = mLastLoginUserId,
+                result = {
+                    it?.let {
+                        login_account.setText(it.account)
+                        login_password.setText(it.password)
+                    }
+                })
     }
 }

@@ -11,6 +11,8 @@ import qsos.base.chat.data.model.DefChatGroupModelIml
 import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.view.adapter.ChatGroupAdapter
 import qsos.lib.base.base.fragment.BaseFragment
+import java.util.*
+import kotlin.concurrent.timerTask
 
 /**
  * @author : 华清松
@@ -18,7 +20,7 @@ import qsos.lib.base.base.fragment.BaseFragment
  */
 class ChatGroupListFragment(
         override val layoutId: Int = R.layout.fragment_chat_group_list,
-        override val reload: Boolean = true
+        override val reload: Boolean = false
 ) : BaseFragment() {
 
     private var mGroupAdapter: ChatGroupAdapter? = null
@@ -26,6 +28,7 @@ class ChatGroupListFragment(
     private var mChatGroupModel: IChatModel.IGroup? = null
 
     private val mGroupList = arrayListOf<ChatGroup>()
+    private val mGetMessageTimer = Timer()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatGroupModel = DefChatGroupModelIml()
@@ -47,7 +50,9 @@ class ChatGroupListFragment(
             mGroupAdapter?.notifyDataSetChanged()
         })
 
-        getData()
+        mGetMessageTimer.schedule(timerTask {
+            getData()
+        }, 1000L, 1000L)
     }
 
     override fun getData() {
