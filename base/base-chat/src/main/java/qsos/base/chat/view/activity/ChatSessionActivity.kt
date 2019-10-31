@@ -65,6 +65,6 @@ class ChatSessionActivity(
         ARouter.getInstance().build("/CHAT/MAIN")
                 .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                 .navigation()
-        finish()
+        super.onBackPressed()
     }
 }

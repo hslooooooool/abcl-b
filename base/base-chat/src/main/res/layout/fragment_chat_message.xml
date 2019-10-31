@@ -28,6 +28,7 @@
 			android:layout_margin="10dp"
 			android:layout_weight="1"
 			android:background="@color/white"
+			android:contentDescription="@string/chat_input"
 			android:maxLines="10"
 			android:minHeight="42dp" />
 		
