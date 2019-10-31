@@ -3,7 +3,7 @@ package qsos.base.chat.view.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_friend_list.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatUser
@@ -35,7 +35,7 @@ class ChatFriendListFragment(
 
         mFriendAdapter = ChatFriendAdapter(mList)
 
-        val mLinearLayoutManager = GridLayoutManager(mContext, 2)
+        val mLinearLayoutManager = LinearLayoutManager(mContext)
         chat_friend_list.layoutManager = mLinearLayoutManager
         chat_friend_list.adapter = mFriendAdapter
 

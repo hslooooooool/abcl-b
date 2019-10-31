@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="chat_message">消息</string>
+	<string name="chat_friend">朋友</string>
+	<string name="chat_mine">我的</string>
+	<string name="chat_user_avatar">用户头像</string>
+	<string name="chat_user_state_offline">离线</string>
+	<string name="chat_user_state_online">在线</string>
+</resources>

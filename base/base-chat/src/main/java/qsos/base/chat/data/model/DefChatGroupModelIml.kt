@@ -8,7 +8,8 @@ import qsos.base.chat.data.ApiChatGroup
 import qsos.base.chat.data.entity.ChatGroup
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
-import qsos.lib.netservice.expand.retrofitWithLiveDataByDef
+import qsos.lib.netservice.data.BaseResponse
+import qsos.lib.netservice.expand.retrofit
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -20,7 +21,6 @@ class DefChatGroupModelIml(
         override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroup>> = BaseHttpLiveData()
 ) : IChatModel.IGroup {
 
-
     override fun getGroupById(groupId: Int): ChatGroup {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -30,9 +30,17 @@ class DefChatGroupModelIml(
     }
 
     override fun getGroupListWithMe() {
-        CoroutineScope(mJob).retrofitWithLiveDataByDef<List<ChatGroup>> {
+        CoroutineScope(mJob).retrofit<BaseResponse<List<ChatGroup>>> {
             api = ApiEngine.createService(ApiChatGroup::class.java).getGroupWithMe()
-            data = mGroupListWithMeLiveData
+            onSuccess {
+                it?.let {
+                    mGroupListWithMeLiveData.postValue(it)
+                    // TODO 查询各个群下未读消息列表listA按消息序列排序，以各群最新消息的消息序列减去listA最早一条消息的序列，将得到未读消息数，更新
+
+                    // TODO 开启消息获取服务，通知群内新消息上屏，通知群外新消息提醒
+
+                }
+            }
         }
     }
 

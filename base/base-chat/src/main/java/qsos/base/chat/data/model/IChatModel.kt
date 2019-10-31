@@ -156,6 +156,7 @@ interface IChatModel {
          * */
         fun getGroupById(groupId: Int): ChatGroup
 
+        //TODO 建立消息数据库，读取最新消息并进行未读统计后入库，消息列表与群列表从数据库获取经过排序的数据并更新未读数
         /**获取当前用户所在的所有聊天群列表数据*/
         fun getGroupListWithMe()
 
