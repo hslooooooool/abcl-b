@@ -50,6 +50,7 @@ class ChatGroupListFragment(
             mGroupAdapter?.notifyDataSetChanged()
         })
 
+        /**TODO 往后走Socket*/
         mGetMessageTimer.schedule(timerTask {
             getData()
         }, 1000L, 1000L)
