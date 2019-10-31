@@ -3,9 +3,11 @@ package qsos.base.chat.view.fragment
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.alibaba.android.arouter.launcher.ARouter
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
@@ -58,6 +60,14 @@ class ChatFragment(
 
         chat_message_send.setOnClickListener {
             sendMessage()
+        }
+
+        base_title_bar.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
+        base_title_bar.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
+            ARouter.getInstance().build("/CHAT/MAIN")
+                    .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
+                    .navigation()
+            activity?.finish()
         }
 
         getData()

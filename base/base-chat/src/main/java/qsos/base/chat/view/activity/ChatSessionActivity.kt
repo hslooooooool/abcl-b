@@ -1,8 +1,12 @@
 package qsos.base.chat.view.activity
 
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.android.arouter.launcher.ARouter
+import kotlinx.android.synthetic.main.activity_chat_message.*
 import qsos.base.chat.R
 import qsos.base.chat.data.model.DefChatSessionModelIml
 import qsos.base.chat.data.model.IChatModel
@@ -43,21 +47,24 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    supportFragmentManager.beginTransaction().add(
-                            R.id.chat_message_frg,
-                            ChatFragment(it),
-                            "ChatFragment"
-                    ).commit()
+                    supportFragmentManager.beginTransaction()
+                            .add(R.id.chat_message_frg, ChatFragment(it), "ChatFragment")
+                            .commit()
                 }
         )
     }
 
-    override fun getData() {
-
-    }
+    override fun getData() {}
 
     override fun onDestroy() {
         mChatSessionModel?.clear()
         super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        ARouter.getInstance().build("/CHAT/MAIN")
+                .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
+                .navigation()
+        finish()
     }
 }

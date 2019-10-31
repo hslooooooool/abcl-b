@@ -2,7 +2,9 @@
 	package="qsos.base.chat">
 	<application>
 		<!--聊天群界面-->
-		<activity android:name="qsos.base.chat.view.activity.ChatMainActivity" />
+		<activity
+			android:name="qsos.base.chat.view.activity.ChatMainActivity"
+			android:launchMode="singleInstance" />
 		<!--聊天会话页面-->
 		<activity android:name="qsos.base.chat.view.activity.ChatSessionActivity" />
 		<!--聊天用户页面-->

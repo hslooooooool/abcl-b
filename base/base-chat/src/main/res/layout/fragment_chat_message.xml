@@ -4,6 +4,10 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 	
+	<include
+		android:id="@+id/base_title_bar"
+		layout="@layout/base_title_bar" />
+	
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/chat_message_list"
 		android:layout_width="match_parent"

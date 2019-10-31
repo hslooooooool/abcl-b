@@ -2,6 +2,7 @@ package qsos.base.chat.view.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
@@ -46,6 +47,10 @@ class ChatUserActivity(
             return
         }
 
+        base_title_bar.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
+            finish()
+        }
+
         chat_user_send.setOnClickListener {
             mChatSessionModel?.createSession(
                     userIdList = arrayListOf(BaseConfig.userId, mUserId!!),
@@ -72,9 +77,7 @@ class ChatUserActivity(
         )
     }
 
-    override fun getData() {
-
-    }
+    override fun getData() {}
 
     override fun onDestroy() {
         mChatUserModel?.clear()
