@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import qsos.base.chat.ChatMessageHelper
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
+import java.util.*
 
 /**
  * @author : 华清松
@@ -16,7 +17,7 @@ import java.lang.reflect.Type
  */
 data class MChatMessage(
         val user: ChatUser,
-        val createTime: Long,
+        val createTime: Date,
         val message: ChatMessage
 ) {
     /**消息发送状态,本地存储*/

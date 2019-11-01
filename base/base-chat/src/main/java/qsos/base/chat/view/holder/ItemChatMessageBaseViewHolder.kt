@@ -45,7 +45,7 @@ abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, v
 
     override fun setData(data: MChatMessage, position: Int) {
 
-        itemView.item_message_time.text = DateUtils.setTimeWithFormat(data.createTime, "yyyy年MM月dd日 HH时mm分ss秒")
+        itemView.item_message_time.text = DateUtils.setTimeWithFormat(data.createTime.time, "yyyy年MM月dd日 HH时mm分ss秒")
 
         val messageView = if (BaseConfig.userId == data.user.userId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
