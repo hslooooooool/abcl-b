@@ -47,7 +47,7 @@ open class AppApplication(
 
         BaseConfig.DEBUG = true
         /**BASE_URL配置*/
-        BaseConfig.BASE_URL = "http://192.168.1.14:8085"
+        BaseConfig.BASE_URL = "http://192.168.0.103:8085"
         BaseConfig.PROVIDER = "qsos.base.demo.provider"
 
         /**Timber 日志*/
