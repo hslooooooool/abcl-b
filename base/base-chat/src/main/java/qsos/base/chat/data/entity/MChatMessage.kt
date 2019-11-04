@@ -6,18 +6,17 @@ import com.google.gson.Gson
 import qsos.base.chat.ChatMessageHelper
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
-import java.util.*
 
 /**
  * @author : 华清松
  * 聊天消息列表项展示数据
  * @param user 消息发送用户
  * @param message 消息数据
- * @param createTime 创建时间,毫秒数
+ * @param createTime 创建时间
  */
 data class MChatMessage(
         val user: ChatUser,
-        val createTime: Date,
+        val createTime: String,
         val message: ChatMessage
 ) {
     /**消息发送状态,本地存储*/

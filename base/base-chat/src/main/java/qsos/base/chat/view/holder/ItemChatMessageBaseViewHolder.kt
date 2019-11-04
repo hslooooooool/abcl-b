@@ -12,7 +12,6 @@ import qsos.base.chat.data.entity.MChatSendStatus
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
-import qsos.lib.base.utils.DateUtils
 
 /**
  * @author : 华清松
@@ -45,7 +44,7 @@ abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, v
 
     override fun setData(data: MChatMessage, position: Int) {
 
-        itemView.item_message_time.text = DateUtils.setTimeWithFormat(data.createTime.time, "yyyy年MM月dd日 HH时mm分ss秒")
+        itemView.item_message_time.text = data.createTime
 
         val messageView = if (BaseConfig.userId == data.user.userId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE

@@ -23,6 +23,7 @@ import qsos.core.lib.utils.file.FileUtils
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.netservice.file.FileRepository
@@ -110,7 +111,7 @@ class ChatFragment(
             map["content"] = content
             val message = MChatMessage(
                     user = ChatMainActivity.mLoginUser.value!!,
-                    createTime = Date(),
+                    createTime = DateUtils.setTimeFormat(Date()),
                     message = ChatMessage(
                             sessionId = mSession.sessionId,
                             content = ChatContent(
@@ -151,7 +152,7 @@ class ChatFragment(
         map["url"] = images[0].path
         val message = MChatMessage(
                 user = ChatMainActivity.mLoginUser.value!!,
-                createTime = Date(),
+                createTime = DateUtils.setTimeFormat(Date()),
                 message = ChatMessage(
                         sessionId = mSession.sessionId,
                         content = ChatContent(
