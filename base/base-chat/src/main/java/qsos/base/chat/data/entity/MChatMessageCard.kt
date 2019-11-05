@@ -12,6 +12,6 @@ data class MChatMessageCard(
         val desc: String,
         val avatar: String
 ) : IChatMessageType {
-    override val contentDesc: String = MChatMessageType.CARD.contentDesc
-    override val contentType: Int = MChatMessageType.CARD.contentType
+    override var contentDesc: String = MChatMessageType.CARD.contentDesc
+    override var contentType: Int = MChatMessageType.CARD.contentType
 }
