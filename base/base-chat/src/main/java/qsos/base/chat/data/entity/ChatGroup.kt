@@ -15,7 +15,7 @@ data class ChatGroup(
         /** @see ChatSession.sessionId */
         val groupId: Int,
         val name: String,
-        val createTime: Long,
+        val createTime: String,
         val avatar: String?,
         val notice: String? = null
 ) {

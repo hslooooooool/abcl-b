@@ -12,11 +12,11 @@ import java.lang.reflect.Type
  * 聊天消息列表项展示数据
  * @param user 消息发送用户
  * @param message 消息数据
- * @param createTime 创建时间,毫秒数
+ * @param createTime 创建时间
  */
 data class MChatMessage(
         val user: ChatUser,
-        val createTime: Long,
+        val createTime: String,
         val message: ChatMessage
 ) {
     /**消息发送状态,本地存储*/
@@ -91,52 +91,36 @@ enum class MChatSendStatus(val k: String) {
  */
 enum class MChatMessageType(val k: String) : IChatMessageType {
     TEXT("文本消息") {
-        override val contentDesc: String
-            get() = "文本消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "文本消息"
+        override var contentType: Int = this.ordinal
     },
     IMAGE("图片消息") {
-        override val contentDesc: String
-            get() = "图片消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "图片消息"
+        override var contentType: Int = this.ordinal
     },
     VIDEO("视频消息") {
-        override val contentDesc: String
-            get() = "视频消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "视频消息"
+        override var contentType: Int = this.ordinal
     },
     AUDIO("语音消息") {
-        override val contentDesc: String
-            get() = "语音消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "语音消息"
+        override var contentType: Int = this.ordinal
     },
     FILE("附件消息") {
-        override val contentDesc: String
-            get() = "附件消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "附件消息"
+        override var contentType: Int = this.ordinal
     },
     LINK("链接消息") {
-        override val contentDesc: String
-            get() = "链接消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "链接消息"
+        override var contentType: Int = this.ordinal
     },
     CARD("名片消息") {
-        override val contentDesc: String
-            get() = "名片消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "名片消息"
+        override var contentType: Int = this.ordinal
     },
     LOCATION("位置消息") {
-        override val contentDesc: String
-            get() = "位置消息"
-        override val contentType: Int
-            get() = this.ordinal
+        override var contentDesc: String = "位置消息"
+        override var contentType: Int = this.ordinal
     };
 }
 
@@ -146,9 +130,9 @@ enum class MChatMessageType(val k: String) : IChatMessageType {
  */
 interface IChatMessageType {
     /**消息摘要*/
-    val contentDesc: String
+    var contentDesc: String
     /**消息内容类型值,属性名需要和 VIEW_TYPE_KEY 保持相同
      * @see MChatMessage.VIEW_TYPE_KEY
      * */
-    val contentType: Int
+    var contentType: Int
 }

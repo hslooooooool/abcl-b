@@ -1,10 +1,11 @@
 apply plugin: 'com.android.library'
 
 apply from: '../../base.gradle'
+apply from: '../../push.gradle'
 
 dependencies {
 
-    api('com.github.hslooooooool:abcl-c:1.6') {
+    api('com.github.hslooooooool:abcl-c:1.8') {
         // 排除表单组件
         exclude group: 'com.github.hslooooooool.abcl-c', module: 'core-form'
     }

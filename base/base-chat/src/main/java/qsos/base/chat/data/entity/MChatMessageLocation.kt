@@ -31,6 +31,6 @@ data class MChatMessageLocation(
         }
     }
 
-    override val contentDesc: String = name
-    override val contentType: Int = MChatMessageType.LOCATION.contentType
+    override var contentDesc: String = name
+    override var contentType: Int = MChatMessageType.LOCATION.contentType
 }
