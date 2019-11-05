@@ -20,7 +20,7 @@ class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItem
 
         itemView.item_chat_group_name.text = data.name
         itemView.item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
-                DateUtils.formatYMDHMS(data.lastMessage?.createTime!!)
+                DateUtils.strToDate(data.lastMessage?.createTime!!)
         )
         itemView.item_chat_group_desc.text = data.lastMessage?.message?.content?.getContentDesc()
                 ?: ""

@@ -10,11 +10,11 @@ import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import qsos.base.demo.config.PlayerConfig
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
-import qsos.core.lib.config.BaseConfig
+import qsos.core.lib.config.CoreConfig
 import qsos.core.player.PlayerConfigHelper
 import qsos.lib.base.base.BaseApplication
+import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.rx.RxBus
-import timber.log.Timber
 
 /**
  * @author : 华清松
@@ -45,13 +45,13 @@ open class AppApplication(
     override fun onCreate() {
         super.onCreate()
 
-        BaseConfig.DEBUG = true
+        CoreConfig.DEBUG = true
         /**BASE_URL配置*/
-        BaseConfig.BASE_URL = "http://192.168.0.103:8085"
-        BaseConfig.PROVIDER = "qsos.base.demo.provider"
+        CoreConfig.BASE_URL = "http://192.168.0.103:8085"
+        CoreConfig.PROVIDER = "qsos.base.demo.provider"
 
         /**Timber 日志*/
-        Timber.plant(GlobalExceptionHelper.CrashReportingTree())
+        LogUtil.open(true, GlobalExceptionHelper.CrashReportingTree())
         /**全局异常捕获处理*/
         Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHelper)
         RxBus.toFlow(GlobalExceptionHelper.ExceptionEvent::class.java).subscribe {

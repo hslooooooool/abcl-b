@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
@@ -111,7 +112,7 @@ class ChatFragment(
             map["content"] = content
             val message = MChatMessage(
                     user = ChatMainActivity.mLoginUser.value!!,
-                    createTime = DateUtils.setTimeFormat(Date()),
+                    createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
                             sessionId = mSession.sessionId,
                             content = ChatContent(
@@ -152,7 +153,7 @@ class ChatFragment(
         map["url"] = images[0].path
         val message = MChatMessage(
                 user = ChatMainActivity.mLoginUser.value!!,
-                createTime = DateUtils.setTimeFormat(Date()),
+                createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
                         sessionId = mSession.sessionId,
                         content = ChatContent(
@@ -199,11 +200,10 @@ class ChatFragment(
                 .flatMap {
                     RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createImageFile())
                 }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                    sendImageMessage(arrayListOf(
-                            file
-                    ))
+                    sendImageMessage(arrayListOf(file))
                 }.takeUnless {
                     activity!!.isFinishing
                 }
