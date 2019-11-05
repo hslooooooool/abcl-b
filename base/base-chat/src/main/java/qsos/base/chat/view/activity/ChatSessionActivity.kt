@@ -1,12 +1,11 @@
 package qsos.base.chat.view.activity
 
+import android.Manifest
 import android.os.Bundle
-import android.view.View
-import android.widget.TextView
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
-import kotlinx.android.synthetic.main.activity_chat_message.*
+import com.tbruyelle.rxpermissions2.RxPermissions
 import qsos.base.chat.R
 import qsos.base.chat.data.model.DefChatSessionModelIml
 import qsos.base.chat.data.model.IChatModel
@@ -41,17 +40,32 @@ class ChatSessionActivity(
             return
         }
 
-        mChatSessionModel?.getSessionById(
-                sessionId = mSessionId!!,
-                failed = {
-                    ToastUtils.showToast(this, it)
-                },
-                success = {
-                    supportFragmentManager.beginTransaction()
-                            .add(R.id.chat_message_frg, ChatFragment(it), "ChatFragment")
-                            .commit()
-                }
-        )
+        RxPermissions(this).request(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO
+        ).subscribe({
+            if (it) {
+                mChatSessionModel?.getSessionById(
+                        sessionId = mSessionId!!,
+                        failed = {
+                            ToastUtils.showToast(this, it)
+                        },
+                        success = {
+                            supportFragmentManager.beginTransaction()
+                                    .add(R.id.chat_message_frg, ChatFragment(it), "ChatFragment")
+                                    .commit()
+                        }
+                )
+            } else {
+                ToastUtils.showToastLong(mContext, "权限开启失败，无法使用此功能")
+            }
+        }, {
+            it.printStackTrace()
+        }).takeUnless {
+            this.isFinishing
+        }
+
     }
 
     override fun getData() {}
