@@ -16,12 +16,14 @@ import qsos.core.lib.utils.image.ImageLoaderUtils
 class ItemChatMessageLocationViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_location.visibility = View.VISIBLE
-        val content = data.content as MChatMessageLocation
+        contentView.apply {
+            item_message_view_location.visibility = View.VISIBLE
+            val content = data.content as MChatMessageLocation
 
-        ImageLoaderUtils.display(contentView.context, contentView.item_message_location_avatar, content.avatar)
+            ImageLoaderUtils.display(contentView.context, item_message_location_avatar, content.avatar)
 
-        contentView.item_message_location_name.text = content.name
-        contentView.item_message_location_desc.text = content.lat + "," + content.lng
+            item_message_location_name.text = content.name
+            item_message_location_desc.text = content.lat + "," + content.lng
+        }
     }
 }

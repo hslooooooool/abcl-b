@@ -16,23 +16,26 @@ import qsos.core.player.data.PreImageEntity
  */
 class ItemChatMessageImageViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_image.visibility = View.VISIBLE
-        val content = data.content as MChatMessageImage
+        contentView.apply {
 
-        ImageLoaderUtils.display(itemView.context, contentView.item_message_image, content.url)
+            item_message_view_image.visibility = View.VISIBLE
+            val content = data.content as MChatMessageImage
 
-        contentView.item_message_image.setOnClickListener {
-            PlayerConfigHelper.previewImage(
-                    context = itemView.context,
-                    position = 0,
-                    list = arrayListOf(
-                            PreImageEntity(
-                                    name = content.name,
-                                    desc = content.name,
-                                    path = content.url
-                            )
-                    )
-            )
+            ImageLoaderUtils.display(itemView.context, item_message_image, content.url)
+
+            item_message_image.setOnClickListener {
+                PlayerConfigHelper.previewImage(
+                        context = itemView.context,
+                        position = 0,
+                        list = arrayListOf(
+                                PreImageEntity(
+                                        name = content.name,
+                                        desc = content.name,
+                                        path = content.url
+                                )
+                        )
+                )
+            }
         }
     }
 }

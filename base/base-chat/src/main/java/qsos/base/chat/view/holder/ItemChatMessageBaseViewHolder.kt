@@ -46,56 +46,55 @@ abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, v
 
         itemView.item_message_time.text = data.createTime
 
-        val messageView = if (BaseConfig.userId == data.user.userId) {
+        if (BaseConfig.userId == data.user.userId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
             itemView.findViewById<View>(R.id.item_message_right)
         } else {
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
             itemView.findViewById<View>(R.id.item_message_left)
-        }
-        messageView.visibility = View.VISIBLE
+        }.apply {
 
-        messageView.findViewById<TextView>(R.id.item_message_user_name).text = data.user.userName
+            visibility = View.VISIBLE
 
-        messageView.findViewById<ImageView>(R.id.item_message_send_state).visibility =
-                if (data.sendStatus == MChatSendStatus.FAILED) {
-                    View.VISIBLE
-                } else {
-                    View.INVISIBLE
-                }
+            findViewById<TextView>(R.id.item_message_user_name).text = data.user.userName
 
-        messageView.findViewById<TextView>(R.id.item_message_read_state).text =
-                when (session.type) {
-                    ChatType.GROUP -> {
-                        if (data.readStatus < 1) "" else "${data.readStatus}人已读"
+            findViewById<ImageView>(R.id.item_message_send_state).visibility =
+                    if (data.sendStatus == MChatSendStatus.FAILED) {
+                        View.VISIBLE
+                    } else {
+                        View.INVISIBLE
                     }
-                    ChatType.SINGLE -> {
-                        if (data.readStatus == 0) "未读" else "已读"
-                    }
-                    else -> ""
-                }
 
-        messageView.findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
-            this.mIChatMessageItemListener?.onClick(position, data, it)
+            findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
+                ChatType.GROUP -> {
+                    if (data.readStatus < 1) "" else "${data.readStatus}人已读"
+                }
+                ChatType.SINGLE -> {
+                    if (data.readStatus == 0) "未读" else "已读"
+                }
+                else -> ""
+            }
+
+            findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
+                mIChatMessageItemListener?.onClick(position, data, it)
+            }
+
+            ImageLoaderUtils.display(
+                    context,
+                    findViewById(R.id.item_message_user_avatar),
+                    data.user.avatar
+            )
+
+            findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
+                mIChatMessageItemListener?.onClick(position, data, it)
+            }
+
+            findViewById<View>(R.id.item_message_content).setOnLongClickListener {
+                mIChatMessageItemListener?.onClick(position, data, it, true)
+                return@setOnLongClickListener true
+            }
+
+            setContent(this, data, position, mIChatMessageItemListener)
         }
-
-        ImageLoaderUtils.display(
-                messageView.context,
-                messageView.findViewById(R.id.item_message_user_avatar),
-                data.user.avatar
-        )
-
-        messageView.findViewById<ImageView>(R.id.item_message_user_avatar)
-                .setOnClickListener {
-                    this.mIChatMessageItemListener?.onClick(position, data, it)
-                }
-
-        messageView.findViewById<View>(R.id.item_message_content)
-                .setOnLongClickListener {
-                    this.mIChatMessageItemListener?.onClick(position, data, it, true)
-                    return@setOnLongClickListener true
-                }
-
-        setContent(messageView, data, position, this.mIChatMessageItemListener)
     }
 }

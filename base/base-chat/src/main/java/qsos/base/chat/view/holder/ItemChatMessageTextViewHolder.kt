@@ -13,8 +13,10 @@ import qsos.base.chat.data.entity.MChatMessageText
  */
 class ItemChatMessageTextViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_text.visibility = View.VISIBLE
-        val content = data.content as MChatMessageText
-        contentView.item_message_text.text = content.content
+        contentView.apply {
+            item_message_view_text.visibility = View.VISIBLE
+            val content = data.content as MChatMessageText
+            item_message_text.text = content.content
+        }
     }
 }

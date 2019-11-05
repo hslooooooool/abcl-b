@@ -15,18 +15,23 @@ import qsos.lib.base.utils.DateUtils
 class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItemClickListener) : BaseHolder<ChatGroup>(view) {
 
     override fun setData(data: ChatGroup, position: Int) {
+        itemView.apply {
+            data.run {
+                ImageLoaderUtils.display(context, item_chat_group_avatar, avatar)
 
-        ImageLoaderUtils.display(itemView.context, itemView.item_chat_group_avatar, data.avatar)
+                item_chat_group_name.text = name
 
-        itemView.item_chat_group_name.text = data.name
-        itemView.item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
-                DateUtils.strToDate(data.lastMessage?.createTime!!)
-        )
-        itemView.item_chat_group_desc.text = data.lastMessage?.message?.content?.getContentDesc()
-                ?: ""
+                item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
+                        DateUtils.strToDate(lastMessage?.createTime!!)
+                )
+                lastMessage?.message?.content?.getContentDesc()?.let {
+                    item_chat_group_desc.text = it
+                }
 
-        itemView.setOnClickListener {
-            mClickListener.onItemClick(it, position, data)
+                setOnClickListener {
+                    mClickListener.onItemClick(it, position, this)
+                }
+            }
         }
     }
 }

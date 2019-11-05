@@ -17,13 +17,15 @@ class ItemChatFriendViewHolder(
 ) : BaseHolder<ChatUser>(view) {
 
     override fun setData(data: ChatUser, position: Int) {
+        itemView.apply {
 
-        ImageLoaderUtils.display(itemView.context, itemView.item_chat_friend_avatar, data.avatar)
+            ImageLoaderUtils.display(context, item_chat_friend_avatar, data.avatar)
 
-        itemView.item_chat_friend_name.text = data.userName
+            item_chat_friend_name.text = data.userName
 
-        itemView.setOnClickListener {
-            mClickListener.onItemClick(it, position, data)
+            setOnClickListener {
+                mClickListener.onItemClick(it, position, data)
+            }
         }
     }
 }

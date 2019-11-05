@@ -16,20 +16,22 @@ import qsos.core.player.data.PreDocumentEntity
  */
 class ItemChatMessageVideoViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_video.visibility = View.VISIBLE
-        val content = data.content as MChatMessageVideo
-        ImageLoaderUtils.display(itemView.context, contentView.item_message_video_avatar, content.avatar)
+        contentView.apply {
+            item_message_view_video.visibility = View.VISIBLE
+            val content = data.content as MChatMessageVideo
+            ImageLoaderUtils.display(itemView.context, item_message_video_avatar, content.avatar)
 
-        contentView.item_message_video_avatar.setOnClickListener {
-            chatMessageItemListener?.onClick(position, data, it)
-            PlayerConfigHelper.previewDocument(
-                    context = itemView.context,
-                    data = PreDocumentEntity(
-                            name = content.name,
-                            desc = content.name,
-                            path = content.url
-                    )
-            )
+            item_message_video_avatar.setOnClickListener {
+                chatMessageItemListener?.onClick(position, data, it)
+                PlayerConfigHelper.previewDocument(
+                        context = itemView.context,
+                        data = PreDocumentEntity(
+                                name = content.name,
+                                desc = content.name,
+                                path = content.url
+                        )
+                )
+            }
         }
     }
 }

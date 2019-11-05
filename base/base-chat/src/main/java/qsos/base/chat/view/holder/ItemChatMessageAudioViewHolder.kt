@@ -17,22 +17,24 @@ import qsos.core.player.data.PreAudioEntity
 class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_audio.visibility = View.VISIBLE
-        val content = data.content as MChatMessageAudio
-        contentView.item_message_audio_time.text = "${content.length.toFloat() * 0.001}`"
+        contentView.apply {
+            item_message_view_audio.visibility = View.VISIBLE
+            val content = data.content as MChatMessageAudio
+            item_message_audio_time.text = "${content.length.toFloat() * 0.001}`"
 
-        contentView.setOnClickListener {
-            PlayerConfigHelper.previewAudio(
-                    context = itemView.context,
-                    position = 0,
-                    list = arrayListOf(
-                            PreAudioEntity(
-                                    name = content.name,
-                                    desc = content.name,
-                                    path = content.url
-                            )
-                    )
-            )
+            setOnClickListener {
+                PlayerConfigHelper.previewAudio(
+                        context = itemView.context,
+                        position = 0,
+                        list = arrayListOf(
+                                PreAudioEntity(
+                                        name = content.name,
+                                        desc = content.name,
+                                        path = content.url
+                                )
+                        )
+                )
+            }
         }
     }
 }

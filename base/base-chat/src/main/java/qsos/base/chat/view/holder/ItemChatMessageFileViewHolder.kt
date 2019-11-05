@@ -18,23 +18,26 @@ import qsos.core.player.data.PreDocumentEntity
 class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
-        contentView.item_message_view_file.visibility = View.VISIBLE
-        val content = data.content as MChatMessageFile
+        contentView.apply {
 
-        ImageLoaderUtils.display(itemView.context, contentView.item_message_file_avatar, content.url)
+            item_message_view_file.visibility = View.VISIBLE
+            val content = data.content as MChatMessageFile
 
-        contentView.item_message_file_name.text = content.name
-        contentView.item_message_file_length.text = "${content.length} kb"
+            ImageLoaderUtils.display(itemView.context, item_message_file_avatar, content.url)
 
-        contentView.item_message_file_avatar.setOnClickListener {
-            PlayerConfigHelper.previewDocument(
-                    context = itemView.context,
-                    data = PreDocumentEntity(
-                            name = content.name,
-                            desc = content.name,
-                            path = content.url
-                    )
-            )
+            item_message_file_name.text = content.name
+            item_message_file_length.text = "${content.length} kb"
+
+            item_message_file_avatar.setOnClickListener {
+                PlayerConfigHelper.previewDocument(
+                        context = itemView.context,
+                        data = PreDocumentEntity(
+                                name = content.name,
+                                desc = content.name,
+                                path = content.url
+                        )
+                )
+            }
         }
     }
 }
