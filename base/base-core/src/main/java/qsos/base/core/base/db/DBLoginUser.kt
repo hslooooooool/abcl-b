@@ -11,7 +11,8 @@ import androidx.room.PrimaryKey
  */
 @Entity(
         tableName = "login_user",
-        indices = [Index(value = ["user_id"], unique = true)])
+        indices = [Index(value = ["user_id"], unique = true)]
+)
 data class DBLoginUser(
         @PrimaryKey(autoGenerate = true)
         var id: Long? = null,

@@ -19,6 +19,7 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.data.service.MessageSendServiceHelper
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -97,6 +98,10 @@ class ChatFragment(
             }
         })
 
+        mMessageData.observe(this, Observer {
+            mMessageAdapter?.notifyDataSetChanged()
+        })
+
         chat_message_send.setOnClickListener {
             sendTextMessage()
         }
@@ -162,7 +167,8 @@ class ChatFragment(
             mMessageData.value!!.add(message)
             mMessageAdapter?.notifyDataSetChanged()
             mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
-            mChatMessageModel?.sendMessage(
+
+            MessageSendServiceHelper.sendMessage(
                     message = message,
                     failed = { msg, result ->
                         ToastUtils.showToast(mContext, msg)
@@ -341,7 +347,7 @@ class ChatFragment(
 
                         uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
 
-                        mChatMessageModel?.sendMessage(
+                        MessageSendServiceHelper.sendMessage(
                                 message = t.adjoin as MChatMessage,
                                 failed = { msg, result ->
                                     ToastUtils.showToast(mContext, msg)
@@ -443,4 +449,20 @@ class ChatFragment(
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
 
     }
+
+    /**检查消息附件上传情况，防止结束此页面时文件上传失败，友情提示*/
+    private fun checkMessageFileUploaded(): Boolean {
+        var uploaded = true
+        for (m in mMessageData.value!!) {
+            if (m.content is MBaseChatMessageFile) {
+                val file = m.content as MBaseChatMessageFile
+                if (file.uploadState != MBaseChatMessageFile.UpLoadState.SUCCESS) {
+                    uploaded = false
+                }
+                break
+            }
+        }
+        return uploaded
+    }
+
 }
