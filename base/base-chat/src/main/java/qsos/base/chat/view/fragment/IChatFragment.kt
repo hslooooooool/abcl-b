@@ -14,7 +14,7 @@ interface IChatFragment {
     fun sendTextMessage()
 
     /**发送文件消息*/
-    fun sendFileMessage(type: MChatMessageType, files: List<HttpFileEntity>)
+    fun sendFileMessage(type: MChatMessageType, files: ArrayList<HttpFileEntity>)
 
     /**更新消息发送状态*/
     fun notifySendMessage(result: MChatMessage)
@@ -38,5 +38,5 @@ interface IChatFragment {
      * @param index 正在上传的文件下标，默认从0开始
      * @param files 总计需要上传的文件
      * */
-    fun uploadFile(index: Int = 0, files: List<HttpFileEntity>)
+    fun uploadFile(files: ArrayList<HttpFileEntity>)
 }

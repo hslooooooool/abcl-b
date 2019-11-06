@@ -9,13 +9,14 @@ import qsos.base.chat.data.entity.MChatMessageImage
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.data.PreImageEntity
+import qsos.lib.base.callback.OnListItemClickListener
 
 /**
  * @author : 华清松
  * 消息内容-图片布局
  */
 class ItemChatMessageImageViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
+    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
 
             item_message_view_image.visibility = View.VISIBLE

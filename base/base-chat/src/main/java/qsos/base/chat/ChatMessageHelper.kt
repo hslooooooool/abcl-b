@@ -4,7 +4,6 @@ import android.view.View
 import com.google.gson.reflect.TypeToken
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.view.holder.*
-import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
 
 /**
@@ -20,7 +19,7 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
         this.mChatMessageConfig = config
     }
 
-    override fun getHolder(session: ChatSession, view: View, viewType: Int): BaseHolder<MChatMessage> {
+    override fun getHolder(session: ChatSession, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return mChatMessageConfig?.getHolder(session, view, viewType)
                 ?: getDefHolder(session, view, viewType)
     }
@@ -30,7 +29,7 @@ object ChatMessageHelper : MChatMessage.MessageConfig {
                 ?: getDefContentType(contentType)
     }
 
-    private fun getDefHolder(session: ChatSession, view: View, viewType: Int): BaseHolder<MChatMessage> {
+    private fun getDefHolder(session: ChatSession, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return when (viewType) {
             MChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(session, view)
             MChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(session, view)

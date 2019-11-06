@@ -12,6 +12,7 @@ import qsos.base.chat.data.entity.MChatSendStatus
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
+import qsos.lib.base.callback.OnListItemClickListener
 
 /**
  * @author : 华清松
@@ -20,27 +21,20 @@ import qsos.lib.base.base.holder.BaseHolder
  * @param session 消息会话数据
  * @param view 消息布局
  */
-abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, view: View) : BaseHolder<MChatMessage>(view) {
+abstract class ItemChatMessageBaseViewHolder(
+        private val session: ChatSession, view: View
+) : BaseHolder<MChatMessage>(view) {
 
-    private var mIChatMessageItemListener: IChatMessageItemListener? = null
-
-    interface IChatMessageItemListener {
-        /**点击触发
-         * @param position 点击位置
-         * @param data 点击项数据
-         * @param view 点击项View
-         * @param longClick 是否长按，默认 false
-         * */
-        fun onClick(position: Int, data: MChatMessage, view: View, longClick: Boolean = false)
-    }
+    private var mItemListener: OnListItemClickListener? = null
 
     /**设置消息列表项点击监听*/
-    fun setChatMessageItemListener(chatMessageItemListener: IChatMessageItemListener) {
-        this.mIChatMessageItemListener = chatMessageItemListener
+    fun setOnListItemClickListener(itemListener: OnListItemClickListener?): ItemChatMessageBaseViewHolder {
+        this.mItemListener = itemListener
+        return this
     }
 
     /**展示消息内容数据*/
-    abstract fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?)
+    abstract fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?)
 
     override fun setData(data: MChatMessage, position: Int) {
 
@@ -76,7 +70,7 @@ abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, v
             }
 
             findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
-                mIChatMessageItemListener?.onClick(position, data, it)
+                mItemListener?.onItemClick(it, position, data)
             }
 
             ImageLoaderUtils.display(
@@ -86,15 +80,15 @@ abstract class ItemChatMessageBaseViewHolder(private val session: ChatSession, v
             )
 
             findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
-                mIChatMessageItemListener?.onClick(position, data, it)
+                mItemListener?.onItemClick(it, position, data)
             }
 
             findViewById<View>(R.id.item_message_content).setOnLongClickListener {
-                mIChatMessageItemListener?.onClick(position, data, it, true)
+                mItemListener?.onItemLongClick(it, position, data)
                 return@setOnLongClickListener true
             }
 
-            setContent(this, data, position, mIChatMessageItemListener)
+            setContent(this, data, position, mItemListener)
         }
     }
 }

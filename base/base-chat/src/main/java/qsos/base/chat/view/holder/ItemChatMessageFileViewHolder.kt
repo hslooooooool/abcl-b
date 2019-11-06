@@ -10,6 +10,7 @@ import qsos.base.chat.data.entity.MChatMessageFile
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.data.PreDocumentEntity
+import qsos.lib.base.callback.OnListItemClickListener
 
 /**
  * @author : 华清松
@@ -17,7 +18,7 @@ import qsos.core.player.data.PreDocumentEntity
  */
 class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
+    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
 
             item_message_view_file.visibility = View.VISIBLE

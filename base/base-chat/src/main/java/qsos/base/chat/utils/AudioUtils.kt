@@ -7,10 +7,7 @@ import android.widget.TextView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import qsos.base.chat.R
-import qsos.core.file.audio.AudioType
-import qsos.core.file.audio.AudioRecordConfig
-import qsos.core.file.audio.AudioRecordController
-import qsos.core.file.audio.AudioRecordState
+import qsos.core.file.audio.*
 import qsos.core.lib.utils.dialog.AbsBottomDialog
 
 /**
@@ -19,7 +16,7 @@ import qsos.core.lib.utils.dialog.AbsBottomDialog
  */
 @SuppressLint("SetTextI18n")
 object AudioUtils {
-    private var fileObservable: PublishSubject<String>? = null
+    private var fileObservable: PublishSubject<AudioRecordData>? = null
     /**录音按键上下移动距离*/
     private var moveY = 0F
     private lateinit var mAudioRecordController: AudioRecordController
@@ -35,7 +32,7 @@ object AudioUtils {
                     .setLimitMaxTime(30)
                     .setAudioFormat(AudioType.AMR)
                     .build()
-    ): Observable<String> {
+    ): Observable<AudioRecordData> {
         fileObservable = PublishSubject.create()
         mAudioRecordController = AudioRecordController(config)
         val stateView = dialog.findViewById<TextView>(R.id.audio_state)
@@ -89,7 +86,7 @@ object AudioUtils {
                 }
                 AudioRecordState.FINISH -> {
                     stateView.text = it.recordState.value + "\t\t时长:${it.recordTime} 秒"
-                    fileObservable?.onNext(it.audioPath)
+                    fileObservable?.onNext(it)
                     fileObservable?.onComplete()
                     if (dialog.isVisible) dialog.dismiss()
                 }

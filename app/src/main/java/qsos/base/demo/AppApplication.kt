@@ -5,6 +5,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
+import com.scwang.smartrefresh.layout.api.RefreshFooter
+import com.scwang.smartrefresh.layout.api.RefreshHeader
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter
 import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import qsos.base.demo.config.PlayerConfig
@@ -29,12 +31,12 @@ open class AppApplication(
         // 设置全局的Header构建器
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, layout ->
             layout.setPrimaryColorsId(android.R.color.white, android.R.color.black)
-            return@setDefaultRefreshHeaderCreator ClassicsHeader(context)
+            return@setDefaultRefreshHeaderCreator ClassicsHeader(context) as RefreshHeader
         }
         // 设置全局的Footer构建器
         SmartRefreshLayout.setDefaultRefreshFooterCreator { context, layout ->
             layout.setPrimaryColorsId(android.R.color.white, android.R.color.black)
-            return@setDefaultRefreshFooterCreator ClassicsFooter(context)
+            return@setDefaultRefreshFooterCreator ClassicsFooter(context) as RefreshFooter
         }
     }
 
@@ -48,7 +50,7 @@ open class AppApplication(
 
         CoreConfig.DEBUG = true
         /**BASE_URL配置*/
-        CoreConfig.BASE_URL = "http://192.168.1.5:8085"
+        CoreConfig.BASE_URL = "http://192.168.0.103:8085"
         CoreConfig.PROVIDER = "qsos.base.demo.provider"
 
         /**Timber 日志*/

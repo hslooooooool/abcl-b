@@ -7,8 +7,7 @@ import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.core.player.PlayerConfigHelper
-import qsos.core.player.data.PreAudioEntity
+import qsos.lib.base.callback.OnListItemClickListener
 
 /**
  * @author : 华清松
@@ -16,24 +15,14 @@ import qsos.core.player.data.PreAudioEntity
  */
 class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, chatMessageItemListener: IChatMessageItemListener?) {
+    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_audio.visibility = View.VISIBLE
             val content = data.content as MChatMessageAudio
-            item_message_audio_time.text = "${content.length.toFloat() * 0.001}`"
+            item_message_audio_time.text = "${content.length}`"
 
-            setOnClickListener {
-                PlayerConfigHelper.previewAudio(
-                        context = itemView.context,
-                        position = 0,
-                        list = arrayListOf(
-                                PreAudioEntity(
-                                        name = content.name,
-                                        desc = content.name,
-                                        path = content.url
-                                )
-                        )
-                )
+            item_message_view_audio.setOnClickListener {
+                itemListener?.onItemClick(it, position, data)
             }
         }
     }

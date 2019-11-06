@@ -10,6 +10,7 @@
 	android:orientation="horizontal">
 	
 	<ImageView
+		android:id="@+id/item_message_audio_state"
 		android:layout_width="32dp"
 		android:layout_height="32dp"
 		android:padding="@dimen/item_message_padding"

@@ -5,6 +5,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -13,6 +14,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
+import kotlinx.android.synthetic.main.item_message_audio.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
@@ -27,7 +29,11 @@ import qsos.core.lib.utils.dialog.AbsBottomDialog
 import qsos.core.lib.utils.dialog.BottomDialog
 import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.core.lib.utils.file.FileUtils
+import qsos.core.player.PlayerConfigHelper
+import qsos.core.player.audio.AudioPlayerHelper
+import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.base.fragment.BaseFragment
+import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.DateUtils
@@ -55,6 +61,7 @@ class ChatFragment(
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
     private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
+    private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatMessageModel = DefChatMessageModelIml()
@@ -64,8 +71,16 @@ class ChatFragment(
 
     override fun initView(view: View) {
 
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!)
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, object : OnListItemClickListener {
+            override fun onItemClick(view: View, position: Int, obj: Any?) {
+                preOnItemClick(view, position, obj)
+            }
 
+            override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                preOnItemLongClick(view, position, obj)
+            }
+
+        })
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
@@ -164,13 +179,20 @@ class ChatFragment(
         }
     }
 
-    override fun sendFileMessage(type: MChatMessageType, files: List<HttpFileEntity>) {
+    override fun sendFileMessage(type: MChatMessageType, files: ArrayList<HttpFileEntity>) {
         files.forEach { file ->
             val map = HashMap<String, Any?>()
             map["contentType"] = type.contentType
             map["contentDesc"] = "文件"
             map["name"] = file.filename
             map["url"] = file.path
+            when (type) {
+                MChatMessageType.AUDIO -> {
+                    map["length"] = file.adjoin as Int
+                }
+                else -> {
+                }
+            }
             val message = MChatMessage(
                     user = ChatMainActivity.mLoginUser.value!!,
                     createTime = DateUtils.format(date = Date()),
@@ -191,7 +213,7 @@ class ChatFragment(
         mMessageAdapter?.notifyDataSetChanged()
         mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
 
-        uploadFile(0, files)
+        uploadFile(files)
     }
 
     override fun notifySendMessage(result: MChatMessage) {
@@ -201,14 +223,21 @@ class ChatFragment(
         mMessageAdapter?.notifyDataSetChanged()
     }
 
+    override fun onPause() {
+        stopAudioPlay()
+        super.onPause()
+    }
+
     override fun takeAudio() {
         BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
             override fun bindView(dialog: AbsBottomDialog) {
-                AudioUtils.record(dialog).subscribe({
-                    val file = File(it)
+                AudioUtils.record(dialog).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                    val file = File(it.audioPath)
                     if (file.exists()) {
+                        val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
+                        fileEntity.adjoin = it.recordTime
                         sendFileMessage(MChatMessageType.AUDIO, arrayListOf(
-                                HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
+                                fileEntity
                         ))
                     } else {
                         ToastUtils.showToast(mContext, "文件不存在")
@@ -237,19 +266,20 @@ class ChatFragment(
     }
 
     override fun takeAlbum() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeFiles(arrayOf("image/*"))
-                .flatMap {
+        RxImagePicker.with((context as FragmentActivity).supportFragmentManager)
+                .takeFiles(arrayOf("image/*")).flatMap {
                     val files = arrayListOf<File>()
                     it.forEachIndexed { index, uri ->
-                        if (index < 9) {
+                        if (index < 10) {
                             RxImageConverters.uriToFile(mContext, uri, FileUtils.createImageFile())?.let { f ->
                                 files.add(f)
                             }
+                        } else {
+                            ToastUtils.showToast(mContext, "一次最多可上传9张")
                         }
                     }
                     Observable.just(files)
-                }
-                .subscribe {
+                }.observeOn(AndroidSchedulers.mainThread()).subscribe {
                     val files = arrayListOf<HttpFileEntity>()
                     it.forEach { f ->
                         files.add(HttpFileEntity(url = null, path = f.absolutePath, filename = f.name))
@@ -261,16 +291,14 @@ class ChatFragment(
     }
 
     override fun takeVideo() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeVideo()
-                .flatMap {
-                    RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
-                }
-                .subscribe {
-                    val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                    sendFileMessage(MChatMessageType.VIDEO, arrayListOf(file))
-                }.takeUnless {
-                    activity!!.isFinishing
-                }
+        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeVideo().flatMap {
+            RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
+        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
+            val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
+            sendFileMessage(MChatMessageType.VIDEO, arrayListOf(file))
+        }.takeUnless {
+            activity!!.isFinishing
+        }
     }
 
     override fun takeFile() {
@@ -283,6 +311,8 @@ class ChatFragment(
                     RxImageConverters.uriToFile(mContext, uri, FileUtils.createImageFile())?.let { f ->
                         files.add(f)
                     }
+                } else {
+                    ToastUtils.showToast(mContext, "一次最多可上传1个文件")
                 }
             }
             Observable.just(files)
@@ -297,29 +327,98 @@ class ChatFragment(
         }
     }
 
-    override fun uploadFile(index: Int, files: List<HttpFileEntity>) {
-        mFileModel?.uploadFile(files[index], object : OnTListener<HttpFileEntity> {
-            override fun back(t: HttpFileEntity) {
-                if (t.loadSuccess) {
-                    val message = t.adjoin as MChatMessage
-                    message.message.content.fields["url"] = t.url
-                    mChatMessageModel?.sendMessage(
-                            message = message,
-                            failed = { msg, result ->
-                                ToastUtils.showToast(mContext, msg)
-                                notifySendMessage(result)
-                            },
-                            success = { result ->
-                                notifySendMessage(result)
-                                if (index < files.size) {
-                                    uploadFile(index + 1, files)
-                                }
-                            })
-                } else {
-                    LogUtil.i("上传文件>>>>>" + t.progress)
+    override fun uploadFile(files: ArrayList<HttpFileEntity>) {
+        if (files.isNotEmpty()) {
+            mFileModel?.uploadFile(files[0], object : OnTListener<HttpFileEntity> {
+                override fun back(t: HttpFileEntity) {
+                    if (t.loadSuccess) {
+                        LogUtil.i("上传文件成功>>>>>" + t.filename)
+                        val message = t.adjoin as MChatMessage
+                        message.message.content.fields["url"] = t.url
+                        mChatMessageModel?.sendMessage(
+                                message = message,
+                                failed = { msg, result ->
+                                    ToastUtils.showToast(mContext, msg)
+                                    notifySendMessage(result)
+                                },
+                                success = { result ->
+                                    notifySendMessage(result)
+                                    files.removeAt(0)
+                                    if (files.isNotEmpty()) {
+                                        uploadFile(files)
+                                    }
+                                })
+                    } else {
+                        LogUtil.i("上传文件>>>>>" + t.progress)
+                    }
+                }
+            })
+        }
+    }
+
+    /**播放或停止 path 下的语音*/
+    private fun playAudio(view: View, data: MChatMessageAudio) {
+        var mAudioPlayerHelper: AudioPlayerHelper? = mPlayList[data.url]
+        if (mAudioPlayerHelper == null) {
+            /**停止其它播放*/
+            stopAudioPlay()
+            mAudioPlayerHelper = PlayerConfigHelper.previewAudio(
+                    context = mContext, position = 0,
+                    list = arrayListOf(
+                            PreAudioEntity(
+                                    name = data.name,
+                                    desc = data.name,
+                                    path = data.url
+                            )
+                    ),
+                    onPlayerListener = object : OnTListener<AudioPlayerHelper.State> {
+                        override fun back(t: AudioPlayerHelper.State) {
+                            view.apply {
+                                this.item_message_audio_state.setImageDrawable(AppCompatResources.getDrawable(mContext, when (t) {
+                                    AudioPlayerHelper.State.STOP -> {
+                                        R.drawable.icon_play
+                                    }
+                                    AudioPlayerHelper.State.ERROR -> {
+                                        ToastUtils.showToast(mContext, "播放错误")
+                                        R.drawable.icon_play
+                                    }
+                                    else -> {
+                                        R.drawable.icon_pause
+                                    }
+                                }))
+                            }
+
+                        }
+                    }
+            )
+            mPlayList[data.url] = mAudioPlayerHelper
+        } else {
+            /**停止当前音频播放*/
+            mPlayList.remove(data.url)
+            mAudioPlayerHelper.stop()
+        }
+    }
+
+    /**停止所有语音播放*/
+    private fun stopAudioPlay() {
+        mPlayList.values.forEach {
+            it?.stop()
+        }
+    }
+
+    private fun preOnItemClick(view: View, position: Int, obj: Any?) {
+        when (view.id) {
+            R.id.item_message_view_audio -> {
+                if (obj is MChatMessage) {
+                    if (obj.content is MChatMessageAudio) {
+                        playAudio(view, obj.content as MChatMessageAudio)
+                    }
                 }
             }
+        }
+    }
 
-        })
+    private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
+
     }
 }

@@ -4,6 +4,7 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageHelper
+import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
 
@@ -60,7 +61,7 @@ data class MChatMessage(
     interface MessageConfig {
 
         /**判定消息内容布局*/
-        fun getHolder(session: ChatSession, view: View, @LayoutRes viewType: Int): BaseHolder<MChatMessage>
+        fun getHolder(session: ChatSession, view: View, @LayoutRes viewType: Int): ItemChatMessageBaseViewHolder
 
         /**判定消息内容解析类型*/
         fun getContentType(contentType: Int): Type

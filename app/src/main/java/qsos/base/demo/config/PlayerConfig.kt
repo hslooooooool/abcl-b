@@ -13,6 +13,7 @@ import qsos.core.lib.utils.dialog.BottomDialog
 import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.core.lib.utils.file.FileUtils
 import qsos.core.player.R
+import qsos.core.player.audio.AudioPlayerHelper
 import qsos.core.player.config.DefPlayerConfig
 import qsos.core.player.config.IPlayerConfig
 import qsos.core.player.data.PreAudioEntity
@@ -27,7 +28,8 @@ import java.io.File
 
 /**
  * @author : 华清松
- * 文件预览具体实现
+ * 文件预览具体实现，附件预览后应缓存并替换为本地路径预览
+ * TODO 此为独立功能实现，将在ABCL-C层实现
  */
 class PlayerConfig : IPlayerConfig {
     private val mDefPlayerConfig: DefPlayerConfig = DefPlayerConfig()
@@ -37,17 +39,31 @@ class PlayerConfig : IPlayerConfig {
     }
 
     override fun previewVideo(context: Context, position: Int, list: List<PreVideoEntity>) {
-        // 自行实现视频播放，如使用 节操播放器 等，这里采用本地软件打开
-        try {
-            FileUtils.openFileByPhone(context as Activity, File(list[position].path))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Timber.tag("文件预览").e(e)
-        }
+        mDefPlayerConfig.previewVideo(context, position, list)
     }
 
-    override fun previewAudio(context: Context, position: Int, list: List<PreAudioEntity>) {
-        mDefPlayerConfig.previewAudio(context, position, list)
+    override fun previewAudio(
+            context: Context, position: Int,
+            list: List<PreAudioEntity>,
+            onPlayerListener: OnTListener<AudioPlayerHelper.State>?
+    ): AudioPlayerHelper? {
+        val path = list[position].path
+        val playType: AudioPlayerHelper.PlayType = when {
+            path.startsWith("http") || path.startsWith("ftp") -> AudioPlayerHelper.PlayType.URL
+            else -> AudioPlayerHelper.PlayType.PATH
+        }
+        val mAudioPlayerHelper = AudioPlayerHelper().init(
+                AudioPlayerHelper.PlayBuild(context, playType, list[position].path,
+                        object : AudioPlayerHelper.PlayerListener {
+                            override fun onState(state: AudioPlayerHelper.State) {
+                                onPlayerListener?.back(state)
+                            }
+                        }
+                )
+        )
+        /**播放当前音频*/
+        mAudioPlayerHelper.play()
+        return mAudioPlayerHelper
     }
 
     override fun previewDocument(context: Context, data: PreDocumentEntity) {
