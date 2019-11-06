@@ -5,7 +5,6 @@ import androidx.annotation.LayoutRes
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageHelper
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
-import qsos.lib.base.base.holder.BaseHolder
 import java.lang.reflect.Type
 
 /**
@@ -56,6 +55,12 @@ data class MChatMessage(
 
     /**消息唯一判定值*/
     var hashCode: Int? = null
+        get() {
+            if (field == null) {
+                field = this.hashCode()
+            }
+            return field
+        }
 
     /**消息内容配置接口*/
     interface MessageConfig {

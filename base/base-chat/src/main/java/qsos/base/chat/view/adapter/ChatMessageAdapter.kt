@@ -19,6 +19,20 @@ class ChatMessageAdapter(
         val itemListener: OnListItemClickListener? = null
 ) : BaseAdapter<MChatMessage>(list) {
 
+    override fun onBindViewHolder(holder: BaseHolder<MChatMessage>, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            holder as ItemChatMessageBaseViewHolder
+            payloads.forEach {
+                /**更新消息状态*/
+                if (it is ItemChatMessageBaseViewHolder.UpdateType) {
+                    holder.updateState(position, data[position], it)
+                }
+            }
+        }
+    }
+
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
     override fun getHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {

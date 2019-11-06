@@ -1,6 +1,8 @@
 package qsos.base.chat.view.fragment
 
+import android.view.View
 import qsos.base.chat.data.entity.MChatMessage
+import qsos.base.chat.data.entity.MChatMessageAudio
 import qsos.base.chat.data.entity.MChatMessageType
 import qsos.lib.netservice.file.HttpFileEntity
 
@@ -35,8 +37,10 @@ interface IChatFragment {
     fun takeFile()
 
     /**文件上传，采用递归，依次上传
-     * @param index 正在上传的文件下标，默认从0开始
      * @param files 总计需要上传的文件
      * */
     fun uploadFile(files: ArrayList<HttpFileEntity>)
+
+    /**语音播放*/
+    fun playAudio(view: View, data: MChatMessageAudio)
 }

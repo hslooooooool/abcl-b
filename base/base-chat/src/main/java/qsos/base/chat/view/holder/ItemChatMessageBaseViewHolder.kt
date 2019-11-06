@@ -25,12 +25,36 @@ abstract class ItemChatMessageBaseViewHolder(
         private val session: ChatSession, view: View
 ) : BaseHolder<MChatMessage>(view) {
 
+    enum class UpdateType(val str: String) {
+        UPLOAD_STATE("上传状态"),
+        READ_STATE("读取状态"),
+        SEND_STATE("发送状态");
+    }
+
     private var mItemListener: OnListItemClickListener? = null
 
     /**设置消息列表项点击监听*/
     fun setOnListItemClickListener(itemListener: OnListItemClickListener?): ItemChatMessageBaseViewHolder {
         this.mItemListener = itemListener
         return this
+    }
+
+    /**更新消息状态*/
+    fun updateState(position: Int, data: MChatMessage, type: UpdateType) {
+        val contentView = itemView.getTag(R.id.item_message_time) as View
+        when (type) {
+            UpdateType.UPLOAD_STATE -> {
+                /**更新消息文件上传状态*/
+                if (this is ItemChatMessageBaseFileViewHolder) {
+                    // 注意这行代码，置 null 后让程序重新解析 json 数据
+                    data.content = null
+                    this.updateFileState(contentView, data, position)
+                }
+            }
+            else -> {
+
+            }
+        }
     }
 
     /**展示消息内容数据*/
@@ -47,12 +71,15 @@ abstract class ItemChatMessageBaseViewHolder(
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
             itemView.findViewById<View>(R.id.item_message_left)
         }.apply {
+            if (itemView.getTag(R.id.item_message_time) == null) {
+                itemView.setTag(R.id.item_message_time, this)
+            }
 
             visibility = View.VISIBLE
 
             findViewById<TextView>(R.id.item_message_user_name).text = data.user.userName
 
-            findViewById<ImageView>(R.id.item_message_send_state).visibility =
+            findViewById<ImageView>(R.id.item_message_state).visibility =
                     if (data.sendStatus == MChatSendStatus.FAILED) {
                         View.VISIBLE
                     } else {

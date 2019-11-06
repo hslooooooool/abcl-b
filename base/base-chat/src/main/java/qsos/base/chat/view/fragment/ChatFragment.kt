@@ -22,6 +22,7 @@ import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
+import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
 import qsos.core.file.Sources
@@ -56,12 +57,12 @@ class ChatFragment(
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
 
-    private var mChatMessageModel: IChatModel.IMessage? = null
     private var mFileModel: IFileModel? = null
-    private var mLinearLayoutManager: LinearLayoutManager? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
-    private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
+    private var mChatMessageModel: IChatModel.IMessage? = null
+    private var mLinearLayoutManager: LinearLayoutManager? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
+    private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatMessageModel = DefChatMessageModelIml()
@@ -328,15 +329,20 @@ class ChatFragment(
     }
 
     override fun uploadFile(files: ArrayList<HttpFileEntity>) {
-        if (files.isNotEmpty()) {
-            mFileModel?.uploadFile(files[0], object : OnTListener<HttpFileEntity> {
+        if (!mMessageData.value.isNullOrEmpty() && files.isNotEmpty()) {
+            val file = files[0]
+
+            uploadFileMessage(file, MBaseChatMessageFile.UpLoadState.LOADING)
+
+            mFileModel?.uploadFile(file, object : OnTListener<HttpFileEntity> {
                 override fun back(t: HttpFileEntity) {
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
-                        val message = t.adjoin as MChatMessage
-                        message.message.content.fields["url"] = t.url
+
+                        uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
+
                         mChatMessageModel?.sendMessage(
-                                message = message,
+                                message = t.adjoin as MChatMessage,
                                 failed = { msg, result ->
                                     ToastUtils.showToast(mContext, msg)
                                     notifySendMessage(result)
@@ -356,8 +362,22 @@ class ChatFragment(
         }
     }
 
-    /**播放或停止 path 下的语音*/
-    private fun playAudio(view: View, data: MChatMessageAudio) {
+    private fun uploadFileMessage(file: HttpFileEntity, state: MBaseChatMessageFile.UpLoadState) {
+        val hashCode = (file.adjoin as MChatMessage).hashCode!!
+        var position: Int? = null
+        for ((index, msg) in mMessageData.value!!.withIndex()) {
+            if (msg.hashCode == hashCode) {
+                mMessageData.value!![index].message.content.fields["uploadState"] = state
+                position = index
+                break
+            }
+        }
+        position?.let {
+            mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.UPLOAD_STATE)
+        }
+    }
+
+    override fun playAudio(view: View, data: MChatMessageAudio) {
         var mAudioPlayerHelper: AudioPlayerHelper? = mPlayList[data.url]
         if (mAudioPlayerHelper == null) {
             /**停止其它播放*/
@@ -406,6 +426,7 @@ class ChatFragment(
         }
     }
 
+    /**列表项点击*/
     private fun preOnItemClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
             R.id.item_message_view_audio -> {
@@ -418,6 +439,7 @@ class ChatFragment(
         }
     }
 
+    /**列表项长按*/
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
 
     }
