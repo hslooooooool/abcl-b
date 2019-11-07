@@ -30,6 +30,12 @@ interface ApiChatMessage {
             @Query(value = "messageId") messageId: Int
     ): Call<BaseResponse<MChatMessage>>
 
+    @GET(value = "$GROUP/getMessageListByIds")
+    fun getMessageListByIds(
+            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Query(value = "messageIds") messageIds: List<Int>
+    ): Call<BaseResponse<List<MChatMessage>>>
+
     @GET(value = "$GROUP/getMessageListByUserId")
     fun getMessageListByUserId(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
