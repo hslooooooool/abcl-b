@@ -14,12 +14,13 @@ import kotlin.coroutines.CoroutineContext
  */
 @Database(
         version = 1,
-        entities = [DBMessage::class, DBRelationMessage::class]
+        entities = [DBMessage::class, DBRelationMessage::class, DBSession::class]
 )
 abstract class ChatDatabase : RoomDatabase() {
 
     abstract val relationMessageDao: RelationMessageDao
     abstract val messageDao: MessageDao
+    abstract val sessionDao: SessionDao
 
     companion object {
 
@@ -86,6 +87,41 @@ abstract class ChatDatabase : RoomDatabase() {
                             .insert(msg)
                 }
                 result.invoke(messageId as Int)
+            }
+        }
+
+    }
+
+    object DefSessionDao {
+        private val mJob: CoroutineContext = Dispatchers.Main + Job()
+
+        fun insert(session: DBSession, result: () -> Unit) {
+            CoroutineScope(mJob).launch {
+                withContext(Dispatchers.IO) {
+                    getInstance(BaseApplication.appContext).sessionDao
+                            .insert(session)
+                }
+                result.invoke()
+            }
+        }
+
+        fun update(session: DBSession, result: () -> Unit) {
+            CoroutineScope(mJob).launch {
+                withContext(Dispatchers.IO) {
+                    getInstance(BaseApplication.appContext).sessionDao
+                            .update(session)
+                }
+                result.invoke()
+            }
+        }
+
+        fun getSessionById(sessionId: Int, result: (session: DBSession?) -> Unit) {
+            CoroutineScope(mJob).launch {
+                val session = withContext(Dispatchers.IO) {
+                    getInstance(BaseApplication.appContext).sessionDao
+                            .getSessionById(sessionId)
+                }
+                result.invoke(session)
             }
         }
 

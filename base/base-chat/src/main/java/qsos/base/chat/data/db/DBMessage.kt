@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
  * 消息数据库
  * @param messageId 消息ID
  * @param contentJson 消息内容Json数据
+ * @see
  */
 @Entity(
         tableName = "msg"

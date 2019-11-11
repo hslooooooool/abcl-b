@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import qsos.base.chat.data.service.IChatMessageService
 
 /**
  * @author : 华清松
@@ -22,11 +23,11 @@ data class DBRelationMessage(
         @ColumnInfo(name = "id")
         val id: Long = -1,
         @ColumnInfo(name = "session_id")
-        val sessionId: Int,
+        override val sessionId: Int,
         @ColumnInfo(name = "message_id")
-        val messageId: Int,
+        override val messageId: Int,
         @ColumnInfo(name = "user_id")
-        val userId: Int,
+        override val userId: Int,
         @ColumnInfo(name = "timeline")
-        val timeline: Int
-)
+        override val timeline: Int
+) : IChatMessageService.IRelation

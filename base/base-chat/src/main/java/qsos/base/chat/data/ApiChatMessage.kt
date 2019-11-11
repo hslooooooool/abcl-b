@@ -36,8 +36,8 @@ interface ApiChatMessage {
             @Query(value = "messageIds") messageIds: List<Int>
     ): Call<BaseResponse<List<MChatMessage>>>
 
-    @GET(value = "$GROUP/getMessageOfSession")
-    fun getMessageOfSession(
+    @GET(value = "$GROUP/getMessageListBySessionIdAndTimeline")
+    fun getMessageListBySessionIdAndTimeline(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int,
             @Query(value = "timeline") timeline: Int

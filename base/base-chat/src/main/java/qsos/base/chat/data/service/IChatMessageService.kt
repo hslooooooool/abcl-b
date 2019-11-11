@@ -36,10 +36,10 @@ interface IChatMessageService {
     interface IChatBase<MSG> {
 
         /**获取消息列表数据，涵盖：会话ID、消息内容、发送人、时序、读取状态*/
-        fun getMessageList(msgList: ArrayList<IRelation>)
+        fun getMessageList(msgList: List<IRelation>)
 
         /**检查消息时序正确性*/
-        fun checkTimeline(msgForm: FormPullMsgRelation): FormPullMsgRelation
+        fun checkTimeline(msgForm: FormPullMsgRelation, result: (msgForm: FormPullMsgRelation) -> Unit)
 
         /**保存消息关系数据，涵盖：会话ID、消息ID、发送人ID、时序*/
         fun saveRelation(relation: IRelation)
@@ -48,7 +48,7 @@ interface IChatMessageService {
         fun saveMessage(msg: MSG)
 
         /**通知UI更新消息数据，根据展示需求自行从数据库获取对应数据后更新UI*/
-        fun notifyUI(form: ArrayList<IRelation>)
+        fun notifyUI(form: List<IRelation>)
 
         /**更新消息读取状态*/
         fun updateMessageReadState()
@@ -61,7 +61,7 @@ interface IChatMessageService {
      * @param sessionId 会话ID
      * @param timeline 会话最新时序
      * */
-    data class FormPullMsgRelation(val sessionId: Int, val timeline: Int)
+    data class FormPullMsgRelation(val sessionId: Int, var timeline: Int)
 
     data class FormPullMsgList(val msgIds: ArrayList<Int>)
 
