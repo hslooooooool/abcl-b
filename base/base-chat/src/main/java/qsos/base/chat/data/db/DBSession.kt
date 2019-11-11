@@ -15,11 +15,11 @@ import androidx.room.PrimaryKey
         tableName = "session"
 )
 data class DBSession(
+        @PrimaryKey
         @ColumnInfo(name = "id")
-        @PrimaryKey(autoGenerate = true)
         val sessionId: Int? = -1,
         @ColumnInfo(name = "message_id")
-        val lastMessageId: Int,
+        var lastMessageId: Int,
         @ColumnInfo(name = "timeline")
-        val lastTimeline: Int = -1
+        var lastTimeline: Int = -1
 )

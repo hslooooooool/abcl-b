@@ -28,15 +28,15 @@ interface IChatMessageService {
     interface IChatPullSession<MSG> : IChatBase<MSG> {
 
         /**拉取最新消息*/
-        fun pullMessage(msgForm: FormPullMsgRelation)
+        fun pullMessage(sessionId: Int, success: () -> Unit)
 
     }
 
     /**消息通用服务*/
     interface IChatBase<MSG> {
 
-        /**获取消息列表数据，涵盖：会话ID、消息内容、发送人、时序、读取状态*/
-        fun getMessageList(msgList: List<IRelation>)
+        /**获取消息列表数据*/
+        fun getMessageList(msgList: List<IRelation>, success: () -> Unit)
 
         /**检查消息时序正确性*/
         fun checkTimeline(msgForm: FormPullMsgRelation, result: (msgForm: FormPullMsgRelation) -> Unit)

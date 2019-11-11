@@ -19,6 +19,8 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.data.service.ChatPullServiceImpl
+import qsos.base.chat.data.service.IChatMessageService
 import qsos.base.chat.data.service.MessageSendServiceHelper
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
@@ -61,6 +63,7 @@ class ChatFragment(
     private var mFileModel: IFileModel? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mChatMessageModel: IChatModel.IMessage? = null
+    private var mChatPullServiceImpl: IChatMessageService.IChatPullSession<ChatMessage>? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
     private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
@@ -69,6 +72,8 @@ class ChatFragment(
         mChatMessageModel = DefChatMessageModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
         mMessageData.value = arrayListOf()
+
+        mChatPullServiceImpl = ChatPullServiceImpl(mChatMessageModel!!.mJob)
     }
 
     override fun initView(view: View) {
@@ -130,10 +135,18 @@ class ChatFragment(
         }
 
         getData()
+
+        pullMessage()
     }
 
     override fun getData() {
         mChatMessageModel?.getMessageListBySessionId(sessionId = mSession.sessionId)
+    }
+
+    private fun pullMessage() {
+        mChatPullServiceImpl?.pullMessage(sessionId = mSession.sessionId) {
+            pullMessage()
+        }
     }
 
     override fun onDestroy() {

@@ -16,7 +16,7 @@ interface RelationMessageDao {
      * @param sessionId 会话ID
      * @return 消息关系数据列表
      * */
-    @Query("SELECT * FROM msg_and_user_and_session where session_id=:sessionId")
+    @Query("SELECT * FROM msg_and_user_and_session WHERE session_id=:sessionId")
     fun getMessageListBySessionId(sessionId: Int): List<DBRelationMessage>
 
     /**插入消息数据

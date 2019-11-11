@@ -20,10 +20,11 @@ class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItem
                 ImageLoaderUtils.display(context, item_chat_group_avatar, avatar)
 
                 item_chat_group_name.text = name
-
-                item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
-                        DateUtils.strToDate(lastMessage?.createTime!!)
-                )
+                lastMessage?.createTime?.let {
+                    item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
+                            DateUtils.strToDate(it)
+                    )
+                }
                 lastMessage?.message?.content?.getContentDesc()?.let {
                     item_chat_group_desc.text = it
                 }

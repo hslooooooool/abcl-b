@@ -1,52 +1,52 @@
 package qsos.base.chat.data.service
 
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import qsos.base.chat.data.ApiChatMessage
+import qsos.base.chat.data.db.ChatDatabase
 import qsos.base.chat.data.db.DBRelationMessage
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.lib.base.utils.LogUtil
+import qsos.base.chat.data.db.DBSession
+import qsos.base.chat.data.entity.ChatMessage
+import qsos.lib.base.base.BaseApplication
 import qsos.lib.netservice.ApiEngine
-import qsos.lib.netservice.expand.retrofitByDef
+import kotlin.coroutines.CoroutineContext
 
-class ChatPullServiceImpl : ChatBaseServiceImpl(), IChatMessageService.IChatPullSession<MChatMessage> {
+class ChatPullServiceImpl(
+        override val mJob: CoroutineContext = Dispatchers.Main + Job()
+) : ChatBaseServiceImpl(mJob), IChatMessageService.IChatPullSession<ChatMessage> {
 
-    override fun pullMessage(msgForm: IChatMessageService.FormPullMsgRelation) {
-        CoroutineScope(mJob).retrofitByDef<List<MChatMessage>> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
-                    sessionId = msgForm.sessionId, timeline = msgForm.timeline
-            )
-            onFailed { _, msg, _ ->
-                LogUtil.e(msg ?: "会话 ${msgForm.sessionId} 消息拉取失败")
+    override fun pullMessage(sessionId: Int, success: () -> Unit) {
+        CoroutineScope(mJob).launch {
+            val result = withContext(Dispatchers.IO) {
+                var session = ChatDatabase.getInstance(BaseApplication.appContext)
+                        .sessionDao
+                        .getSessionById(sessionId)
+                if (session == null) {
+                    session = DBSession(sessionId = sessionId, lastMessageId = -1, lastTimeline = -1)
+                    ChatDatabase.getInstance(BaseApplication.appContext)
+                            .sessionDao
+                            .insert(session)
+                }
+                ApiEngine.createService(ApiChatMessage::class.java)
+                        .getMessageListBySessionIdAndTimeline(
+                                sessionId = sessionId,
+                                timeline = session.lastTimeline
+                        ).execute()
             }
-            onSuccess {
-                it?.map { msg ->
+            result.body()?.data?.let { msgList ->
+                msgList.map { msg ->
                     DBRelationMessage(
                             sessionId = msg.message.sessionId,
                             messageId = msg.message.messageId,
                             userId = msg.user.userId,
                             timeline = msg.message.sequence
                     )
-                }?.let { msgList ->
-                    getMessageList(msgList)
+                }.let { list ->
+                    getMessageList(list) {
+                        success.invoke()
+                    }
                 }
             }
         }
     }
 
-    private fun doDb(index: Int, msgList: List<MChatMessage>) {
-        val size = msgList.size
-        if (size > 0 && size - index > 1) {
-            val msg = msgList[index]
-            val timeline = msg.message.sequence
-            checkTimeline(
-                    msgForm = IChatMessageService.FormPullMsgRelation(sessionId = msg.message.sessionId, timeline = msg.message.sequence),
-                    result = { relation ->
-                        if (relation.timeline == timeline) {
-                            saveMessage(msg)
-                            doDb(index + 1, msgList)
-                        }
-                    }
-            )
-        }
-    }
 }
