@@ -10,7 +10,7 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.expand.retrofitByDef
 import kotlin.coroutines.CoroutineContext
 
-class ChatBaseServiceImpl : IChatMessageService.IChatBase<MChatMessage> {
+abstract class ChatBaseServiceImpl : IChatMessageService.IChatBase<MChatMessage> {
     private val mJob: CoroutineContext = Dispatchers.Main + Job()
 
     override fun getMessageList(msgList: ArrayList<IChatMessageService.IRelation>) {
