@@ -17,7 +17,9 @@ import androidx.room.PrimaryKey
 data class DBMessage(
         @ColumnInfo(name = "id")
         @PrimaryKey(autoGenerate = true)
-        val messageId: Int? = -1,
+        var id: Int = -1,
+        @ColumnInfo(name = "message_id")
+        var messageId: Int,
         @ColumnInfo(name = "content_json")
-        val contentJson: String
+        var contentJson: String
 )

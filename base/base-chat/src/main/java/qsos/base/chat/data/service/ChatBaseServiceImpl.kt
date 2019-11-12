@@ -10,12 +10,11 @@ import qsos.base.chat.data.db.ChatDatabase
 import qsos.base.chat.data.db.DBMessage
 import qsos.base.chat.data.db.DBRelationMessage
 import qsos.base.chat.data.entity.ChatMessage
-import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.core.config.BaseConfig
 import qsos.lib.base.base.BaseApplication
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
-import qsos.lib.netservice.expand.retrofitByDef
+import retrofit2.await
 import kotlin.coroutines.CoroutineContext
 
 abstract class ChatBaseServiceImpl(
@@ -28,26 +27,21 @@ abstract class ChatBaseServiceImpl(
             messageIds.add(it.messageId)
         }
         /**获取消息列表*/
-        CoroutineScope(mJob).retrofitByDef<List<ChatMessage>> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListByIds(messageIds = messageIds)
-            onFailed { _, _, _ ->
-                LogUtil.e("消息列表", "获取消息列表失败")
-            }
-            onSuccess {
-                if (it == null) {
-                    LogUtil.e("消息列表", "获取消息列表失败")
-                } else {
-                    LogUtil.i("消息列表", "获取新消息列表成功")
-                    /**保存到数据库*/
-                    it.forEach { msg ->
-                        saveMessage(msg)
-                    }
-                    /**更新UI*/
-                    notifyUI(msgList)
-
-                    /**请求处理成功*/
-                    success.invoke()
+        CoroutineScope(mJob).launch(Dispatchers.IO) {
+            val api = ApiEngine.createService(ApiChatMessage::class.java)
+                    .getMessageListByIds(messageIds = messageIds)
+            val result = api.await()
+            result.data?.let {
+                LogUtil.i("消息列表", "获取新消息列表成功")
+                /**保存到数据库*/
+                it.forEach { msg ->
+                    saveMessage(msg)
                 }
+                /**更新UI*/
+                notifyUI(msgList)
+
+                /**请求处理成功*/
+                success.invoke()
             }
         }
     }
@@ -69,45 +63,38 @@ abstract class ChatBaseServiceImpl(
         }
     }
 
-    override fun saveRelation(relation: IChatMessageService.IRelation) {
-        CoroutineScope(mJob).launch {
-            withContext(Dispatchers.IO) {
-                ChatDatabase.getInstance(BaseApplication.appContext)
-                        .relationMessageDao
-                        .insert(DBRelationMessage(
-                                sessionId = relation.sessionId,
-                                messageId = relation.messageId,
-                                userId = relation.userId,
-                                timeline = relation.timeline
-                        ))
-                val session = ChatDatabase.getInstance(BaseApplication.appContext)
-                        .sessionDao
-                        .getSessionById(sessionId = relation.sessionId)
-                session?.let {
-                    if (session.lastTimeline < relation.timeline) {
-                        session.lastMessageId = relation.messageId
-                        session.lastTimeline = relation.timeline
-                        ChatDatabase.getInstance(BaseApplication.appContext)
-                                .sessionDao
-                                .update(session)
-                    }
-                }
-            }
-        }
+    override fun saveMessage(msg: ChatMessage) {
+        val msgId = ChatDatabase.getInstance(BaseApplication.appContext).messageDao
+                .insert(DBMessage(messageId = msg.messageId, contentJson = Gson().toJson(msg))).toInt()
+        val sessionId = msg.sessionId
+        saveRelation(DBRelationMessage(
+                messageId = msgId,
+                sessionId = sessionId,
+                userId = BaseConfig.userId,
+                timeline = msg.sequence
+        ))
     }
 
-    override fun saveMessage(msg: ChatMessage) {
-        ChatDatabase.DefMessageDao.insert(
-                msg = DBMessage(contentJson = Gson().toJson(msg))
-        ) { msgId ->
-            val sessionId = msg.sessionId
-            saveRelation(DBRelationMessage(
-                    messageId = msgId,
-                    sessionId = sessionId,
-                    userId = BaseConfig.userId,
-                    timeline = msg.sequence
-            ))
-        }
+    override fun saveRelation(relation: IChatMessageService.IRelation) {
+        ChatDatabase.getInstance(BaseApplication.appContext)
+                .relationMessageDao
+                .insert(DBRelationMessage(
+                        sessionId = relation.sessionId,
+                        messageId = relation.messageId,
+                        userId = relation.userId,
+                        timeline = relation.timeline
+                ))
+        ChatDatabase.getInstance(BaseApplication.appContext)
+                .sessionDao
+                .getSessionById(sessionId = relation.sessionId)?.let {
+                    if (it.lastTimeline < relation.timeline) {
+                        it.lastMessageId = relation.messageId
+                        it.lastTimeline = relation.timeline
+                        ChatDatabase.getInstance(BaseApplication.appContext)
+                                .sessionDao
+                                .update(it)
+                    }
+                }
     }
 
     override fun notifyUI(form: List<IChatMessageService.IRelation>) {

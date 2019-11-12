@@ -55,7 +55,7 @@ object MessageSendServiceHelper {
     /**将发送的消息入库*/
     private fun insertMessage(message: MChatMessage) {
         ChatDatabase.DefMessageDao.insert(
-                msg = DBMessage(contentJson = Gson().toJson(message))
+                msg = DBMessage(messageId = message.message.messageId, contentJson = Gson().toJson(message))
         ) { msgId ->
             val sessionId = message.message.sessionId
             ChatDatabase.DefRelationMessageDao.insert(DBRelationMessage(

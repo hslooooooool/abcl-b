@@ -6,6 +6,10 @@ package qsos.base.chat.data.service
  */
 interface IChatMessageService {
 
+    interface IMessageUpdateService{
+
+    }
+
     /**消息发送服务*/
     interface IChatSend<MSG> : IChatBase<MSG> {
 

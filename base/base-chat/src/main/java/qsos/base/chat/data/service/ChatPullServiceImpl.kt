@@ -8,6 +8,7 @@ import qsos.base.chat.data.db.DBSession
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.lib.base.base.BaseApplication
 import qsos.lib.netservice.ApiEngine
+import retrofit2.await
 import kotlin.coroutines.CoroutineContext
 
 class ChatPullServiceImpl(
@@ -16,7 +17,7 @@ class ChatPullServiceImpl(
 
     override fun pullMessage(sessionId: Int, success: () -> Unit) {
         CoroutineScope(mJob).launch {
-            val result = withContext(Dispatchers.IO) {
+            val call = withContext(Dispatchers.IO) {
                 var session = ChatDatabase.getInstance(BaseApplication.appContext)
                         .sessionDao
                         .getSessionById(sessionId)
@@ -30,9 +31,10 @@ class ChatPullServiceImpl(
                         .getMessageListBySessionIdAndTimeline(
                                 sessionId = sessionId,
                                 timeline = session.lastTimeline
-                        ).execute()
+                        )
             }
-            result.body()?.data?.let { msgList ->
+            val result = call.await()
+            result.data?.let { msgList ->
                 msgList.map { msg ->
                     DBRelationMessage(
                             sessionId = msg.message.sessionId,
