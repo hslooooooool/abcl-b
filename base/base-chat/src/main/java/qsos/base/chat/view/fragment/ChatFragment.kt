@@ -19,7 +19,7 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.data.service.MessageSendServiceHelper
+import qsos.base.chat.data.model.MessageHelper
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -130,6 +130,7 @@ class ChatFragment(
         }
 
         getData()
+
     }
 
     override fun getData() {
@@ -168,7 +169,7 @@ class ChatFragment(
             mMessageAdapter?.notifyDataSetChanged()
             mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
 
-            MessageSendServiceHelper.sendMessage(
+            MessageHelper.sendMessage(
                     message = message,
                     failed = { msg, result ->
                         ToastUtils.showToast(mContext, msg)
@@ -347,7 +348,7 @@ class ChatFragment(
 
                         uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
 
-                        MessageSendServiceHelper.sendMessage(
+                        MessageHelper.sendMessage(
                                 message = t.adjoin as MChatMessage,
                                 failed = { msg, result ->
                                     ToastUtils.showToast(mContext, msg)

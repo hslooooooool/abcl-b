@@ -59,6 +59,7 @@ class ChatMainActivity(
         mAboutMeTab = getTabItem("关于我", R.color.blue_light)
 
         mChatUserModel = DefChatUserModelIml()
+
     }
 
     override fun initView() {
@@ -94,7 +95,8 @@ class ChatMainActivity(
     }
 
     override fun onDestroy() {
-        mChatUserModel?.clear()
         super.onDestroy()
+
+        mChatUserModel?.clear()
     }
 }
