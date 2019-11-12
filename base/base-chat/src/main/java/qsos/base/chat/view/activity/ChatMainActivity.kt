@@ -1,5 +1,6 @@
 package qsos.base.chat.view.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.data.service.MessageUpdateService
 import qsos.base.chat.view.fragment.ChatAboutMeFragment
 import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatGroupListFragment
@@ -43,6 +45,7 @@ class ChatMainActivity(
     private var mAboutMeTab: View? = null
 
     private var mChatUserModel: IChatModel.IUser? = null
+    private var mMessageUpdateService: Intent? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         val fragment1 = ChatGroupListFragment()
@@ -59,6 +62,10 @@ class ChatMainActivity(
         mAboutMeTab = getTabItem("关于我", R.color.blue_light)
 
         mChatUserModel = DefChatUserModelIml()
+
+        mMessageUpdateService = Intent(this, MessageUpdateService::class.java)
+        startService(mMessageUpdateService)
+
     }
 
     override fun initView() {
@@ -94,7 +101,11 @@ class ChatMainActivity(
     }
 
     override fun onDestroy() {
-        mChatUserModel?.clear()
         super.onDestroy()
+
+        mChatUserModel?.clear()
+        mMessageUpdateService?.let {
+            stopService(it)
+        }
     }
 }

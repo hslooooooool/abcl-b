@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="chat_message">消息</string>
+	<string name="chat_message_update_service">消息更新服务</string>
 	<string name="chat_friend">朋友</string>
 	<string name="chat_mine">我的</string>
 	<string name="chat_user_avatar">用户头像</string>

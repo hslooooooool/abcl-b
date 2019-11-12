@@ -9,5 +9,11 @@
 		<activity android:name="qsos.base.chat.view.activity.ChatSessionActivity" />
 		<!--聊天用户页面-->
 		<activity android:name="qsos.base.chat.view.activity.ChatUserActivity" />
+		
+		<service
+			android:name=".data.service.MessageUpdateService"
+			android:exported="true"
+			android:label="@string/chat_message_update_service" />
+		
 	</application>
 </manifest>
