@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
-import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatSendStatus
@@ -49,10 +48,6 @@ class DefChatMessageModelIml(
         }
     }
 
-    override fun getMessageById(messageId: Int): ChatMessage {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun getMessageListBySessionId(sessionId: Int) {
         CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<MChatMessage>>> {
             api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(
@@ -68,16 +63,27 @@ class DefChatMessageModelIml(
         }
     }
 
-    override fun getMessageListByUserId(userId: Int): List<ChatMessage> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getContentById(contentId: Int): ChatContent {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun deleteMessage(messageId: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun deleteMessage(
+            message: MChatMessage,
+            failed: (msg: String, message: MChatMessage) -> Unit,
+            success: (message: MChatMessage) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofitByDef<Boolean> {
+            api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(
+                    messageId = message.message.messageId
+            )
+            onFailed { _, msg, error ->
+                failed.invoke(msg ?: "撤销失败${error?.message}", message)
+            }
+            onSuccess {
+                if (it == true) {
+                    message.sendStatus = MChatSendStatus.CANCEL
+                    success.invoke(message)
+                } else {
+                    failed.invoke("撤销失败", message)
+                }
+            }
+        }
     }
 
     override fun clear() {

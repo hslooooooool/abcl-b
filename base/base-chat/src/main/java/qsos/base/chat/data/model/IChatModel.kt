@@ -113,34 +113,20 @@ interface IChatModel {
                 success: (message: MChatMessage) -> Unit
         )
 
-        /**获取消息数据
-         * @param messageId 消息ID
-         * @return 消息数据
-         * */
-        fun getMessageById(messageId: Int): ChatMessage
-
-        /**获取用户发送的消息
-         * @param userId 用户ID
-         * @return 用户发送的消息
-         * */
-        fun getMessageListByUserId(userId: Int): List<ChatMessage>
-
         /**获取会话下的消息列表
          * @param sessionId 会话ID
          * @return 会话下的消息列表 List<ChatMessage>
          * */
         fun getMessageListBySessionId(sessionId: Int)
 
-        /**获取消息内容数据
-         * @param contentId 消息内容ID
-         * @return 消息内容数据
-         * */
-        fun getContentById(contentId: Int): ChatContent
-
         /**撤回消息
-         * @param messageId 消息ID
+         * @param message 消息
          * */
-        fun deleteMessage(messageId: Int)
+        fun deleteMessage(
+                message: MChatMessage,
+                failed: (msg: String, message: MChatMessage) -> Unit,
+                success: (message: MChatMessage) -> Unit
+        )
 
     }
 

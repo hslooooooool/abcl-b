@@ -9,7 +9,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import qsos.base.chat.R
 import qsos.base.chat.data.model.DefChatSessionModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.view.fragment.ChatFragment
+import qsos.base.chat.view.fragment.ChatMessageListFragment
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.utils.ToastUtils
 
@@ -53,7 +53,7 @@ class ChatSessionActivity(
                         },
                         success = {
                             supportFragmentManager.beginTransaction()
-                                    .add(R.id.chat_message_frg, ChatFragment(it), "ChatFragment")
+                                    .add(R.id.chat_message_frg, ChatMessageListFragment(it), "ChatMessageListFragment")
                                     .commit()
                         }
                 )

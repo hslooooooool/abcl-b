@@ -7,4 +7,6 @@
 	<string name="chat_user_state_offline">离线</string>
 	<string name="chat_user_state_online">在线</string>
 	<string name="chat_input">聊天内容输入</string>
+	<string name="chat_cancel_message_notice">你撤销了一条消息</string>
+	<string name="chat_cancel_message_reedit">重新编辑</string>
 </resources>

@@ -13,7 +13,6 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.view.fragment.ChatAboutMeFragment
 import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatGroupListFragment
 import qsos.base.core.config.BaseConfig
@@ -40,23 +39,19 @@ class ChatMainActivity(
 
     private var mGroupListTab: View? = null
     private var mFriendListTab: View? = null
-    private var mAboutMeTab: View? = null
 
     private var mChatUserModel: IChatModel.IUser? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         val fragment1 = ChatGroupListFragment()
         val fragment2 = ChatFriendListFragment()
-        val fragment3 = ChatAboutMeFragment()
         fragments.clear()
         fragments.add(fragment1)
         fragments.add(fragment2)
-        fragments.add(fragment3)
         mFragmentAdapter = BaseFragmentAdapter(supportFragmentManager, fragments)
 
         mGroupListTab = getTabItem("群列表", R.color.red)
         mFriendListTab = getTabItem("通讯录", R.color.orange)
-        mAboutMeTab = getTabItem("关于我", R.color.blue_light)
 
         mChatUserModel = DefChatUserModelIml()
 
@@ -69,7 +64,6 @@ class ChatMainActivity(
 
         chat_group_tab.addTab(chat_group_tab.newTab().setCustomView(mGroupListTab))
         chat_group_tab.addTab(chat_group_tab.newTab().setCustomView(mFriendListTab))
-        chat_group_tab.addTab(chat_group_tab.newTab().setCustomView(mAboutMeTab))
 
         chat_group_vp.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(chat_group_tab))
         chat_group_tab.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(chat_group_vp))

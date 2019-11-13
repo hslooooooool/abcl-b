@@ -5,10 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.entity.ChatType
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.base.chat.data.entity.MChatSendStatus
+import qsos.base.chat.data.entity.*
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -114,8 +111,26 @@ abstract class ItemChatMessageBaseViewHolder(
                 mItemListener?.onItemLongClick(it, position, data)
                 return@setOnLongClickListener true
             }
+            if (data.sendStatus == MChatSendStatus.CANCEL) {
+                itemView.item_message_cancel.visibility = View.VISIBLE
+                itemView.item_message_main.visibility = View.GONE
+                itemView.item_message_cancel_reedit.visibility =
+                        if (data.message.cancelBack &&
+                                data.contentType == MChatMessageType.TEXT.contentType) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
 
-            setContent(this, data, position, mItemListener)
+                itemView.item_message_cancel_reedit.setOnClickListener {
+                    mItemListener?.onItemClick(it, position, data)
+                }
+            } else {
+                itemView.item_message_cancel.visibility = View.GONE
+                itemView.item_message_main.visibility = View.VISIBLE
+
+                setContent(this, data, position, mItemListener)
+            }
         }
     }
 }

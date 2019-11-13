@@ -88,7 +88,8 @@ data class MChatMessage(
 enum class MChatSendStatus(val k: String) {
     SENDING("发送中"),
     SUCCESS("发送成功"),
-    FAILED("发送失败");
+    FAILED("发送失败"),
+    CANCEL("撤销发送");
 }
 
 /**

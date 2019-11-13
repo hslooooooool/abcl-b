@@ -1,6 +1,5 @@
 package qsos.base.chat.data
 
-import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.core.config.BaseConfig
@@ -24,29 +23,12 @@ interface ApiChatMessage {
             @Body message: ChatMessage
     ): Call<BaseResponse<ChatMessage>>
 
-    @GET(value = "$GROUP/getMessageById")
-    fun getMessageById(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "messageId") messageId: Int
-    ): Call<BaseResponse<MChatMessage>>
-
-    @GET(value = "$GROUP/getMessageListByIds")
-    fun getMessageListByIds(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "messageIds") messageIds: List<Int>
-    ): Call<BaseResponse<List<ChatMessage>>>
-
     @GET(value = "$GROUP/getMessageListBySessionIdAndTimeline")
     fun getMessageListBySessionIdAndTimeline(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int,
-            @Query(value = "timeline") timeline: Int
-    ): Call<BaseResponse<List<MChatMessage>>>
-
-    @GET(value = "$GROUP/getMessageListByUserId")
-    fun getMessageListByUserId(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "userId") userId: Int
+            @Query(value = "timeline") startTimeline: Int,
+            @Query(value = "size") size: Int
     ): Call<BaseResponse<List<MChatMessage>>>
 
     @GET(value = "$GROUP/getMessageListBySessionId")
@@ -54,12 +36,6 @@ interface ApiChatMessage {
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
     ): Call<BaseResponse<List<MChatMessage>>>
-
-    @GET(value = "$GROUP/getContentById")
-    fun getContentById(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "contentId") contentId: Int
-    ): Call<BaseResponse<ChatContent>>
 
     @DELETE(value = "$GROUP/deleteMessage")
     fun deleteMessage(

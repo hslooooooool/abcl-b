@@ -6,6 +6,7 @@ package qsos.base.chat.data.entity
  * @param sessionId 会话ID
  * @param messageId 消息ID
  * @param sequence 消息顺序
+ * @param cancelBack 消息已撤回
  * @param content 消息内容
  */
 data class ChatMessage(
@@ -13,5 +14,6 @@ data class ChatMessage(
         var sessionId: Int = -1,
         var messageId: Int = -1,
         var sequence: Int = -1,
+        var cancelBack: Boolean = true,
         var content: ChatContent
 )

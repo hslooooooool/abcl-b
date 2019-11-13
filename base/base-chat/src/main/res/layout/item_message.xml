@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="wrap_content"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 	
@@ -16,7 +16,38 @@
 		android:textSize="@dimen/item_message_text_size_smallest"
 		tools:text="2011-11-11 11：11：11" />
 	
+	<LinearLayout
+		android:id="@+id/item_message_cancel"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="5dp"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:visibility="gone"
+		tools:visibility="visible">
+		
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:padding="@dimen/item_message_padding"
+			android:text="@string/chat_cancel_message_notice"
+			android:textColor="@color/gray"
+			android:textSize="@dimen/item_message_text_size_smaller" />
+		
+		<TextView
+			android:id="@+id/item_message_cancel_reedit"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:padding="@dimen/item_message_padding"
+			android:text="@string/chat_cancel_message_reedit"
+			android:textColor="@color/blue_dark"
+			android:textSize="@dimen/item_message_text_size_small" />
+	</LinearLayout>
+	
 	<RelativeLayout
+		android:id="@+id/item_message_main"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 		

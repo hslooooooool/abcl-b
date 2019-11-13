@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
+import com.noober.menu.FloatMenu
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
@@ -19,7 +20,6 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.data.model.MessageHelper
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -52,7 +52,7 @@ import kotlin.collections.HashMap
  * @author : 华清松
  * 聊天页面
  */
-class ChatFragment(
+class ChatMessageListFragment(
         private val mSession: ChatSession,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
@@ -169,7 +169,7 @@ class ChatFragment(
             mMessageAdapter?.notifyDataSetChanged()
             mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
 
-            MessageHelper.sendMessage(
+            mChatMessageModel?.sendMessage(
                     message = message,
                     failed = { msg, result ->
                         ToastUtils.showToast(mContext, msg)
@@ -348,7 +348,7 @@ class ChatFragment(
 
                         uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
 
-                        MessageHelper.sendMessage(
+                        mChatMessageModel?.sendMessage(
                                 message = t.adjoin as MChatMessage,
                                 failed = { msg, result ->
                                     ToastUtils.showToast(mContext, msg)
@@ -443,12 +443,42 @@ class ChatFragment(
                     }
                 }
             }
+            R.id.item_message_cancel_reedit -> {
+                if (obj != null && obj is MChatMessage && obj.contentType == MChatMessageType.TEXT.contentType) {
+                    val content = obj.content as MChatMessageText
+                    chat_message_edit.setText(content.content)
+                    obj.message.cancelBack = false
+                    notifySendMessage(obj)
+                }
+            }
         }
     }
 
     /**列表项长按*/
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
-
+        val floatMenu = FloatMenu(context, view)
+        floatMenu.items("撤销")
+        when (view.id) {
+            R.id.item_message_content -> {
+                if (obj != null && obj is MChatMessage) {
+                    floatMenu.setOnItemClickListener { _, index ->
+                        when (index) {
+                            0 -> {
+                                mChatMessageModel?.deleteMessage(message = obj, failed = { msg, _ ->
+                                    ToastUtils.showToast(context, msg)
+                                }, success = { result ->
+                                    result.message.cancelBack = true
+                                    notifySendMessage(result)
+                                })
+                            }
+                            else -> {
+                            }
+                        }
+                    }
+                    floatMenu.show()
+                }
+            }
+        }
     }
 
     /**检查消息附件上传情况，防止结束此页面时文件上传失败，友情提示*/
