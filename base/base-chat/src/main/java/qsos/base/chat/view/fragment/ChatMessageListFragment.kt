@@ -64,11 +64,16 @@ class ChatMessageListFragment(
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
     private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
+    private var mActive: Boolean = true
+
+    /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新的问题*/
+    private val mMessageUpdateCancel: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatMessageModel = DefChatMessageModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
         mMessageData.value = arrayListOf()
+        mMessageUpdateCancel.value = arrayListOf()
     }
 
     override fun initView(view: View) {
@@ -100,6 +105,14 @@ class ChatMessageListFragment(
 
         mMessageData.observe(this, Observer {
             mMessageAdapter?.notifyDataSetChanged()
+        })
+
+        mMessageUpdateCancel.observe(this, Observer {
+            it.forEach { msg ->
+                notifySendMessage(msg)
+            }
+            mMessageUpdateCancel.value?.clear()
+            LogUtil.d("聊天界面", "页面显示，更新数据")
         })
 
         chat_message_send.setOnClickListener {
@@ -135,6 +148,17 @@ class ChatMessageListFragment(
 
     override fun getData() {
         mChatMessageModel?.getMessageListBySessionId(sessionId = mSession.sessionId)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mActive = true
+    }
+
+    override fun onPause() {
+        mActive = false
+        stopAudioPlay()
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -229,11 +253,6 @@ class ChatMessageListFragment(
             it.hashCode == result.hashCode
         }?.sendStatus = result.sendStatus
         mMessageAdapter?.notifyDataSetChanged()
-    }
-
-    override fun onPause() {
-        stopAudioPlay()
-        super.onPause()
     }
 
     override fun takeAudio() {
@@ -352,13 +371,27 @@ class ChatMessageListFragment(
                                 message = t.adjoin as MChatMessage,
                                 failed = { msg, result ->
                                     ToastUtils.showToast(mContext, msg)
-                                    notifySendMessage(result)
+                                    if (mActive) {
+                                        notifySendMessage(result)
+                                    } else {
+                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+                                        val list = mMessageUpdateCancel.value
+                                        list?.add(result)
+                                        mMessageUpdateCancel.postValue(list)
+                                    }
                                 },
                                 success = { result ->
-                                    notifySendMessage(result)
-                                    files.removeAt(0)
-                                    if (files.isNotEmpty()) {
-                                        uploadFile(files)
+                                    if (mActive) {
+                                        notifySendMessage(result)
+                                        files.removeAt(0)
+                                        if (files.isNotEmpty()) {
+                                            uploadFile(files)
+                                        }
+                                    } else {
+                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+                                        val list = mMessageUpdateCancel.value
+                                        list?.add(result)
+                                        mMessageUpdateCancel.postValue(list)
                                     }
                                 })
                     } else {
