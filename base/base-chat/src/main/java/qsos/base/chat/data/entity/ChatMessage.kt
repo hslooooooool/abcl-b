@@ -14,6 +14,6 @@ data class ChatMessage(
         var sessionId: Int = -1,
         var messageId: Int = -1,
         var sequence: Int = -1,
-        var cancelBack: Boolean = true,
+        var cancelBack: Boolean = false,
         var content: ChatContent
 )

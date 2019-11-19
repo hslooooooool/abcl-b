@@ -13,6 +13,7 @@ import qsos.lib.base.base.holder.BaseHolder
  * 聊天群列表
  */
 class ChatGroupAdapter(list: ArrayList<ChatGroup>) : BaseAdapter<ChatGroup>(list) {
+
     override fun getHolder(view: View, viewType: Int): BaseHolder<ChatGroup> {
         return ItemChatGroupViewHolder(view, this)
     }

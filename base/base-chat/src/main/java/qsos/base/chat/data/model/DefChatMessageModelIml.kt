@@ -77,7 +77,7 @@ class DefChatMessageModelIml(
             }
             onSuccess {
                 if (it == true) {
-                    message.sendStatus = MChatSendStatus.CANCEL
+                    message.sendStatus = MChatSendStatus.CANCEL_OK
                     success.invoke(message)
                 } else {
                     failed.invoke("撤销失败", message)

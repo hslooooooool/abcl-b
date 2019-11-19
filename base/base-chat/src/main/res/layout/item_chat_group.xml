@@ -38,7 +38,7 @@
 			android:paddingStart="@dimen/item_message_padding"
 			android:paddingEnd="@dimen/item_message_padding"
 			android:singleLine="true"
-			android:textColor="@color/gray"
+			android:textColor="@color/black_light"
 			android:textSize="@dimen/item_message_text_size"
 			tools:text="聊天群XXX聊天群XXX聊天群XXX聊天群XXX" />
 		
@@ -65,7 +65,7 @@
 		android:paddingEnd="@dimen/item_message_padding"
 		android:singleLine="true"
 		android:textColor="@color/gray"
-		android:textSize="@dimen/item_message_text_size_smallest"
+		android:textSize="@dimen/item_message_text_size_small"
 		app:layout_constraintBottom_toBottomOf="@id/item_chat_group_avatar"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@id/item_chat_group_avatar"

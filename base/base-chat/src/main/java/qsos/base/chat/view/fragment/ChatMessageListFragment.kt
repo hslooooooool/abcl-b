@@ -1,5 +1,6 @@
 package qsos.base.chat.view.fragment
 
+import android.graphics.Point
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -335,7 +336,7 @@ class ChatMessageListFragment(
             val files = arrayListOf<File>()
             it.forEachIndexed { index, uri ->
                 if (index < 2) {
-                    RxImageConverters.uriToFile(mContext, uri, FileUtils.createImageFile())?.let { f ->
+                    RxImageConverters.uriToFile(mContext, uri, FileUtils.createFileByUri(mContext, uri))?.let { f ->
                         files.add(f)
                     }
                 } else {
@@ -396,6 +397,19 @@ class ChatMessageListFragment(
                                 })
                     } else {
                         LogUtil.i("上传文件>>>>>" + t.progress)
+                        if (t.progress == -1) {
+                            ToastUtils.showToast(mContext, "上传失败")
+                            val msg = t.adjoin as MChatMessage
+                            msg.sendStatus = MChatSendStatus.FAILED
+                            if (mActive) {
+                                notifySendMessage(msg)
+                            } else {
+                                LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+                                val list = mMessageUpdateCancel.value
+                                list?.add(msg)
+                                mMessageUpdateCancel.postValue(list)
+                            }
+                        }
                     }
                 }
             })
@@ -480,7 +494,7 @@ class ChatMessageListFragment(
                 if (obj != null && obj is MChatMessage && obj.contentType == MChatMessageType.TEXT.contentType) {
                     val content = obj.content as MChatMessageText
                     chat_message_edit.setText(content.content)
-                    obj.message.cancelBack = false
+                    obj.sendStatus = MChatSendStatus.CANCEL_OK
                     notifySendMessage(obj)
                 }
             }
@@ -489,29 +503,36 @@ class ChatMessageListFragment(
 
     /**列表项长按*/
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
-        val floatMenu = FloatMenu(context, view)
-        floatMenu.items("撤销")
         when (view.id) {
             R.id.item_message_content -> {
                 if (obj != null && obj is MChatMessage) {
+                    val point = IntArray(2)
+                    view.getLocationOnScreen(point)
+                    val floatMenu = FloatMenu(activity)
+                    floatMenu.items("撤销", "其它")
                     floatMenu.setOnItemClickListener { _, index ->
                         when (index) {
                             0 -> {
-                                mChatMessageModel?.deleteMessage(message = obj, failed = { msg, _ ->
-                                    ToastUtils.showToast(context, msg)
-                                }, success = { result ->
-                                    result.message.cancelBack = true
-                                    notifySendMessage(result)
-                                })
+                                deleteMessage(obj)
                             }
                             else -> {
                             }
                         }
                     }
-                    floatMenu.show()
+                    floatMenu.show(Point(point[0], point[1]))
                 }
             }
         }
+    }
+
+    /**删除（撤销）消息*/
+    private fun deleteMessage(message: MChatMessage) {
+        mChatMessageModel?.deleteMessage(message = message, failed = { msg, _ ->
+            ToastUtils.showToast(context, msg)
+        }, success = { result ->
+            result.sendStatus = MChatSendStatus.CANCEL_CAN
+            notifySendMessage(result)
+        })
     }
 
     /**检查消息附件上传情况，防止结束此页面时文件上传失败，友情提示*/

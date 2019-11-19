@@ -25,9 +25,8 @@ class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItem
                             DateUtils.strToDate(it)
                     )
                 }
-                lastMessage?.message?.content?.getContentDesc()?.let {
-                    item_chat_group_desc.text = it
-                }
+
+                item_chat_group_desc.text = lastMessage?.message?.content?.getContentDesc() ?: ""
 
                 setOnClickListener {
                     mClickListener.onItemClick(it, position, this)
