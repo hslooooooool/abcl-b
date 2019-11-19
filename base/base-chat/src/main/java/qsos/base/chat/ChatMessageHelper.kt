@@ -10,12 +10,12 @@ import java.lang.reflect.Type
  * @author : 华清松
  * 消息内容多类型布局配置
  */
-object ChatMessageHelper : MChatMessage.MessageConfig {
+object ChatMessageHelper : MChatMessage.IMessageConfig {
 
-    private var mChatMessageConfig: MChatMessage.MessageConfig? = null
+    private var mChatMessageConfig: MChatMessage.IMessageConfig? = null
 
     /**初始化聊天消息列表项配置*/
-    fun initConfig(config: MChatMessage.MessageConfig) {
+    fun initConfig(config: MChatMessage.IMessageConfig) {
         this.mChatMessageConfig = config
     }
 

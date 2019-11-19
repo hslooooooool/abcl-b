@@ -1,5 +1,6 @@
 package qsos.base.chat.view.fragment
 
+import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
 import android.text.TextUtils
@@ -21,6 +22,8 @@ import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.service.DefMessageService
+import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -42,6 +45,7 @@ import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
+import qsos.lib.base.utils.rx.RxBus
 import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
@@ -77,6 +81,7 @@ class ChatMessageListFragment(
         mMessageUpdateCancel.value = arrayListOf()
     }
 
+    @SuppressLint("CheckResult")
     override fun initView(view: View) {
 
         mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, object : OnListItemClickListener {
@@ -87,8 +92,8 @@ class ChatMessageListFragment(
             override fun onItemLongClick(view: View, position: Int, obj: Any?) {
                 preOnItemLongClick(view, position, obj)
             }
-
         })
+
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
@@ -142,6 +147,30 @@ class ChatMessageListFragment(
                     .navigation()
             activity?.finish()
         }
+        DefMessageService()
+        RxBus.toFlow(IMessageService.MessageData::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        {
+                            if (mActive && it.session.id == mSession.sessionId) {
+                                it.message.forEach { msg ->
+                                    val message = MChatMessage(
+                                            user = ChatUser(userId = msg.sendUserId, userName = msg.sendUserName, avatar = msg.sendUserAvatar),
+                                            message = ChatMessage(
+                                                    sessionId = it.session.id,
+                                                    messageId = msg.messageId,
+                                                    sequence = msg.timeline,
+                                                    content = msg.content
+                                            ),
+                                            createTime = msg.createTime
+                                    )
+                                    notifyNewMessage(message)
+                                }
+                            }
+                        }, {
+                    it.printStackTrace()
+                }
+                )
 
         getData()
 
@@ -187,12 +216,7 @@ class ChatMessageListFragment(
                     )
             )
             message.sendStatus = MChatSendStatus.SENDING
-            val hashCode = message.hashCode()
-            message.hashCode = hashCode
-
-            mMessageData.value!!.add(message)
-            mMessageAdapter?.notifyDataSetChanged()
-            mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+            notifyNewMessage(message)
 
             mChatMessageModel?.sendMessage(
                     message = message,
@@ -416,21 +440,6 @@ class ChatMessageListFragment(
         }
     }
 
-    private fun uploadFileMessage(file: HttpFileEntity, state: MBaseChatMessageFile.UpLoadState) {
-        val hashCode = (file.adjoin as MChatMessage).hashCode!!
-        var position: Int? = null
-        for ((index, msg) in mMessageData.value!!.withIndex()) {
-            if (msg.hashCode == hashCode) {
-                mMessageData.value!![index].message.content.fields["uploadState"] = state
-                position = index
-                break
-            }
-        }
-        position?.let {
-            mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.UPLOAD_STATE)
-        }
-    }
-
     override fun playAudio(view: View, data: MChatMessageAudio) {
         var mAudioPlayerHelper: AudioPlayerHelper? = mPlayList[data.url]
         if (mAudioPlayerHelper == null) {
@@ -470,6 +479,22 @@ class ChatMessageListFragment(
             /**停止当前音频播放*/
             mPlayList.remove(data.url)
             mAudioPlayerHelper.stop()
+        }
+    }
+
+    /**发送已上传附件的消息*/
+    private fun uploadFileMessage(file: HttpFileEntity, state: MBaseChatMessageFile.UpLoadState) {
+        val hashCode = (file.adjoin as MChatMessage).hashCode!!
+        var position: Int? = null
+        for ((index, msg) in mMessageData.value!!.withIndex()) {
+            if (msg.hashCode == hashCode) {
+                mMessageData.value!![index].message.content.fields["uploadState"] = state
+                position = index
+                break
+            }
+        }
+        position?.let {
+            mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.UPLOAD_STATE)
         }
     }
 
@@ -550,4 +575,12 @@ class ChatMessageListFragment(
         return uploaded
     }
 
+    /**新消息页面更新*/
+    private fun notifyNewMessage(message: MChatMessage) {
+        val hashCode = message.hashCode()
+        message.hashCode = hashCode
+        mMessageData.value!!.add(message)
+        mMessageAdapter?.notifyDataSetChanged()
+        mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+    }
 }

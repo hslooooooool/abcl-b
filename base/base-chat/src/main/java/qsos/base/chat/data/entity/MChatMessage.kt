@@ -63,7 +63,7 @@ data class MChatMessage(
         }
 
     /**消息内容配置接口*/
-    interface MessageConfig {
+    interface IMessageConfig {
 
         /**判定消息内容布局*/
         fun getHolder(session: ChatSession, view: View, @LayoutRes viewType: Int): ItemChatMessageBaseViewHolder
