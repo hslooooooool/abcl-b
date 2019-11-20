@@ -23,11 +23,11 @@ class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemCha
         super.setContent(contentView, data, position, itemListener)
         contentView.apply {
             item_message_view_audio.visibility = View.VISIBLE
-            val content = data.realContent as MChatMessageAudio
-            item_message_audio_time.text = "${content.length}`"
-
-            item_message_view_audio.setOnClickListener {
-                itemListener?.onItemClick(it, position, data)
+            data.getRealContent<MChatMessageAudio>()?.let {
+                item_message_audio_time.text = "${it.length}`"
+                item_message_view_audio.setOnClickListener {
+                    itemListener?.onItemClick(it, position, data)
+                }
             }
         }
     }
@@ -36,9 +36,8 @@ class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemCha
         contentView.apply {
             val mMessageState = findViewById<ImageView>(R.id.item_message_state)
             val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            if (data.realContent is MChatMessageAudio) {
-                val file = data.realContent as MChatMessageAudio
-                when (file.uploadState) {
+            data.getRealContent<MChatMessageAudio>()?.let {
+                when (it.uploadState) {
                     MBaseChatMessageFile.UpLoadState.SUCCESS -> {
                         mMessageState.visibility = View.INVISIBLE
                         mMessageProgressBar.visibility = View.INVISIBLE

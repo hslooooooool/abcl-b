@@ -103,16 +103,6 @@ interface IChatModel {
         fun clear()
         val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>>
 
-        /**发送消息
-         * @param message 消息数据
-         * @return 消息数据
-         * */
-        fun sendMessage(
-                message: ChatMessageBo,
-                failed: (msg: String, message: ChatMessageBo) -> Unit,
-                success: (message: ChatMessageBo) -> Unit
-        )
-
         /**获取会话下的消息列表
          * @param sessionId 会话ID
          * @return 会话下的消息列表 List<ChatMessage>

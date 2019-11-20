@@ -7,7 +7,6 @@ import android.widget.ProgressBar
 import kotlinx.android.synthetic.main.item_message_file.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MBaseChatMessageFile
 import qsos.base.chat.data.entity.MChatMessageFile
@@ -27,22 +26,20 @@ class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChat
         super.setContent(contentView, data, position, itemListener)
         contentView.apply {
             item_message_view_file.visibility = View.VISIBLE
-            val content = data.realContent as MChatMessageFile
-
-            ImageLoaderUtils.display(itemView.context, item_message_file_avatar, content.url)
-
-            item_message_file_name.text = content.name
-            item_message_file_length.text = "${content.length} kb"
-
-            item_message_file_avatar.setOnClickListener {
-                PlayerConfigHelper.previewDocument(
-                        context = itemView.context,
-                        data = PreDocumentEntity(
-                                name = content.name,
-                                desc = content.name,
-                                path = content.url
-                        )
-                )
+            data.getRealContent<MChatMessageFile>()?.let {
+                ImageLoaderUtils.display(itemView.context, item_message_file_avatar, it.url)
+                item_message_file_name.text = it.name
+                item_message_file_length.text = "${it.length} kb"
+                item_message_file_avatar.setOnClickListener { _ ->
+                    PlayerConfigHelper.previewDocument(
+                            context = itemView.context,
+                            data = PreDocumentEntity(
+                                    name = it.name,
+                                    desc = it.name,
+                                    path = it.url
+                            )
+                    )
+                }
             }
         }
     }
@@ -51,9 +48,8 @@ class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChat
         contentView.apply {
             val mMessageState = findViewById<ImageView>(R.id.item_message_state)
             val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            if (data.realContent is MChatMessageFile) {
-                val file = data.realContent as MChatMessageFile
-                when (file.uploadState) {
+            data.getRealContent<MChatMessageFile>()?.let {
+                when (it.uploadState) {
                     MBaseChatMessageFile.UpLoadState.SUCCESS -> {
                         mMessageState.visibility = View.INVISIBLE
                         mMessageProgressBar.visibility = View.INVISIBLE

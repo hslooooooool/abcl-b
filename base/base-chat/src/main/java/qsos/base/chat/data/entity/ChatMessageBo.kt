@@ -45,48 +45,26 @@ data class ChatMessageBo(
         set(value) {}
 
     /**消息发送状态,本地存储*/
-    override var sendStatus: EnumChatSendStatus = EnumChatSendStatus.SUCCESS
+    override var sendStatus: EnumChatSendStatus? = null
+        get() = if (field == null) EnumChatSendStatus.SUCCESS else field
+
     /**消息读取人数,单聊时1即为已读，群聊时代表读取人数，本地存储*/
     override var readNum: Int = 0
-    /**消息内容类型*/
-    var contentType: Int = -1
-        get() {
-            field = when (val type = message.content.getContentType()) {
-                is Number -> type.toInt()
-                else -> -1
+
+    override fun <T> getRealContent(): T? {
+        val contentType: Int = message.content.getContentType()
+        return if (contentType == -1) null else {
+            val gson = Gson()
+            val json = gson.toJson(message.content.fields)
+            val type = DefChatMessageViewConfig.getContentType(contentType)
+            try {
+                gson.fromJson(json, type) as T?
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
             }
-            return field
         }
-
-    /**消息内容实体*/
-    override var realContent: Any? = null
-        get() {
-            if (contentType == -1) field = "" else {
-                if (field == null) {
-                    val gson = Gson()
-                    field = try {
-                        val json = gson.toJson(message.content.fields)
-                        val type = DefChatMessageViewConfig.getContentType(contentType)
-                        gson.fromJson(json, type)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-
-                        ""
-                    }
-                }
-            }
-            return field
-        }
-
-    /**消息唯一判定值*/
-    var hashCode: Int? = null
-        get() {
-            if (field == null) {
-                field = this.hashCode()
-            }
-            return field
-        }
-
+    }
 }
 
 /**

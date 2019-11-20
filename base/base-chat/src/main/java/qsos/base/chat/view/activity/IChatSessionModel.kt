@@ -2,6 +2,7 @@ package qsos.base.chat.view.activity
 
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatMessageType
+import qsos.base.chat.service.IMessageService
 import qsos.lib.netservice.file.HttpFileEntity
 
 /**
@@ -34,5 +35,5 @@ interface IChatSessionModel {
     fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>)
 
     /**发送消息*/
-    fun sendMessage(content: ChatContent)
+    fun sendMessage(content: ChatContent): IMessageService.Message
 }

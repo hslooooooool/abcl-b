@@ -41,7 +41,7 @@ interface IMessageService {
         var messageId: Int
         /**会话ID*/
         var sessionId: Int
-        /**消息时间线*/
+        /**消息时间线，发送时本地以content.hashCode为值，发送后服务器统一设置*/
         var timeline: Int
         /**发送人ID*/
         var sendUserId: Int
@@ -54,11 +54,12 @@ interface IMessageService {
         /**消息内容*/
         var content: ChatContent
         /**发送状态*/
-        var sendStatus: EnumChatSendStatus
+        var sendStatus: EnumChatSendStatus?
         /**已读人数*/
         var readNum: Int
+
         /**消息转换后实体*/
-        var realContent: Any?
+        fun <T> getRealContent(): T?
     }
 
     /**发送消息

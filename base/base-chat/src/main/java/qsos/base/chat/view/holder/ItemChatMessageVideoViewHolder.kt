@@ -20,23 +20,26 @@ import qsos.lib.base.callback.OnListItemClickListener
  * 消息内容-视频布局
  */
 class ItemChatMessageVideoViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseFileViewHolder(session, view) {
+
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         super.setContent(contentView, data, position, itemListener)
         contentView.apply {
             item_message_view_video.visibility = View.VISIBLE
-            val content = data.realContent as MChatMessageVideo
-            ImageLoaderUtils.display(itemView.context, item_message_video_avatar, content.avatar)
+            val content = data.getRealContent<MChatMessageVideo>()
+            content?.let {
+                ImageLoaderUtils.display(itemView.context, item_message_video_avatar, content.avatar)
 
-            item_message_video_avatar.setOnClickListener {
-                itemListener?.onItemClick(it, position, data)
-                PlayerConfigHelper.previewDocument(
-                        context = itemView.context,
-                        data = PreDocumentEntity(
-                                name = content.name,
-                                desc = content.name,
-                                path = content.url
-                        )
-                )
+                item_message_video_avatar.setOnClickListener {
+                    itemListener?.onItemClick(it, position, data)
+                    PlayerConfigHelper.previewDocument(
+                            context = itemView.context,
+                            data = PreDocumentEntity(
+                                    name = content.name,
+                                    desc = content.name,
+                                    path = content.url
+                            )
+                    )
+                }
             }
         }
     }
@@ -45,9 +48,9 @@ class ItemChatMessageVideoViewHolder(session: ChatSession, view: View) : ItemCha
         contentView.apply {
             val mMessageState = findViewById<ImageView>(R.id.item_message_state)
             val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            if (data.realContent is MChatMessageVideo) {
-                val file = data.realContent as MChatMessageVideo
-                when (file.uploadState) {
+            val msg = data.getRealContent<MChatMessageVideo>()
+            if (msg != null) {
+                when (msg.uploadState) {
                     MBaseChatMessageFile.UpLoadState.SUCCESS -> {
                         mMessageState.visibility = View.INVISIBLE
                         mMessageProgressBar.visibility = View.INVISIBLE

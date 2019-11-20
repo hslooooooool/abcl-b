@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
-import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.netservice.ApiEngine
@@ -23,30 +22,6 @@ class DefChatMessageModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
         override val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>> = BaseHttpLiveData()
 ) : IChatModel.IMessage {
-
-    override fun sendMessage(
-            message: ChatMessageBo,
-            failed: (msg: String, message: ChatMessageBo) -> Unit,
-            success: (message: ChatMessageBo) -> Unit
-    ) {
-        CoroutineScope(mJob).retrofitByDef<ChatMessage> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).sendMessage(message = message.message)
-            onFailed { _, msg, error ->
-                message.sendStatus = EnumChatSendStatus.FAILED
-                failed.invoke(msg ?: "发送失败${error?.message}", message)
-            }
-            onSuccess {
-                if (it == null) {
-                    message.sendStatus = EnumChatSendStatus.FAILED
-                    failed.invoke("发送失败", message)
-                } else {
-                    message.sendStatus = EnumChatSendStatus.SUCCESS
-                    message.message.messageId = it.messageId
-                    success.invoke(message)
-                }
-            }
-        }
-    }
 
     override fun getMessageListBySessionId(sessionId: Int) {
         CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {

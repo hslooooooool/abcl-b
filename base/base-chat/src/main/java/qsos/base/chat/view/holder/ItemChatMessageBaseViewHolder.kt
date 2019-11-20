@@ -3,6 +3,7 @@ package qsos.base.chat.view.holder
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
@@ -45,11 +46,10 @@ abstract class ItemChatMessageBaseViewHolder(
     fun updateState(position: Int, data: IMessageService.Message, type: UpdateType) {
         val contentView = itemView.getTag(R.id.item_message_time) as View
         when (type) {
-            UpdateType.UPLOAD_STATE -> {
+            UpdateType.SEND_STATE -> {
                 /**更新消息文件上传状态*/
                 if (this is ItemChatMessageBaseFileViewHolder) {
                     // 注意这行代码，置 null 后让程序重新解析 json 数据
-                    data.realContent = null
                     this.updateFileState(contentView, data, position)
                 }
             }
@@ -81,12 +81,22 @@ abstract class ItemChatMessageBaseViewHolder(
 
             findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
 
-            findViewById<ImageView>(R.id.item_message_state).visibility =
-                    if (data.sendStatus == EnumChatSendStatus.FAILED) {
-                        View.VISIBLE
-                    } else {
-                        View.INVISIBLE
+            data.sendStatus?.let {
+                when (it) {
+                    EnumChatSendStatus.FAILED -> {
+                        findViewById<ImageView>(R.id.item_message_state).visibility = View.VISIBLE
+                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
                     }
+                    EnumChatSendStatus.SENDING -> {
+                        findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
+                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.VISIBLE
+                    }
+                    else -> {
+                        findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
+                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
+                    }
+                }
+            }
 
             findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
                 ChatType.GROUP -> {

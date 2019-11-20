@@ -19,12 +19,11 @@ class ItemChatMessageLocationViewHolder(session: ChatSession, view: View) : Item
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_location.visibility = View.VISIBLE
-            val content = data.realContent as MChatMessageLocation
-
-            ImageLoaderUtils.display(contentView.context, item_message_location_avatar, content.avatar)
-
-            item_message_location_name.text = content.name
-            item_message_location_desc.text = content.lat + "," + content.lng
+            data.getRealContent<MChatMessageLocation>()?.let {
+                ImageLoaderUtils.display(contentView.context, item_message_location_avatar, it.avatar)
+                item_message_location_name.text = it.name
+                item_message_location_desc.text = it.lat + "," + it.lng
+            }
         }
     }
 }

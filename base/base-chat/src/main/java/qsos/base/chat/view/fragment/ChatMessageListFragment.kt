@@ -12,9 +12,9 @@ import com.noober.menu.FloatMenu
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.android.synthetic.main.item_message_audio.view.*
+import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
-import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
@@ -49,12 +49,13 @@ class ChatMessageListFragment(
     private val mMessageData: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
     private var mActive: Boolean = true
 
-    /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新的问题*/
+    /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
 
     enum class EnumEvent(val key: String, val type: Int) {
+        SEND("发送消息", -1),
         CANCEL_OK("已撤回消息", -2),
-        SEND("发送了消息", -1),
+        UPDATE_FILE_MSG("更新文件消息", -3),
         CANCEL("撤回消息", 1)
     }
 
@@ -174,19 +175,37 @@ class ChatMessageListFragment(
         super.onPause()
     }
 
-    override fun sendTextMessage() {
-
+    override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
+        msg.sendStatus = EnumChatSendStatus.SENDING
+        if (new) {
+            notifyNewMessage(msg)
+        }
+        mMessageService.sendMessage(
+                message = msg,
+                failed = { error, result ->
+                    ToastUtils.showToast(mContext, error)
+                    result.sendStatus = EnumChatSendStatus.FAILED
+                    notifySendMessage(result)
+                },
+                success = { result ->
+                    result.sendStatus = EnumChatSendStatus.SUCCESS
+                    notifySendMessage(result)
+                }
+        )
     }
 
-    override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
-
-    }
-
-    override fun notifySendMessage(result: IMessageService.Message) {
+    override fun notifySendMessage(msg: IMessageService.Message) {
         mMessageData.value?.find {
-            it.timeline == result.timeline
-        }?.sendStatus = result.sendStatus
-        mMessageAdapter?.notifyDataSetChanged()
+            it.timeline == msg.timeline
+        }?.sendStatus = msg.sendStatus
+        if (mActive) {
+            mMessageAdapter?.notifyDataSetChanged()
+        } else {
+            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+            val list = mMessageUpdateCancel.value
+            list?.add(msg)
+            mMessageUpdateCancel.postValue(list)
+        }
     }
 
     override fun playAudio(view: View, data: MChatMessageAudio) {
@@ -231,19 +250,64 @@ class ChatMessageListFragment(
         }
     }
 
-    /**更新已上传附件的消息*/
-    private fun uploadFileMessage(file: HttpFileEntity, state: MBaseChatMessageFile.UpLoadState) {
-        val timeline = file.adjoin as Int?
+    override fun updateFileMessage(file: HttpFileEntity) {
+        val message = file.adjoin as IMessageService.Message
         var position: Int? = null
+        val state: EnumChatSendStatus = when {
+            file.loadSuccess -> EnumChatSendStatus.SUCCESS
+            file.progress >= 0 -> EnumChatSendStatus.SENDING
+            else -> EnumChatSendStatus.FAILED
+        }
         for ((index, msg) in mMessageData.value!!.withIndex()) {
-            if (msg.timeline == timeline) {
-                mMessageData.value!![index].content.fields["uploadState"] = state
+            if (msg.timeline == message.timeline) {
                 position = index
                 break
             }
         }
-        position?.let {
-            mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.UPLOAD_STATE)
+        message.sendStatus = state
+        if (state == EnumChatSendStatus.SUCCESS) {
+            sendMessage(message, false)
+        } else {
+            position?.let {
+                mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.SEND_STATE)
+            }
+        }
+    }
+
+    override fun deleteMessage(message: IMessageService.Message) {
+        message.sendStatus = EnumChatSendStatus.CANCEL_CAN
+        notifySendMessage(message)
+    }
+
+    override fun notifyNewMessage(message: IMessageService.Message) {
+        mMessageData.value!!.add(message)
+        mMessageAdapter?.notifyDataSetChanged()
+        mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+    }
+
+    override fun notifyFragmentEvent(event: ChatMessageListFragmentEvent) {
+        when (event.type) {
+            EnumEvent.SEND -> {
+                if (event.data is IMessageService.Message) {
+                    event.data.sendStatus = EnumChatSendStatus.SENDING
+                    when (event.data.content.getContentType()) {
+                        EnumChatMessageType.FILE.contentType -> notifyNewMessage(event.data)
+                        else -> {
+                            sendMessage(event.data)
+                        }
+                    }
+                }
+            }
+            EnumEvent.UPDATE_FILE_MSG -> {
+                if (event.data is HttpFileEntity) {
+                    updateFileMessage(event.data)
+                }
+            }
+            EnumEvent.CANCEL_OK -> {
+
+            }
+            else -> {
+            }
         }
     }
 
@@ -259,24 +323,25 @@ class ChatMessageListFragment(
         when (view.id) {
             R.id.item_message_view_audio -> {
                 if (obj is IMessageService.Message) {
-                    if (obj.realContent is MChatMessageAudio) {
-                        playAudio(view, obj.realContent as MChatMessageAudio)
+                    obj.getRealContent<MChatMessageAudio>()?.let {
+                        playAudio(view, it)
                     }
                 }
             }
             R.id.item_message_cancel_reedit -> {
                 if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
-                    val content = obj.realContent as MChatMessageText
-                    obj.sendStatus = EnumChatSendStatus.CANCEL_OK
-                    notifySendMessage(obj)
+                    obj.getRealContent<MChatMessageText>()?.let {
+                        obj.sendStatus = EnumChatSendStatus.CANCEL_OK
+                        notifySendMessage(obj)
 
-                    RxBus.send(ChatMessageListFragmentEvent(
-                            session = DefMessageService.DefSession(
-                                    sessionId = mSession.sessionId
-                            ),
-                            type = EnumEvent.CANCEL,
-                            data = content
-                    ))
+                        RxBus.send(ChatMessageListFragmentEvent(
+                                session = DefMessageService.DefSession(
+                                        sessionId = mSession.sessionId
+                                ),
+                                type = EnumEvent.CANCEL,
+                                data = it.content
+                        ))
+                    }
                 }
             }
         }
@@ -306,58 +371,4 @@ class ChatMessageListFragment(
         }
     }
 
-    /**删除（撤销）消息*/
-    private fun deleteMessage(message: IMessageService.Message) {
-        message.sendStatus = EnumChatSendStatus.CANCEL_CAN
-        notifySendMessage(message)
-    }
-
-    /**检查消息附件上传情况，防止结束此页面时文件上传失败，友情提示*/
-    private fun checkMessageFileUploaded(): Boolean {
-        var uploaded = true
-        for (m in mMessageData.value!!) {
-            if (m.realContent is MBaseChatMessageFile) {
-                val file = m.realContent as MBaseChatMessageFile
-                if (file.uploadState != MBaseChatMessageFile.UpLoadState.SUCCESS) {
-                    uploaded = false
-                }
-                break
-            }
-        }
-        return uploaded
-    }
-
-    /**新消息页面更新*/
-    private fun notifyNewMessage(message: IMessageService.Message) {
-        mMessageData.value!!.add(message)
-        mMessageAdapter?.notifyDataSetChanged()
-        mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
-    }
-
-    /**响应发送往本页面的事件*/
-    private fun notifyFragmentEvent(event: ChatMessageListFragmentEvent) {
-        when (event.type) {
-            EnumEvent.SEND -> {
-                if (event.data is IMessageService.Message) {
-
-                    event.data.sendStatus = EnumChatSendStatus.SENDING
-                    notifyNewMessage(event.data)
-
-                    mMessageService.sendMessage(
-                            message = event.data,
-                            failed = { msg, result ->
-                                ToastUtils.showToast(mContext, msg)
-                                notifySendMessage(result)
-                            },
-                            success = { result ->
-                                notifySendMessage(result)
-                            }
-                    )
-
-                }
-            }
-            else -> {
-            }
-        }
-    }
 }

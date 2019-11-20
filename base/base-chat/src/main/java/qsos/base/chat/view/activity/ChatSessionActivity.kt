@@ -7,6 +7,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
@@ -14,12 +15,13 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat_message.*
+import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.*
+import qsos.base.chat.data.entity.ChatContent
+import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.DefChatSessionModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
 import qsos.base.chat.view.fragment.ChatMessageListFragment
@@ -33,6 +35,7 @@ import qsos.core.lib.utils.file.FileUtils
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
@@ -60,12 +63,15 @@ class ChatSessionActivity(
 
     private var mFileModel: IFileModel? = null
     private var mChatMessageModel: IChatModel.IMessage? = null
+    private var mMessageService: IMessageService? = null
     private val mMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
         mChatMessageModel = DefChatMessageModelIml()
+        mMessageService = DefMessageService()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
+        mMessageList.value = arrayListOf()
     }
 
     @SuppressLint("CheckResult")
@@ -97,7 +103,7 @@ class ChatSessionActivity(
 
                 sendMessage(
                         ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
-                                .put("realContent", content)
+                                .put("content", content)
                 )
 
                 BaseUtils.closeKeyBord(mContext, chat_message_edit)
@@ -144,6 +150,14 @@ class ChatSessionActivity(
                     it.printStackTrace()
                 })
 
+        mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
+            if (it.code == 200) {
+                mMessageList.postValue(it.data)
+            } else {
+                ToastUtils.showToast(this, it.msg ?: "消息获取失败")
+            }
+        })
+
         getData()
     }
 
@@ -157,10 +171,11 @@ class ChatSessionActivity(
                     supportFragmentManager.beginTransaction()
                             .add(
                                     R.id.chat_message_frg,
-                                    ChatMessageListFragment(it, DefMessageService(), mMessageList),
+                                    ChatMessageListFragment(it, mMessageService!!, mMessageList),
                                     "ChatMessageListFragment"
                             )
                             .commit()
+                    mChatMessageModel?.getMessageListBySessionId(mSessionId!!)
                 }
         )
     }
@@ -209,6 +224,7 @@ class ChatSessionActivity(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
+                    file.adjoin = it.length()
                     sendFileMessage(EnumChatMessageType.IMAGE, arrayListOf(file))
                 }
     }
@@ -231,7 +247,9 @@ class ChatSessionActivity(
                 }.observeOn(AndroidSchedulers.mainThread()).subscribe {
                     val files = arrayListOf<HttpFileEntity>()
                     it.forEach { f ->
-                        files.add(HttpFileEntity(url = null, path = f.absolutePath, filename = f.name))
+                        val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
+                        file.adjoin = f.length()
+                        files.add(file)
                     }
                     sendFileMessage(EnumChatMessageType.IMAGE, files)
                 }
@@ -243,6 +261,7 @@ class ChatSessionActivity(
             RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
         }.observeOn(AndroidSchedulers.mainThread()).subscribe {
             val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
+            file.adjoin = it.length()
             sendFileMessage(EnumChatMessageType.VIDEO, arrayListOf(file))
         }
     }
@@ -266,102 +285,77 @@ class ChatSessionActivity(
         }.observeOn(AndroidSchedulers.mainThread()).subscribe {
             val files = arrayListOf<HttpFileEntity>()
             it.forEach { f ->
-                files.add(HttpFileEntity(url = null, path = f.absolutePath, filename = f.name))
+                val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
+                file.adjoin = f.length()
+                files.add(file)
             }
             sendFileMessage(EnumChatMessageType.FILE, files)
         }
     }
 
-    override fun sendMessage(content: ChatContent) {
+    override fun sendMessage(content: ChatContent): IMessageService.Message {
+        val message = DefMessageService.DefMessage(
+                sessionId = mSessionId!!,
+                sendUserId = ChatMainActivity.mLoginUser.value!!.userId,
+                sendUserName = ChatMainActivity.mLoginUser.value!!.userName,
+                sendUserAvatar = ChatMainActivity.mLoginUser.value!!.avatar ?: "",
+                timeline = content.hashCode() + Date().seconds,
+                content = content,
+                createTime = DateUtils.getTimeToNow(Date())
+        )
         RxBus.send(ChatMessageListFragment.ChatMessageListFragmentEvent(
                 session = DefMessageService.DefSession(
                         sessionId = mSessionId!!
                 ),
                 type = ChatMessageListFragment.EnumEvent.SEND,
-                data = content
+                data = message
         ))
+        return message
     }
 
     override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
         files.forEach { file ->
             val content = ChatContent().create(type.contentType, file.filename ?: "文件")
-                    .put("sessionName", file.filename)
+                    .put("name", file.filename)
                     .put("url", file.path)
-            when (type) {
-                EnumChatMessageType.AUDIO -> {
-                    content.put("length", file.adjoin as Int)
-                }
-                else -> {
-                }
-            }
-
-            sendMessage(content)
-
-            file.adjoin = content.hashCode()
+                    .put("length", file.adjoin as Long?)
+            file.adjoin = sendMessage(content)
         }
 
         uploadFile(files)
     }
 
     override fun uploadFile(files: ArrayList<HttpFileEntity>) {
-        if (!mMessageList.value.isNullOrEmpty() && files.isNotEmpty()) {
+        if (files.isNotEmpty()) {
             val file = files[0]
 
-            uploadFileMessage(file, MBaseChatMessageFile.UpLoadState.LOADING)
+            uploadFileMessage(file)
 
             mFileModel?.uploadFile(file, object : OnTListener<HttpFileEntity> {
                 override fun back(t: HttpFileEntity) {
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
-
-                        uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
-
-                        mChatMessageModel?.sendMessage(
-                                message = t.adjoin as ChatMessageBo,
-                                failed = { msg, result ->
-                                    ToastUtils.showToast(mContext, msg)
-                                    if (mActive) {
-                                        notifySendMessage(result)
-                                    } else {
-                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                        val list = mMessageUpdateCancel.value
-                                        list?.add(result)
-                                        mMessageUpdateCancel.postValue(list)
-                                    }
-                                },
-                                success = { result ->
-                                    if (mActive) {
-                                        notifySendMessage(result)
-                                        files.removeAt(0)
-                                        if (files.isNotEmpty()) {
-                                            uploadFile(files)
-                                        }
-                                    } else {
-                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                        val list = mMessageUpdateCancel.value
-                                        list?.add(result)
-                                        mMessageUpdateCancel.postValue(list)
-                                    }
-                                })
+                        uploadFileMessage(t)
                     } else {
                         LogUtil.i("上传文件>>>>>" + t.progress)
+                        uploadFileMessage(t)
                         if (t.progress == -1) {
                             ToastUtils.showToast(mContext, "上传失败")
-                            val msg = t.adjoin as ChatMessageBo
-                            msg.sendStatus = EnumChatSendStatus.FAILED
-                            if (mActive) {
-                                notifySendMessage(msg)
-                            } else {
-                                LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                val list = mMessageUpdateCancel.value
-                                list?.add(msg)
-                                mMessageUpdateCancel.postValue(list)
-                            }
                         }
                     }
                 }
             })
         }
+    }
+
+    private fun uploadFileMessage(file: HttpFileEntity) {
+        RxBus.send(ChatMessageListFragment.ChatMessageListFragmentEvent(
+                session = DefMessageService.DefSession(
+                        sessionId = mSessionId!!
+                ),
+                type = ChatMessageListFragment.EnumEvent.UPDATE_FILE_MSG,
+                data = file
+        ))
     }
 
     private fun notifyEvent(event: ChatMessageListFragment.ChatMessageListFragmentEvent) {
