@@ -71,7 +71,10 @@ class ChatSessionActivity(
 
     private val mActivityHandler = Handler {
         when (it.what) {
-
+            ChatMessageListFragment.EnumEvent.CANCEL.type -> {
+                val content = it.data.getString(ChatMessageListFragment.DATA, "")
+                chat_message_edit.setText(content)
+            }
         }
         return@Handler true
     }

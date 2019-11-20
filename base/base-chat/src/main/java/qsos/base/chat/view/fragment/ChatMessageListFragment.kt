@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
@@ -351,13 +352,13 @@ class ChatMessageListFragment(
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
                         notifySendMessage(obj)
 
-                        RxBus.send(ChatMessageListFragmentEvent(
-                                session = DefMessageService.DefSession(
-                                        sessionId = mSession.sessionId
-                                ),
-                                type = EnumEvent.CANCEL,
-                                data = it.content
-                        ))
+                        val msg = Message()
+                        msg.what = EnumEvent.CANCEL.type
+                        val data = Bundle()
+                        data.putInt(SESSION_ID, mSession.sessionId)
+                        data.putString(DATA, it.content)
+                        msg.data = data
+                        mActivityHandler.sendMessage(msg)
                     }
                 }
             }
