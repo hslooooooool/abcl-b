@@ -3,6 +3,8 @@ package qsos.base.chat.view.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
@@ -11,6 +13,7 @@ import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
+import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -65,6 +68,15 @@ class ChatSessionActivity(
     private var mChatMessageModel: IChatModel.IMessage? = null
     private var mMessageService: IMessageService? = null
     private val mMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
+
+    private val mActivityHandler = Handler {
+        when (it.what) {
+
+        }
+        return@Handler true
+    }
+
+    private var mFragmentHandler: Handler? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
@@ -168,10 +180,12 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
+                    val fragment = ChatMessageListFragment(it, mMessageService!!, mMessageList, mActivityHandler)
+                    mFragmentHandler = fragment.getHandler()
                     supportFragmentManager.beginTransaction()
                             .add(
                                     R.id.chat_message_frg,
-                                    ChatMessageListFragment(it, mMessageService!!, mMessageList),
+                                    fragment,
                                     "ChatMessageListFragment"
                             )
                             .commit()
@@ -349,13 +363,13 @@ class ChatSessionActivity(
     }
 
     private fun uploadFileMessage(file: HttpFileEntity) {
-        RxBus.send(ChatMessageListFragment.ChatMessageListFragmentEvent(
-                session = DefMessageService.DefSession(
-                        sessionId = mSessionId!!
-                ),
-                type = ChatMessageListFragment.EnumEvent.UPDATE_FILE_MSG,
-                data = file
-        ))
+        val msg = Message()
+        msg.what = ChatMessageListFragment.EnumEvent.UPDATE_FILE_MSG.type
+        val data = Bundle()
+        data.putInt(ChatMessageListFragment.SESSION_ID, mSessionId!!)
+        data.putString(ChatMessageListFragment.DATA, Gson().toJson(file))
+        msg.data = data
+        mFragmentHandler?.sendMessage(msg)
     }
 
     private fun notifyEvent(event: ChatMessageListFragment.ChatMessageListFragmentEvent) {

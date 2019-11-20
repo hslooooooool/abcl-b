@@ -3,6 +3,7 @@ package qsos.base.chat.view.fragment
 import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
@@ -39,9 +40,14 @@ class ChatMessageListFragment(
         private val mSession: ChatSession,
         private val mMessageService: IMessageService,
         private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
+        private val mActivityHandler: Handler,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
+    companion object {
+        const val SESSION_ID = "SESSION_ID"
+        const val DATA = "DATA"
+    }
 
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
@@ -51,6 +57,17 @@ class ChatMessageListFragment(
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
+
+    private val mFragmentHandler: Handler = Handler {
+        when (it.what) {
+
+        }
+        return@Handler true
+    }
+
+    fun getHandler(): Handler {
+        return mFragmentHandler
+    }
 
     enum class EnumEvent(val key: String, val type: Int) {
         SEND("发送消息", -1),
