@@ -1,10 +1,10 @@
 package qsos.base.chat.view.adapter
 
 import android.view.View
-import qsos.base.chat.ChatMessageHelper
+import qsos.base.chat.DefChatMessageViewConfig
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.entity.MChatMessage
+import qsos.base.chat.service.IMessageService
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
@@ -15,11 +15,11 @@ import qsos.lib.base.callback.OnListItemClickListener
  * 聊天消息列表
  */
 class ChatMessageAdapter(
-        val session: ChatSession, list: ArrayList<MChatMessage>,
+        val session: ChatSession, list: ArrayList<IMessageService.Message>,
         val itemListener: OnListItemClickListener? = null
-) : BaseAdapter<MChatMessage>(list) {
+) : BaseAdapter<IMessageService.Message>(list) {
 
-    override fun onBindViewHolder(holder: BaseHolder<MChatMessage>, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
@@ -35,13 +35,13 @@ class ChatMessageAdapter(
 
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
-    override fun getHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
-        return ChatMessageHelper.getHolder(session, view, viewType)
+    override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageService.Message> {
+        return DefChatMessageViewConfig.getHolder(session, view, viewType)
                 .setOnListItemClickListener(itemListener)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return data[position].contentType
+        return data[position].content.getContentType()
     }
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {}

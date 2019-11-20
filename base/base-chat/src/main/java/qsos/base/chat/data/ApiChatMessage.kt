@@ -1,7 +1,7 @@
 package qsos.base.chat.data
 
 import qsos.base.chat.data.entity.ChatMessage
-import qsos.base.chat.data.entity.MChatMessage
+import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.core.config.BaseConfig
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
@@ -29,13 +29,13 @@ interface ApiChatMessage {
             @Query(value = "sessionId") sessionId: Int,
             @Query(value = "timeline") startTimeline: Int,
             @Query(value = "size") size: Int
-    ): Call<BaseResponse<List<MChatMessage>>>
+    ): Call<BaseResponse<List<ChatMessageBo>>>
 
     @GET(value = "$GROUP/getMessageListBySessionId")
     fun getMessageListBySessionId(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
-    ): Call<BaseResponse<List<MChatMessage>>>
+    ): Call<BaseResponse<List<ChatMessageBo>>>
 
     @DELETE(value = "$GROUP/deleteMessage")
     fun deleteMessage(

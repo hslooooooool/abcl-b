@@ -5,8 +5,8 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import kotlinx.android.synthetic.main.item_message_location.view.*
 import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatMessageLocation
+import qsos.base.chat.service.IMessageService
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.callback.OnListItemClickListener
 
@@ -16,10 +16,10 @@ import qsos.lib.base.callback.OnListItemClickListener
  */
 class ItemChatMessageLocationViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
+    override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_location.visibility = View.VISIBLE
-            val content = data.content as MChatMessageLocation
+            val content = data.realContent as MChatMessageLocation
 
             ImageLoaderUtils.display(contentView.context, item_message_location_avatar, content.avatar)
 

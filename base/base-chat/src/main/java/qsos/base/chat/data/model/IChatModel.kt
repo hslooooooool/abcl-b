@@ -101,16 +101,16 @@ interface IChatModel {
 
         val mJob: CoroutineContext
         fun clear()
-        val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>>
+        val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>>
 
         /**发送消息
          * @param message 消息数据
          * @return 消息数据
          * */
         fun sendMessage(
-                message: MChatMessage,
-                failed: (msg: String, message: MChatMessage) -> Unit,
-                success: (message: MChatMessage) -> Unit
+                message: ChatMessageBo,
+                failed: (msg: String, message: ChatMessageBo) -> Unit,
+                success: (message: ChatMessageBo) -> Unit
         )
 
         /**获取会话下的消息列表
@@ -123,9 +123,9 @@ interface IChatModel {
          * @param message 消息
          * */
         fun deleteMessage(
-                message: MChatMessage,
-                failed: (msg: String, message: MChatMessage) -> Unit,
-                success: (message: MChatMessage) -> Unit
+                message: ChatMessageBo,
+                failed: (msg: String, message: ChatMessageBo) -> Unit,
+                success: (message: ChatMessageBo) -> Unit
         )
 
     }

@@ -1,6 +1,7 @@
 package qsos.base.chat.service
 
 import qsos.base.chat.data.entity.ChatContent
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.base.utils.rx.RxBus
 
 /**
@@ -26,20 +27,38 @@ interface IMessageService {
         }
     }
 
+    /**会话实体属性*/
     interface Session {
-        var id: Int
-        var name: String
+        /**会话ID*/
+        var sessionId: Int
+        /**会话名称*/
+        var sessionName: String
     }
 
+    /**消息实体属性*/
     interface Message {
+        /**消息ID*/
         var messageId: Int
+        /**会话ID*/
         var sessionId: Int
-        var sendUserId: Int
-        var sendUserName: String
-        var sendUserAvatar: String
+        /**消息时间线*/
         var timeline: Int
-        var content: ChatContent
+        /**发送人ID*/
+        var sendUserId: Int
+        /**发送人名称*/
+        var sendUserName: String
+        /**发送人头像*/
+        var sendUserAvatar: String
+        /**创建时间*/
         var createTime: String
+        /**消息内容*/
+        var content: ChatContent
+        /**发送状态*/
+        var sendStatus: EnumChatSendStatus
+        /**已读人数*/
+        var readNum: Int
+        /**消息转换后实体*/
+        var realContent: Any?
     }
 
     /**发送消息

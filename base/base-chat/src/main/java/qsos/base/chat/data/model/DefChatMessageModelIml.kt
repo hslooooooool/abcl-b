@@ -6,8 +6,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.ChatMessage
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.base.chat.data.entity.MChatSendStatus
+import qsos.base.chat.data.entity.ChatMessageBo
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
@@ -21,26 +21,26 @@ import kotlin.coroutines.CoroutineContext
  */
 class DefChatMessageModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>> = BaseHttpLiveData()
+        override val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>> = BaseHttpLiveData()
 ) : IChatModel.IMessage {
 
     override fun sendMessage(
-            message: MChatMessage,
-            failed: (msg: String, message: MChatMessage) -> Unit,
-            success: (message: MChatMessage) -> Unit
+            message: ChatMessageBo,
+            failed: (msg: String, message: ChatMessageBo) -> Unit,
+            success: (message: ChatMessageBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
             api = ApiEngine.createService(ApiChatMessage::class.java).sendMessage(message = message.message)
             onFailed { _, msg, error ->
-                message.sendStatus = MChatSendStatus.FAILED
+                message.sendStatus = EnumChatSendStatus.FAILED
                 failed.invoke(msg ?: "发送失败${error?.message}", message)
             }
             onSuccess {
                 if (it == null) {
-                    message.sendStatus = MChatSendStatus.FAILED
+                    message.sendStatus = EnumChatSendStatus.FAILED
                     failed.invoke("发送失败", message)
                 } else {
-                    message.sendStatus = MChatSendStatus.SUCCESS
+                    message.sendStatus = EnumChatSendStatus.SUCCESS
                     message.message.messageId = it.messageId
                     success.invoke(message)
                 }
@@ -49,7 +49,7 @@ class DefChatMessageModelIml(
     }
 
     override fun getMessageListBySessionId(sessionId: Int) {
-        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<MChatMessage>>> {
+        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
             api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(
                     sessionId = sessionId
             )
@@ -64,9 +64,9 @@ class DefChatMessageModelIml(
     }
 
     override fun deleteMessage(
-            message: MChatMessage,
-            failed: (msg: String, message: MChatMessage) -> Unit,
-            success: (message: MChatMessage) -> Unit
+            message: ChatMessageBo,
+            failed: (msg: String, message: ChatMessageBo) -> Unit,
+            success: (message: ChatMessageBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofitByDef<Boolean> {
             api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(
@@ -77,7 +77,7 @@ class DefChatMessageModelIml(
             }
             onSuccess {
                 if (it == true) {
-                    message.sendStatus = MChatSendStatus.CANCEL_OK
+                    message.sendStatus = EnumChatSendStatus.CANCEL_OK
                     success.invoke(message)
                 } else {
                     failed.invoke("撤销失败", message)

@@ -4,8 +4,95 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 	
+	<include
+		android:id="@+id/base_title_bar"
+		layout="@layout/base_title_bar" />
+	
 	<FrameLayout
 		android:id="@+id/chat_message_frg"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" />
+		android:layout_height="0dp"
+		android:layout_weight="1" />
+	
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/colorPrimary"
+		android:orientation="horizontal"
+		android:weightSum="5">
+		
+		<Button
+			android:id="@+id/chat_message_audio"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:text="AUDIO" />
+		
+		<Button
+			android:id="@+id/chat_message_phone"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:text="PHOTO" />
+		
+		<Button
+			android:id="@+id/chat_message_album"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:text="ALBUM" />
+		
+		
+		<Button
+			android:id="@+id/chat_message_video"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:text="VIDEO" />
+		
+		<Button
+			android:id="@+id/chat_message_file"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:text="FILE" />
+	
+	</LinearLayout>
+	
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/colorPrimary"
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+		
+		<EditText
+			android:id="@+id/chat_message_edit"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:layout_weight="1"
+			android:background="@color/white"
+			android:contentDescription="@string/chat_input"
+			android:maxLines="10"
+			android:minHeight="42dp" />
+		
+		<Button
+			android:id="@+id/chat_message_send"
+			android:layout_width="wrap_content"
+			android:layout_height="42dp"
+			android:layout_margin="10dp"
+			android:background="@color/white"
+			android:text="SEND" />
+	</LinearLayout>
 </LinearLayout>

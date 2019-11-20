@@ -3,53 +3,31 @@ package qsos.base.chat.view.fragment
 import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alibaba.android.arouter.launcher.ARouter
 import com.noober.menu.FloatMenu
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.android.synthetic.main.item_message_audio.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
-import qsos.base.chat.data.model.DefChatMessageModelIml
-import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
-import qsos.base.chat.utils.AudioUtils
-import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
-import qsos.core.file.RxImageConverters
-import qsos.core.file.RxImagePicker
-import qsos.core.file.Sources
-import qsos.core.lib.utils.dialog.AbsBottomDialog
-import qsos.core.lib.utils.dialog.BottomDialog
-import qsos.core.lib.utils.dialog.BottomDialogUtils
-import qsos.core.lib.utils.file.FileUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.audio.AudioPlayerHelper
 import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
-import qsos.lib.base.utils.BaseUtils
-import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
-import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
-import qsos.lib.netservice.file.IFileModel
-import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -59,24 +37,47 @@ import kotlin.collections.HashMap
  */
 class ChatMessageListFragment(
         private val mSession: ChatSession,
+        private val mMessageService: IMessageService,
+        private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
 
-    private var mFileModel: IFileModel? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
-    private var mChatMessageModel: IChatModel.IMessage? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
-    private val mMessageData: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
+    private val mMessageData: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
     private var mActive: Boolean = true
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新的问题*/
-    private val mMessageUpdateCancel: MutableLiveData<ArrayList<MChatMessage>> = MutableLiveData()
+    private val mMessageUpdateCancel: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
+
+    enum class EnumEvent(val key: String, val type: Int) {
+        CANCEL_OK("已撤回消息", -2),
+        SEND("发送了消息", -1),
+        CANCEL("撤回消息", 1)
+    }
+
+    /**消息列表通信与交互实体
+     * @param session 会话实体
+     * @param type 通信与交互类型。<0 为其它页面发送往本页面的动作，本页面响应；>0 为本页面发送往其它页面的动作，其它页面响应
+     * */
+    data class ChatMessageListFragmentEvent(
+            val session: IMessageService.Session,
+            val type: EnumEvent,
+            val data: Any?
+    ) : RxBus.RxBusEvent<ChatMessageListFragmentEvent> {
+
+        override fun message(): ChatMessageListFragmentEvent {
+            return this
+        }
+
+        override fun name(): String {
+            return "消息列表通信与交互实体"
+        }
+    }
 
     override fun initData(savedInstanceState: Bundle?) {
-        mChatMessageModel = DefChatMessageModelIml()
-        mFileModel = FileRepository(mChatMessageModel!!.mJob)
         mMessageData.value = arrayListOf()
         mMessageUpdateCancel.value = arrayListOf()
     }
@@ -84,15 +85,16 @@ class ChatMessageListFragment(
     @SuppressLint("CheckResult")
     override fun initView(view: View) {
 
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, object : OnListItemClickListener {
-            override fun onItemClick(view: View, position: Int, obj: Any?) {
-                preOnItemClick(view, position, obj)
-            }
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!,
+                object : OnListItemClickListener {
+                    override fun onItemClick(view: View, position: Int, obj: Any?) {
+                        preOnItemClick(view, position, obj)
+                    }
 
-            override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-                preOnItemLongClick(view, position, obj)
-            }
-        })
+                    override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                        preOnItemLongClick(view, position, obj)
+                    }
+                })
 
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
@@ -100,9 +102,9 @@ class ChatMessageListFragment(
         chat_message_list.layoutManager = mLinearLayoutManager
         chat_message_list.adapter = mMessageAdapter
 
-        mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
+        mMessageList.observe(this, Observer {
             mMessageData.value?.clear()
-            it.data?.let { messages ->
+            it?.let { messages ->
                 mMessageData.value!!.addAll(messages)
                 mMessageAdapter?.notifyDataSetChanged()
                 mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
@@ -121,51 +123,32 @@ class ChatMessageListFragment(
             LogUtil.d("聊天界面", "页面显示，更新数据")
         })
 
-        chat_message_send.setOnClickListener {
-            sendTextMessage()
-        }
-        chat_message_audio.setOnClickListener {
-            takeAudio()
-        }
-        chat_message_phone.setOnClickListener {
-            takePhoto()
-        }
-        chat_message_album.setOnClickListener {
-            takeAlbum()
-        }
-        chat_message_video.setOnClickListener {
-            takeVideo()
-        }
-        chat_message_file.setOnClickListener {
-            takeFile()
-        }
-
-        base_title_bar.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
-        base_title_bar.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
-            ARouter.getInstance().build("/CHAT/MAIN")
-                    .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
-                    .navigation()
-            activity?.finish()
-        }
         DefMessageService()
+
         RxBus.toFlow(IMessageService.MessageData::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            if (mActive && it.session.id == mSession.sessionId) {
+                            if (mActive && it.session.sessionId == mSession.sessionId) {
                                 it.message.forEach { msg ->
-                                    val message = MChatMessage(
-                                            user = ChatUser(userId = msg.sendUserId, userName = msg.sendUserName, avatar = msg.sendUserAvatar),
-                                            message = ChatMessage(
-                                                    sessionId = it.session.id,
-                                                    messageId = msg.messageId,
-                                                    sequence = msg.timeline,
-                                                    content = msg.content
-                                            ),
-                                            createTime = msg.createTime
-                                    )
-                                    notifyNewMessage(message)
+                                    notifyNewMessage(msg)
                                 }
+                            }
+                        }, {
+                    it.printStackTrace()
+                }
+                )
+
+        RxBus.toFlow(ChatMessageListFragmentEvent::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        {
+                            if (
+                                    mActive
+                                    && it.session.sessionId == mSession.sessionId
+                                    && it.type.type < 0
+                            ) {
+                                notifyFragmentEvent(it)
                             }
                         }, {
                     it.printStackTrace()
@@ -177,7 +160,7 @@ class ChatMessageListFragment(
     }
 
     override fun getData() {
-        mChatMessageModel?.getMessageListBySessionId(sessionId = mSession.sessionId)
+
     }
 
     override fun onResume() {
@@ -191,253 +174,19 @@ class ChatMessageListFragment(
         super.onPause()
     }
 
-    override fun onDestroy() {
-        mChatMessageModel?.clear()
-        super.onDestroy()
-    }
-
     override fun sendTextMessage() {
-        val content = chat_message_edit.text.toString().trim()
-        if (TextUtils.isEmpty(content)) {
-            chat_message_edit.hint = "请输入内容"
-        } else {
-            val map = HashMap<String, Any?>()
-            map["contentType"] = MChatMessageType.TEXT.contentType
-            map["contentDesc"] = content
-            map["content"] = content
-            val message = MChatMessage(
-                    user = ChatMainActivity.mLoginUser.value!!,
-                    createTime = DateUtils.format(date = Date()),
-                    message = ChatMessage(
-                            sessionId = mSession.sessionId,
-                            content = ChatContent(
-                                    fields = map
-                            )
-                    )
-            )
-            message.sendStatus = MChatSendStatus.SENDING
-            notifyNewMessage(message)
 
-            mChatMessageModel?.sendMessage(
-                    message = message,
-                    failed = { msg, result ->
-                        ToastUtils.showToast(mContext, msg)
-                        notifySendMessage(result)
-                    },
-                    success = { result ->
-                        notifySendMessage(result)
-                    }
-            )
-
-            /**发送后更新视图*/
-            BaseUtils.closeKeyBord(mContext, chat_message_edit)
-            chat_message_edit.setText("")
-            chat_message_edit.clearFocus()
-        }
     }
 
-    override fun sendFileMessage(type: MChatMessageType, files: ArrayList<HttpFileEntity>) {
-        files.forEach { file ->
-            val map = HashMap<String, Any?>()
-            map["contentType"] = type.contentType
-            map["contentDesc"] = "文件"
-            map["name"] = file.filename
-            map["url"] = file.path
-            when (type) {
-                MChatMessageType.AUDIO -> {
-                    map["length"] = file.adjoin as Int
-                }
-                else -> {
-                }
-            }
-            val message = MChatMessage(
-                    user = ChatMainActivity.mLoginUser.value!!,
-                    createTime = DateUtils.format(date = Date()),
-                    message = ChatMessage(
-                            sessionId = mSession.sessionId,
-                            content = ChatContent(
-                                    fields = map
-                            )
-                    )
-            )
-            message.sendStatus = MChatSendStatus.SENDING
-            val hashCode = message.hashCode()
-            message.hashCode = hashCode
-            mMessageData.value!!.add(message)
-            file.adjoin = message
-        }
+    override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
 
-        mMessageAdapter?.notifyDataSetChanged()
-        mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
-
-        uploadFile(files)
     }
 
-    override fun notifySendMessage(result: MChatMessage) {
+    override fun notifySendMessage(result: IMessageService.Message) {
         mMessageData.value?.find {
-            it.hashCode == result.hashCode
+            it.timeline == result.timeline
         }?.sendStatus = result.sendStatus
         mMessageAdapter?.notifyDataSetChanged()
-    }
-
-    override fun takeAudio() {
-        BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
-            override fun bindView(dialog: AbsBottomDialog) {
-                AudioUtils.record(dialog).observeOn(AndroidSchedulers.mainThread()).subscribe({
-                    val file = File(it.audioPath)
-                    if (file.exists()) {
-                        val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
-                        fileEntity.adjoin = it.recordTime
-                        sendFileMessage(MChatMessageType.AUDIO, arrayListOf(
-                                fileEntity
-                        ))
-                    } else {
-                        ToastUtils.showToast(mContext, "文件不存在")
-                    }
-                }, {
-                    it.printStackTrace()
-                }).takeUnless {
-                    (context as AppCompatActivity).isFinishing
-                }
-            }
-        })
-    }
-
-    override fun takePhoto() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeImage(type = Sources.DEVICE)
-                .flatMap {
-                    RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createImageFile())
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                    sendFileMessage(MChatMessageType.IMAGE, arrayListOf(file))
-                }.takeUnless {
-                    activity!!.isFinishing
-                }
-    }
-
-    override fun takeAlbum() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager)
-                .takeFiles(arrayOf("image/*")).flatMap {
-                    val files = arrayListOf<File>()
-                    it.forEachIndexed { index, uri ->
-                        if (index < 10) {
-                            RxImageConverters.uriToFile(mContext, uri, FileUtils.createImageFile())?.let { f ->
-                                files.add(f)
-                            }
-                        } else {
-                            ToastUtils.showToast(mContext, "一次最多可上传9张")
-                        }
-                    }
-                    Observable.just(files)
-                }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-                    val files = arrayListOf<HttpFileEntity>()
-                    it.forEach { f ->
-                        files.add(HttpFileEntity(url = null, path = f.absolutePath, filename = f.name))
-                    }
-                    sendFileMessage(MChatMessageType.IMAGE, files)
-                }.takeUnless {
-                    activity!!.isFinishing
-                }
-    }
-
-    override fun takeVideo() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeVideo().flatMap {
-            RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-            sendFileMessage(MChatMessageType.VIDEO, arrayListOf(file))
-        }.takeUnless {
-            activity!!.isFinishing
-        }
-    }
-
-    override fun takeFile() {
-        RxImagePicker.with((context as FragmentActivity).supportFragmentManager).takeFiles(
-                arrayOf("application/vnd.ms-powerpoint", "application/pdf", "application/msword")
-        ).flatMap {
-            val files = arrayListOf<File>()
-            it.forEachIndexed { index, uri ->
-                if (index < 2) {
-                    RxImageConverters.uriToFile(mContext, uri, FileUtils.createFileByUri(mContext, uri))?.let { f ->
-                        files.add(f)
-                    }
-                } else {
-                    ToastUtils.showToast(mContext, "一次最多可上传1个文件")
-                }
-            }
-            Observable.just(files)
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val files = arrayListOf<HttpFileEntity>()
-            it.forEach { f ->
-                files.add(HttpFileEntity(url = null, path = f.absolutePath, filename = f.name))
-            }
-            sendFileMessage(MChatMessageType.FILE, files)
-        }.takeUnless {
-            activity!!.isFinishing
-        }
-    }
-
-    override fun uploadFile(files: ArrayList<HttpFileEntity>) {
-        if (!mMessageData.value.isNullOrEmpty() && files.isNotEmpty()) {
-            val file = files[0]
-
-            uploadFileMessage(file, MBaseChatMessageFile.UpLoadState.LOADING)
-
-            mFileModel?.uploadFile(file, object : OnTListener<HttpFileEntity> {
-                override fun back(t: HttpFileEntity) {
-                    if (t.loadSuccess) {
-                        LogUtil.i("上传文件成功>>>>>" + t.filename)
-
-                        uploadFileMessage(t, MBaseChatMessageFile.UpLoadState.SUCCESS)
-
-                        mChatMessageModel?.sendMessage(
-                                message = t.adjoin as MChatMessage,
-                                failed = { msg, result ->
-                                    ToastUtils.showToast(mContext, msg)
-                                    if (mActive) {
-                                        notifySendMessage(result)
-                                    } else {
-                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                        val list = mMessageUpdateCancel.value
-                                        list?.add(result)
-                                        mMessageUpdateCancel.postValue(list)
-                                    }
-                                },
-                                success = { result ->
-                                    if (mActive) {
-                                        notifySendMessage(result)
-                                        files.removeAt(0)
-                                        if (files.isNotEmpty()) {
-                                            uploadFile(files)
-                                        }
-                                    } else {
-                                        LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                        val list = mMessageUpdateCancel.value
-                                        list?.add(result)
-                                        mMessageUpdateCancel.postValue(list)
-                                    }
-                                })
-                    } else {
-                        LogUtil.i("上传文件>>>>>" + t.progress)
-                        if (t.progress == -1) {
-                            ToastUtils.showToast(mContext, "上传失败")
-                            val msg = t.adjoin as MChatMessage
-                            msg.sendStatus = MChatSendStatus.FAILED
-                            if (mActive) {
-                                notifySendMessage(msg)
-                            } else {
-                                LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-                                val list = mMessageUpdateCancel.value
-                                list?.add(msg)
-                                mMessageUpdateCancel.postValue(list)
-                            }
-                        }
-                    }
-                }
-            })
-        }
     }
 
     override fun playAudio(view: View, data: MChatMessageAudio) {
@@ -482,13 +231,13 @@ class ChatMessageListFragment(
         }
     }
 
-    /**发送已上传附件的消息*/
+    /**更新已上传附件的消息*/
     private fun uploadFileMessage(file: HttpFileEntity, state: MBaseChatMessageFile.UpLoadState) {
-        val hashCode = (file.adjoin as MChatMessage).hashCode!!
+        val timeline = file.adjoin as Int?
         var position: Int? = null
         for ((index, msg) in mMessageData.value!!.withIndex()) {
-            if (msg.hashCode == hashCode) {
-                mMessageData.value!![index].message.content.fields["uploadState"] = state
+            if (msg.timeline == timeline) {
+                mMessageData.value!![index].content.fields["uploadState"] = state
                 position = index
                 break
             }
@@ -509,18 +258,25 @@ class ChatMessageListFragment(
     private fun preOnItemClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
             R.id.item_message_view_audio -> {
-                if (obj is MChatMessage) {
-                    if (obj.content is MChatMessageAudio) {
-                        playAudio(view, obj.content as MChatMessageAudio)
+                if (obj is IMessageService.Message) {
+                    if (obj.realContent is MChatMessageAudio) {
+                        playAudio(view, obj.realContent as MChatMessageAudio)
                     }
                 }
             }
             R.id.item_message_cancel_reedit -> {
-                if (obj != null && obj is MChatMessage && obj.contentType == MChatMessageType.TEXT.contentType) {
-                    val content = obj.content as MChatMessageText
-                    chat_message_edit.setText(content.content)
-                    obj.sendStatus = MChatSendStatus.CANCEL_OK
+                if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
+                    val content = obj.realContent as MChatMessageText
+                    obj.sendStatus = EnumChatSendStatus.CANCEL_OK
                     notifySendMessage(obj)
+
+                    RxBus.send(ChatMessageListFragmentEvent(
+                            session = DefMessageService.DefSession(
+                                    sessionId = mSession.sessionId
+                            ),
+                            type = EnumEvent.CANCEL,
+                            data = content
+                    ))
                 }
             }
         }
@@ -530,7 +286,7 @@ class ChatMessageListFragment(
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
             R.id.item_message_content -> {
-                if (obj != null && obj is MChatMessage) {
+                if (obj != null && obj is IMessageService.Message) {
                     val point = IntArray(2)
                     view.getLocationOnScreen(point)
                     val floatMenu = FloatMenu(activity)
@@ -551,21 +307,17 @@ class ChatMessageListFragment(
     }
 
     /**删除（撤销）消息*/
-    private fun deleteMessage(message: MChatMessage) {
-        mChatMessageModel?.deleteMessage(message = message, failed = { msg, _ ->
-            ToastUtils.showToast(context, msg)
-        }, success = { result ->
-            result.sendStatus = MChatSendStatus.CANCEL_CAN
-            notifySendMessage(result)
-        })
+    private fun deleteMessage(message: IMessageService.Message) {
+        message.sendStatus = EnumChatSendStatus.CANCEL_CAN
+        notifySendMessage(message)
     }
 
     /**检查消息附件上传情况，防止结束此页面时文件上传失败，友情提示*/
     private fun checkMessageFileUploaded(): Boolean {
         var uploaded = true
         for (m in mMessageData.value!!) {
-            if (m.content is MBaseChatMessageFile) {
-                val file = m.content as MBaseChatMessageFile
+            if (m.realContent is MBaseChatMessageFile) {
+                val file = m.realContent as MBaseChatMessageFile
                 if (file.uploadState != MBaseChatMessageFile.UpLoadState.SUCCESS) {
                     uploaded = false
                 }
@@ -576,11 +328,36 @@ class ChatMessageListFragment(
     }
 
     /**新消息页面更新*/
-    private fun notifyNewMessage(message: MChatMessage) {
-        val hashCode = message.hashCode()
-        message.hashCode = hashCode
+    private fun notifyNewMessage(message: IMessageService.Message) {
         mMessageData.value!!.add(message)
         mMessageAdapter?.notifyDataSetChanged()
         mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+    }
+
+    /**响应发送往本页面的事件*/
+    private fun notifyFragmentEvent(event: ChatMessageListFragmentEvent) {
+        when (event.type) {
+            EnumEvent.SEND -> {
+                if (event.data is IMessageService.Message) {
+
+                    event.data.sendStatus = EnumChatSendStatus.SENDING
+                    notifyNewMessage(event.data)
+
+                    mMessageService.sendMessage(
+                            message = event.data,
+                            failed = { msg, result ->
+                                ToastUtils.showToast(mContext, msg)
+                                notifySendMessage(result)
+                            },
+                            success = { result ->
+                                notifySendMessage(result)
+                            }
+                    )
+
+                }
+            }
+            else -> {
+            }
+        }
     }
 }

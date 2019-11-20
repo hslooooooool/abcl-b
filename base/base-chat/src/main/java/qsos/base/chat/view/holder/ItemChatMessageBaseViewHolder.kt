@@ -6,7 +6,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.*
+import qsos.base.chat.data.entity.ChatSession
+import qsos.base.chat.data.entity.ChatType
+import qsos.base.chat.data.entity.EnumChatMessageType
+import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.service.IMessageService
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -21,7 +25,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  */
 abstract class ItemChatMessageBaseViewHolder(
         private val session: ChatSession, view: View
-) : BaseHolder<MChatMessage>(view) {
+) : BaseHolder<IMessageService.Message>(view) {
 
     enum class UpdateType(val str: String) {
         UPLOAD_STATE("上传状态"),
@@ -38,14 +42,14 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息状态*/
-    fun updateState(position: Int, data: MChatMessage, type: UpdateType) {
+    fun updateState(position: Int, data: IMessageService.Message, type: UpdateType) {
         val contentView = itemView.getTag(R.id.item_message_time) as View
         when (type) {
             UpdateType.UPLOAD_STATE -> {
                 /**更新消息文件上传状态*/
                 if (this is ItemChatMessageBaseFileViewHolder) {
                     // 注意这行代码，置 null 后让程序重新解析 json 数据
-                    data.content = null
+                    data.realContent = null
                     this.updateFileState(contentView, data, position)
                 }
             }
@@ -56,13 +60,13 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**展示消息内容数据*/
-    abstract fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?)
+    abstract fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?)
 
-    override fun setData(data: MChatMessage, position: Int) {
+    override fun setData(data: IMessageService.Message, position: Int) {
 
         itemView.item_message_time.text = data.createTime
 
-        if (BaseConfig.userId == data.user.userId) {
+        if (BaseConfig.userId == data.sendUserId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
             itemView.findViewById<View>(R.id.item_message_right)
         } else {
@@ -75,10 +79,10 @@ abstract class ItemChatMessageBaseViewHolder(
 
             visibility = View.VISIBLE
 
-            findViewById<TextView>(R.id.item_message_user_name).text = data.user.userName
+            findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
 
             findViewById<ImageView>(R.id.item_message_state).visibility =
-                    if (data.sendStatus == MChatSendStatus.FAILED) {
+                    if (data.sendStatus == EnumChatSendStatus.FAILED) {
                         View.VISIBLE
                     } else {
                         View.INVISIBLE
@@ -86,10 +90,10 @@ abstract class ItemChatMessageBaseViewHolder(
 
             findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
                 ChatType.GROUP -> {
-                    if (data.readStatus < 1) "" else "${data.readStatus}人已读"
+                    if (data.readNum < 1) "" else "${data.readNum}人已读"
                 }
                 ChatType.SINGLE -> {
-                    if (data.readStatus == 0) "未读" else "已读"
+                    if (data.readNum == 0) "未读" else "已读"
                 }
                 else -> ""
             }
@@ -101,7 +105,7 @@ abstract class ItemChatMessageBaseViewHolder(
             ImageLoaderUtils.display(
                     context,
                     findViewById(R.id.item_message_user_avatar),
-                    data.user.avatar
+                    data.sendUserAvatar
             )
 
             findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
@@ -113,13 +117,13 @@ abstract class ItemChatMessageBaseViewHolder(
                 return@setOnLongClickListener true
             }
 
-            if (data.sendStatus == MChatSendStatus.CANCEL_CAN || data.sendStatus == MChatSendStatus.CANCEL_OK) {
+            if (data.sendStatus == EnumChatSendStatus.CANCEL_CAN || data.sendStatus == EnumChatSendStatus.CANCEL_OK) {
                 itemView.item_message_cancel.visibility = View.VISIBLE
                 itemView.item_message_main.visibility = View.GONE
                 itemView.item_message_cancel_reedit.visibility =
                         if (
-                                data.sendStatus == MChatSendStatus.CANCEL_CAN
-                                && data.contentType == MChatMessageType.TEXT.contentType
+                                data.sendStatus == EnumChatSendStatus.CANCEL_CAN
+                                && data.content.getContentType() == EnumChatMessageType.TEXT.contentType
                         ) {
                             View.VISIBLE
                         } else {

@@ -1,9 +1,10 @@
 package qsos.base.chat.service
 
 import qsos.base.chat.data.entity.ChatContent
+import qsos.base.chat.data.entity.EnumChatMessageType
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.base.utils.DateUtils
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.concurrent.timerTask
 
 /**
@@ -11,7 +12,8 @@ import kotlin.concurrent.timerTask
  * 消息服务配置
  */
 class DefMessageService : AbsMessageService() {
-    class DefSession(override var id: Int = 4, override var name: String = "会话1") : IMessageService.Session
+
+    class DefSession(override var sessionId: Int = 4, override var sessionName: String = "会话1") : IMessageService.Session
     class DefMessage(
             override var messageId: Int,
             override var sessionId: Int = 4,
@@ -20,23 +22,30 @@ class DefMessageService : AbsMessageService() {
             override var sendUserAvatar: String = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
             override var timeline: Int,
             override var content: ChatContent,
-            override var createTime: String
+            override var createTime: String,
+            override var sendStatus: EnumChatSendStatus = EnumChatSendStatus.SUCCESS,
+            override var readNum: Int = 1,
+            override var realContent: Any? = null
     ) : IMessageService.Message
 
     private var index = 10000
 
     init {
-        val content = HashMap<String, Any?>()
-        content["contentDesc"] = "contentDesc"
-        content["contentType"] = 0
-        content["content"] = "自动发送文本"
+        var mChatContent: ChatContent
         Timer().schedule(timerTask {
+            index++
+            mChatContent = ChatContent()
+                    .create(0, "自动发送文本$index")
+                    .put("realContent", "自动发送文本$index")
+
             notifyMessage(DefSession(), arrayListOf(
-                    DefMessage(index++, timeline = index++, content = ChatContent(
-                            fields = content
-                    ), createTime = DateUtils.getTimeToNow(Date()))
+                    DefMessage(
+                            index,
+                            timeline = index,
+                            content = mChatContent,
+                            createTime = DateUtils.getTimeToNow(Date()))
             ))
-        }, 1000L, 4000L)
+        }, 1000L, 1000L)
     }
 
     override fun sendMessage(
@@ -44,7 +53,11 @@ class DefMessageService : AbsMessageService() {
             failed: (msg: String, message: IMessageService.Message) -> Unit,
             success: (message: IMessageService.Message) -> Unit
     ) {
+        when (message.content.getContentType()) {
+            EnumChatMessageType.TEXT.contentType -> {
 
+            }
+        }
 
     }
 

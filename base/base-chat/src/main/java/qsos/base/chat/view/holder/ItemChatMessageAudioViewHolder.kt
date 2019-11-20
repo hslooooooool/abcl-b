@@ -9,8 +9,8 @@ import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MBaseChatMessageFile
-import qsos.base.chat.data.entity.MChatMessage
 import qsos.base.chat.data.entity.MChatMessageAudio
+import qsos.base.chat.service.IMessageService
 import qsos.lib.base.callback.OnListItemClickListener
 
 /**
@@ -19,11 +19,11 @@ import qsos.lib.base.callback.OnListItemClickListener
  */
 class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseFileViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
+    override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         super.setContent(contentView, data, position, itemListener)
         contentView.apply {
             item_message_view_audio.visibility = View.VISIBLE
-            val content = data.content as MChatMessageAudio
+            val content = data.realContent as MChatMessageAudio
             item_message_audio_time.text = "${content.length}`"
 
             item_message_view_audio.setOnClickListener {
@@ -32,12 +32,12 @@ class ItemChatMessageAudioViewHolder(session: ChatSession, view: View) : ItemCha
         }
     }
 
-    override fun updateFileState(contentView: View, data: MChatMessage, position: Int) {
+    override fun updateFileState(contentView: View, data: IMessageService.Message, position: Int) {
         contentView.apply {
             val mMessageState = findViewById<ImageView>(R.id.item_message_state)
             val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            if (data.content is MChatMessageAudio) {
-                val file = data.content as MChatMessageAudio
+            if (data.realContent is MChatMessageAudio) {
+                val file = data.realContent as MChatMessageAudio
                 when (file.uploadState) {
                     MBaseChatMessageFile.UpLoadState.SUCCESS -> {
                         mMessageState.visibility = View.INVISIBLE

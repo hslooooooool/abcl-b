@@ -6,7 +6,7 @@ import android.widget.ProgressBar
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MBaseChatMessageFile
-import qsos.base.chat.data.entity.MChatMessage
+import qsos.base.chat.service.IMessageService
 import qsos.lib.base.callback.OnListItemClickListener
 
 /**
@@ -21,14 +21,14 @@ abstract class ItemChatMessageBaseFileViewHolder(
 ) : ItemChatMessageBaseViewHolder(session, view) {
 
     /**更新消息文件上传状态*/
-    abstract fun updateFileState(contentView: View, data: MChatMessage, position: Int)
+    abstract fun updateFileState(contentView: View, data: IMessageService.Message, position: Int)
 
-    override fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?) {
+    override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             val mMessageState = findViewById<ImageView>(R.id.item_message_state)
             val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            if (data.content is MBaseChatMessageFile) {
-                val file = data.content as MBaseChatMessageFile
+            if (data.realContent is MBaseChatMessageFile) {
+                val file = data.realContent as MBaseChatMessageFile
                 when (file.uploadState) {
                     MBaseChatMessageFile.UpLoadState.SUCCESS -> {
                         mMessageState.visibility = View.INVISIBLE
