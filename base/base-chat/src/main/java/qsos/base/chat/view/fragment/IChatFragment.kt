@@ -13,7 +13,7 @@ interface IChatFragment {
     /**语音播放*/
     fun playAudio(view: View, data: MChatMessageAudio)
 
-    /**发送消息
+    /**发送消息，自动滑到底部
      * @param msg 消息数据
      * @param new 是否新消息（新消息需要上屏）
      * */
@@ -22,8 +22,10 @@ interface IChatFragment {
     /**更新消息发送状态*/
     fun notifyMessageSendStatus(message: IMessageService.Message)
 
-    /**更新新消息*/
-    fun notifyNewMessage(message: IMessageService.Message)
+    /**更新新消息
+     * @param toBottom 更新后是否自动滑到底部
+     * */
+    fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean = true)
 
     /**更新消息状态*/
     fun notifyFileMessage(message: IMessageService.Message)
@@ -33,7 +35,4 @@ interface IChatFragment {
 
     /**发送撤回消息事件到聊天列表*/
     fun sendMessageRecallEvent(message: IMessageService.Message)
-
-    /**接收聊天消息发送事件*/
-    fun receiveSendMessageEvent(message: IMessageService.Message)
 }

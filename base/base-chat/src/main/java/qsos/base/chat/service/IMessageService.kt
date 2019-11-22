@@ -13,10 +13,14 @@ interface IMessageService {
     /**消息发送事件实体
      * @param session 会话实体
      * @param message 消息实体
+     * @param send 是否执行消息发送
+     * @param bottom 是否执行消息列表滚动到底部
      * */
     data class MessageSendEvent(
             val session: Session,
-            val message: List<Message>
+            val message: List<Message>,
+            val send: Boolean = false,
+            val bottom: Boolean = true
     ) : RxBus.RxBusEvent<MessageSendEvent> {
         override fun message(): MessageSendEvent? {
             return this

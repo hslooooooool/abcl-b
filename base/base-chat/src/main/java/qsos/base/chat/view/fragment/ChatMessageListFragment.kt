@@ -8,6 +8,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.noober.menu.FloatMenu
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
@@ -16,6 +17,7 @@ import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.service.IMessageService
+import qsos.base.chat.utils.RecycleViewUtils
 import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.core.player.PlayerConfigHelper
@@ -48,6 +50,11 @@ class ChatMessageListFragment(
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
     private val mMessageData: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
     private var mActive: Boolean = true
+    private var mNewMessageNum = 0
+    /**新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
+     * @see notifyNewMessage
+     * */
+    private var mNewMessageNumLimit = 5
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
@@ -75,12 +82,26 @@ class ChatMessageListFragment(
                 preOnItemLongClick(view, position, obj)
             }
         })
-
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
         chat_message_list.layoutManager = mLinearLayoutManager
         chat_message_list.adapter = mMessageAdapter
+        chat_message_list.itemAnimator = null
+
+        chat_message_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (RecycleViewUtils.isSlideToBottom(chat_message_list)) {
+                    chat_message_new_message_num.visibility = View.GONE
+                    mNewMessageNum = 0
+                }
+            }
+        })
+
+        chat_message_new_message_num.setOnClickListener {
+            scrollToBottom()
+        }
 
         mMessageList.observe(this, Observer {
             mMessageData.value?.clear()
@@ -103,16 +124,18 @@ class ChatMessageListFragment(
             LogUtil.d("聊天界面", "页面显示，更新缓存数据")
         })
 
-        DefMessageService()
-
         /**接收消息发送事件*/
         RxBus.toFlow(IMessageService.MessageSendEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
                             if (mActive && it.session.sessionId == mSession.sessionId) {
-                                it.message.forEach { msg ->
-                                    receiveSendMessageEvent(msg)
+                                it.message.forEach { message ->
+                                    if (it.send) {
+                                        sendMessage(message)
+                                    } else {
+                                        notifyNewMessage(message, it.bottom)
+                                    }
                                 }
                             }
                         }, {
@@ -195,7 +218,7 @@ class ChatMessageListFragment(
     override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
         msg.sendStatus = EnumChatSendStatus.SENDING
         if (new) {
-            notifyNewMessage(msg)
+            notifyNewMessage(msg, true)
         }
         mMessageService.sendMessage(
                 message = msg,
@@ -245,11 +268,23 @@ class ChatMessageListFragment(
         notifyMessageSendStatus(message)
     }
 
-    override fun notifyNewMessage(message: IMessageService.Message) {
+    @SuppressLint("SetTextI18n")
+    override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {
         mMessageData.value!!.add(message)
-        val size = mMessageData.value!!.size - 1
-        mMessageAdapter?.notifyItemInserted(size)
-        mLinearLayoutManager?.scrollToPosition(size)
+        val mMessageSize = mMessageData.value!!.size - 1
+        mMessageAdapter?.notifyItemInserted(mMessageSize)
+        val lastPosition = mLinearLayoutManager?.findLastCompletelyVisibleItemPosition() ?: 0
+        val scroll = mMessageSize - mNewMessageNumLimit < lastPosition
+        when {
+            scroll || toBottom -> {
+                mLinearLayoutManager?.scrollToPosition(mMessageSize)
+            }
+            else -> {
+                mNewMessageNum++
+                chat_message_new_message_num.visibility = View.VISIBLE
+                chat_message_new_message_num.text = "有 $mNewMessageNum 条新消息"
+            }
+        }
     }
 
     override fun sendMessageRecallEvent(message: IMessageService.Message) {
@@ -259,24 +294,20 @@ class ChatMessageListFragment(
         ))
     }
 
-    override fun receiveSendMessageEvent(message: IMessageService.Message) {
-        message.sendStatus = EnumChatSendStatus.SENDING
-        when (message.content.getContentType()) {
-            EnumChatMessageType.FILE.contentType, EnumChatMessageType.AUDIO.contentType,
-            EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType -> {
-                notifyNewMessage(message)
-            }
-            else -> {
-                sendMessage(message)
-            }
-        }
-    }
-
     /**停止所有语音播放*/
     private fun stopAudioPlay() {
         mPlayList.values.forEach {
             it?.stop()
         }
+    }
+
+    /**消息列表滚动到底部*/
+    private fun scrollToBottom() {
+        if (mMessageData.value?.isNotEmpty() == true) {
+            mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+        }
+        chat_message_new_message_num.visibility = View.GONE
+        mNewMessageNum = 0
     }
 
     /**列表项点击*/

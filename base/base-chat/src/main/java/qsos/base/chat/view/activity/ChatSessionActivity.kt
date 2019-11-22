@@ -103,7 +103,7 @@ class ChatSessionActivity(
 
                 sendMessage(
                         ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
-                                .put("content", content)
+                                .put("content", content), send = true, bottom = true
                 )
 
                 BaseUtils.closeKeyBord(mContext, chat_message_edit)
@@ -277,20 +277,21 @@ class ChatSessionActivity(
         }
     }
 
-    override fun sendMessage(content: ChatContent): IMessageService.Message {
+    override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message {
         val message = DefMessageService.DefMessage(
                 sessionId = mSessionId!!,
                 sendUserId = ChatMainActivity.mLoginUser.value!!.userId,
                 sendUserName = ChatMainActivity.mLoginUser.value!!.userName,
                 sendUserAvatar = ChatMainActivity.mLoginUser.value!!.avatar ?: "",
-                timeline = content.hashCode() + Date().hours,
+                timeline = UUID.randomUUID().hashCode(),
                 content = content,
                 createTime = DateUtils.getTimeToNow(Date())
         )
 
         RxBus.send(IMessageService.MessageSendEvent(
                 session = DefMessageService.DefSession(sessionId = mSessionId!!),
-                message = arrayListOf(message)
+                message = arrayListOf(message),
+                send = send, bottom = bottom
         ))
 
         return message
@@ -302,7 +303,7 @@ class ChatSessionActivity(
                     .put("name", file.filename)
                     .put("url", file.path)
                     .put("length", file.adjoin as Long?)
-            file.adjoin = sendMessage(content)
+            file.adjoin = sendMessage(content, send = false, bottom = true)
         }
 
         uploadFile(files)
@@ -321,6 +322,7 @@ class ChatSessionActivity(
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
                         message.sendStatus = EnumChatSendStatus.SUCCESS
+                        message.content.put("url", file.url)
                         sendFileMessageUpdate(message)
 
                         /**【递归】移除当前已上传文件，传递下一文件*/

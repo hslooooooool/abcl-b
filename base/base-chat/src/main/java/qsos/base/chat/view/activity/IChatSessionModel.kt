@@ -35,7 +35,7 @@ interface IChatSessionModel {
     fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>)
 
     /**发送消息*/
-    fun sendMessage(content: ChatContent): IMessageService.Message
+    fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message
 
     /**发送文件消息更新事件到聊天列表*/
     fun sendFileMessageUpdate(message: IMessageService.Message)

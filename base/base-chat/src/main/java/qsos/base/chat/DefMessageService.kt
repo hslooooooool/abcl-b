@@ -25,12 +25,12 @@ class DefMessageService(
         private val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : AbsMessageService() {
 
-    class DefSession(override var sessionId: Int = 4, override var sessionName: String = "会话1") : IMessageService.Session
+    class DefSession(override var sessionId: Int, override var sessionName: String = "") : IMessageService.Session
     class DefMessage(
             override var messageId: Int = -1,
-            override var sessionId: Int = 4,
+            override var sessionId: Int,
             override var sendUserId: Int = 3,
-            override var sendUserName: String = "99976767",
+            override var sendUserName: String = "测试用户",
             override var sendUserAvatar: String = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
             override var timeline: Int,
             override var content: ChatContent,
@@ -56,24 +56,24 @@ class DefMessageService(
         }
     }
 
-    private var index = 10000
-
     init {
         var mChatContent: ChatContent
+        var index: Int
         Timer().schedule(timerTask {
-            index++
+            index = UUID.randomUUID().hashCode()
             mChatContent = ChatContent()
                     .create(0, "自动发送文本$index")
                     .put("content", "自动发送文本$index")
 
-            notifyMessage(DefSession(), arrayListOf(
+            notifyMessage(DefSession(sessionId = 1), arrayListOf(
                     DefMessage(
                             index,
+                            sessionId = 1,
                             timeline = index,
                             content = mChatContent,
                             createTime = DateUtils.getTimeToNow(Date()))
             ))
-        }, 1000000L, 1000L)
+        }, 5000L, 5000L)
     }
 
     override fun sendMessage(
