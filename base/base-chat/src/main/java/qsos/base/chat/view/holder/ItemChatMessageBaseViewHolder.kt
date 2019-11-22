@@ -29,7 +29,6 @@ abstract class ItemChatMessageBaseViewHolder(
 ) : BaseHolder<IMessageService.Message>(view) {
 
     enum class UpdateType(val str: String) {
-        UPLOAD_STATE("上传状态"),
         READ_STATE("读取状态"),
         SEND_STATE("发送状态");
     }
@@ -42,15 +41,16 @@ abstract class ItemChatMessageBaseViewHolder(
         return this
     }
 
+    /**展示消息内容数据*/
+    abstract fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?)
+
     /**更新消息状态*/
     fun updateState(position: Int, data: IMessageService.Message, type: UpdateType) {
-        val contentView = itemView.getTag(R.id.item_message_time) as View
+        val contentView = itemView.getTag(R.id.item_message) as View?
         when (type) {
             UpdateType.SEND_STATE -> {
-                /**更新消息文件上传状态*/
-                if (this is ItemChatMessageBaseFileViewHolder) {
-                    // 注意这行代码，置 null 后让程序重新解析 json 数据
-                    this.updateFileState(contentView, data, position)
+                contentView?.let {
+                    updateSendStatus(contentView, data)
                 }
             }
             else -> {
@@ -59,46 +59,32 @@ abstract class ItemChatMessageBaseViewHolder(
         }
     }
 
-    /**展示消息内容数据*/
-    abstract fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?)
-
-    override fun setData(data: IMessageService.Message, position: Int) {
-
+    /**判断获取具体内容视图*/
+    private fun getContentView(data: IMessageService.Message, position: Int): View {
         itemView.item_message_time.text = data.createTime
-
+        val contentView: View
         if (BaseConfig.userId == data.sendUserId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
-            itemView.findViewById<View>(R.id.item_message_right)
+            contentView = itemView.findViewById<View>(R.id.item_message_right)
         } else {
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
-            itemView.findViewById<View>(R.id.item_message_left)
-        }.apply {
-            if (itemView.getTag(R.id.item_message_time) == null) {
-                itemView.setTag(R.id.item_message_time, this)
-            }
+            contentView = itemView.findViewById<View>(R.id.item_message_left)
+        }
 
-            visibility = View.VISIBLE
+        contentView.visibility = View.VISIBLE
 
-            findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
+        if (itemView.getTag(R.id.item_message) == null) {
+            itemView.setTag(R.id.item_message, contentView)
+        }
+        return contentView
+    }
 
-            data.sendStatus?.let {
-                when (it) {
-                    EnumChatSendStatus.FAILED -> {
-                        findViewById<ImageView>(R.id.item_message_state).visibility = View.VISIBLE
-                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
-                    }
-                    EnumChatSendStatus.SENDING -> {
-                        findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
-                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.VISIBLE
-                    }
-                    else -> {
-                        findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
-                        findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
-                    }
-                }
-            }
+    override fun setData(data: IMessageService.Message, position: Int) {
+        getContentView(data, position).apply {
 
-            findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
+            this.findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
+
+            this.findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
                 ChatType.GROUP -> {
                     if (data.readNum < 1) "" else "${data.readNum}人已读"
                 }
@@ -108,46 +94,68 @@ abstract class ItemChatMessageBaseViewHolder(
                 else -> ""
             }
 
-            findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
+            this.findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
                 mItemListener?.onItemClick(it, position, data)
             }
 
             ImageLoaderUtils.display(
                     context,
-                    findViewById(R.id.item_message_user_avatar),
+                    this.findViewById(R.id.item_message_user_avatar),
                     data.sendUserAvatar
             )
 
-            findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
+            this.findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
                 mItemListener?.onItemClick(it, position, data)
             }
 
-            findViewById<LinearLayout>(R.id.item_message_content).setOnLongClickListener {
+            this.findViewById<LinearLayout>(R.id.item_message_content).setOnLongClickListener {
                 mItemListener?.onItemLongClick(it, position, data)
                 return@setOnLongClickListener true
             }
 
-            if (data.sendStatus == EnumChatSendStatus.CANCEL_CAN || data.sendStatus == EnumChatSendStatus.CANCEL_OK) {
+            updateSendStatus(this, data)
+
+            setContent(this, data, position, mItemListener)
+        }
+    }
+
+    /**更新消息发送状态*/
+    private fun updateSendStatus(contentView: View, data: IMessageService.Message) {
+
+        itemView.item_message_cancel.visibility = View.GONE
+        itemView.item_message_main.visibility = View.VISIBLE
+
+        when (data.sendStatus) {
+            EnumChatSendStatus.FAILED -> {
+                contentView.findViewById<ImageView>(R.id.item_message_state).visibility = View.VISIBLE
+                contentView.findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
+            }
+            EnumChatSendStatus.SENDING -> {
+                contentView.findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
+                contentView.findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.VISIBLE
+            }
+            EnumChatSendStatus.SUCCESS -> {
+                contentView.findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
+                contentView.findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
+            }
+            EnumChatSendStatus.CANCEL_CAN, EnumChatSendStatus.CANCEL_OK -> {
+                contentView.findViewById<ImageView>(R.id.item_message_state).visibility = View.INVISIBLE
+                contentView.findViewById<ProgressBar>(R.id.item_message_progress).visibility = View.INVISIBLE
+
                 itemView.item_message_cancel.visibility = View.VISIBLE
                 itemView.item_message_main.visibility = View.GONE
-                itemView.item_message_cancel_reedit.visibility =
-                        if (
-                                data.sendStatus == EnumChatSendStatus.CANCEL_CAN
-                                && data.content.getContentType() == EnumChatMessageType.TEXT.contentType
-                        ) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
+                itemView.item_message_cancel_reedit.visibility = if (
+                        data.sendStatus == EnumChatSendStatus.CANCEL_CAN
+                        && data.content.getContentType() == EnumChatMessageType.TEXT.contentType
+                ) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
 
                 itemView.item_message_cancel_reedit.setOnClickListener {
                     mItemListener?.onItemClick(it, position, data)
                 }
-            } else {
-                itemView.item_message_cancel.visibility = View.GONE
-                itemView.item_message_main.visibility = View.VISIBLE
-
-                setContent(this, data, position, mItemListener)
             }
         }
     }

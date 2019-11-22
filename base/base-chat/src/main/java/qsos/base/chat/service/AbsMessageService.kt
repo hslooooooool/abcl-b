@@ -13,7 +13,7 @@ abstract class AbsMessageService : IMessageService {
      * @param message 消息列表
      * */
     fun notifyMessage(session: IMessageService.Session, message: List<IMessageService.Message>) {
-        RxBus.send(IMessageService.MessageData(session, message))
+        RxBus.send(IMessageService.MessageSendEvent(session, message))
     }
 
 }

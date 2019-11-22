@@ -3,8 +3,6 @@ package qsos.base.chat.view.fragment
 import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
@@ -29,7 +27,6 @@ import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
-import qsos.lib.netservice.file.HttpFileEntity
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -37,18 +34,14 @@ import kotlin.collections.HashMap
  * @author : 华清松
  * 聊天页面
  */
+@SuppressLint("CheckResult")
 class ChatMessageListFragment(
         private val mSession: ChatSession,
         private val mMessageService: IMessageService,
         private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
-        private val mActivityHandler: Handler,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
-    companion object {
-        const val SESSION_ID = "SESSION_ID"
-        const val DATA = "DATA"
-    }
 
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
@@ -57,18 +50,7 @@ class ChatMessageListFragment(
     private var mActive: Boolean = true
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
-    private val mMessageUpdateCancel: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
-
-    private val mFragmentHandler: Handler = Handler {
-        when (it.what) {
-
-        }
-        return@Handler true
-    }
-
-    fun getHandler(): Handler {
-        return mFragmentHandler
-    }
+    private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
 
     enum class EnumEvent(val key: String, val type: Int) {
         SEND("发送消息", -1),
@@ -77,43 +59,22 @@ class ChatMessageListFragment(
         CANCEL("撤回消息", 1)
     }
 
-    /**消息列表通信与交互实体
-     * @param session 会话实体
-     * @param type 通信与交互类型。<0 为其它页面发送往本页面的动作，本页面响应；>0 为本页面发送往其它页面的动作，其它页面响应
-     * */
-    data class ChatMessageListFragmentEvent(
-            val session: IMessageService.Session,
-            val type: EnumEvent,
-            val data: Any?
-    ) : RxBus.RxBusEvent<ChatMessageListFragmentEvent> {
-
-        override fun message(): ChatMessageListFragmentEvent {
-            return this
-        }
-
-        override fun name(): String {
-            return "消息列表通信与交互实体"
-        }
-    }
-
     override fun initData(savedInstanceState: Bundle?) {
         mMessageData.value = arrayListOf()
-        mMessageUpdateCancel.value = arrayListOf()
+        mMessageUpdateCancel.value = HashMap()
     }
 
-    @SuppressLint("CheckResult")
     override fun initView(view: View) {
 
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!,
-                object : OnListItemClickListener {
-                    override fun onItemClick(view: View, position: Int, obj: Any?) {
-                        preOnItemClick(view, position, obj)
-                    }
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, object : OnListItemClickListener {
+            override fun onItemClick(view: View, position: Int, obj: Any?) {
+                preOnItemClick(view, position, obj)
+            }
 
-                    override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-                        preOnItemLongClick(view, position, obj)
-                    }
-                })
+            override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                preOnItemLongClick(view, position, obj)
+            }
+        })
 
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
@@ -135,44 +96,40 @@ class ChatMessageListFragment(
         })
 
         mMessageUpdateCancel.observe(this, Observer {
-            it.forEach { msg ->
-                notifySendMessage(msg)
+            it.values.forEach { msg ->
+                notifyMessageSendStatus(msg)
             }
             mMessageUpdateCancel.value?.clear()
-            LogUtil.d("聊天界面", "页面显示，更新数据")
+            LogUtil.d("聊天界面", "页面显示，更新缓存数据")
         })
 
         DefMessageService()
 
-        RxBus.toFlow(IMessageService.MessageData::class.java)
+        /**接收消息发送事件*/
+        RxBus.toFlow(IMessageService.MessageSendEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
                             if (mActive && it.session.sessionId == mSession.sessionId) {
                                 it.message.forEach { msg ->
-                                    notifyNewMessage(msg)
+                                    receiveSendMessageEvent(msg)
                                 }
                             }
                         }, {
                     it.printStackTrace()
-                }
-                )
+                })
 
-        RxBus.toFlow(ChatMessageListFragmentEvent::class.java)
+        /**接收文件消息更新事件*/
+        RxBus.toFlow(IMessageService.MessageUpdateFileEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            if (
-                                    mActive
-                                    && it.session.sessionId == mSession.sessionId
-                                    && it.type.type < 0
-                            ) {
-                                notifyFragmentEvent(it)
+                            if (mActive && it.session.sessionId == mSession.sessionId) {
+                                notifyFileMessage(it.message)
                             }
                         }, {
                     it.printStackTrace()
-                }
-                )
+                })
 
         getData()
 
@@ -191,39 +148,6 @@ class ChatMessageListFragment(
         mActive = false
         stopAudioPlay()
         super.onPause()
-    }
-
-    override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
-        msg.sendStatus = EnumChatSendStatus.SENDING
-        if (new) {
-            notifyNewMessage(msg)
-        }
-        mMessageService.sendMessage(
-                message = msg,
-                failed = { error, result ->
-                    ToastUtils.showToast(mContext, error)
-                    result.sendStatus = EnumChatSendStatus.FAILED
-                    notifySendMessage(result)
-                },
-                success = { result ->
-                    result.sendStatus = EnumChatSendStatus.SUCCESS
-                    notifySendMessage(result)
-                }
-        )
-    }
-
-    override fun notifySendMessage(msg: IMessageService.Message) {
-        mMessageData.value?.find {
-            it.timeline == msg.timeline
-        }?.sendStatus = msg.sendStatus
-        if (mActive) {
-            mMessageAdapter?.notifyDataSetChanged()
-        } else {
-            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-            val list = mMessageUpdateCancel.value
-            list?.add(msg)
-            mMessageUpdateCancel.postValue(list)
-        }
     }
 
     override fun playAudio(view: View, data: MChatMessageAudio) {
@@ -268,63 +192,82 @@ class ChatMessageListFragment(
         }
     }
 
-    override fun updateFileMessage(file: HttpFileEntity) {
-        val message = file.adjoin as IMessageService.Message
-        var position: Int? = null
-        val state: EnumChatSendStatus = when {
-            file.loadSuccess -> EnumChatSendStatus.SUCCESS
-            file.progress >= 0 -> EnumChatSendStatus.SENDING
-            else -> EnumChatSendStatus.FAILED
+    override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
+        msg.sendStatus = EnumChatSendStatus.SENDING
+        if (new) {
+            notifyNewMessage(msg)
         }
+        mMessageService.sendMessage(
+                message = msg,
+                failed = { error, result ->
+                    ToastUtils.showToast(mContext, error)
+                    result.sendStatus = EnumChatSendStatus.FAILED
+                    notifyMessageSendStatus(result)
+                },
+                success = { result ->
+                    result.sendStatus = EnumChatSendStatus.SUCCESS
+                    notifyMessageSendStatus(result)
+                }
+        )
+    }
+
+    override fun notifyMessageSendStatus(message: IMessageService.Message) {
+        var position: Int? = null
         for ((index, msg) in mMessageData.value!!.withIndex()) {
             if (msg.timeline == message.timeline) {
+                msg.sendStatus = message.sendStatus
                 position = index
                 break
             }
         }
-        message.sendStatus = state
-        if (state == EnumChatSendStatus.SUCCESS) {
-            sendMessage(message, false)
-        } else {
+        if (mActive) {
             position?.let {
                 mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.SEND_STATE)
             }
+        } else {
+            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+            val list = mMessageUpdateCancel.value
+            list?.put(message.timeline, message)
+            mMessageUpdateCancel.postValue(list)
+        }
+    }
+
+    override fun notifyFileMessage(message: IMessageService.Message) {
+        if (message.sendStatus == EnumChatSendStatus.SUCCESS) {
+            sendMessage(message, false)
+        } else {
+            notifyMessageSendStatus(message)
         }
     }
 
     override fun deleteMessage(message: IMessageService.Message) {
         message.sendStatus = EnumChatSendStatus.CANCEL_CAN
-        notifySendMessage(message)
+        notifyMessageSendStatus(message)
     }
 
     override fun notifyNewMessage(message: IMessageService.Message) {
         mMessageData.value!!.add(message)
-        mMessageAdapter?.notifyDataSetChanged()
-        mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+        val size = mMessageData.value!!.size - 1
+        mMessageAdapter?.notifyItemInserted(size)
+        mLinearLayoutManager?.scrollToPosition(size)
     }
 
-    override fun notifyFragmentEvent(event: ChatMessageListFragmentEvent) {
-        when (event.type) {
-            EnumEvent.SEND -> {
-                if (event.data is IMessageService.Message) {
-                    event.data.sendStatus = EnumChatSendStatus.SENDING
-                    when (event.data.content.getContentType()) {
-                        EnumChatMessageType.FILE.contentType -> notifyNewMessage(event.data)
-                        else -> {
-                            sendMessage(event.data)
-                        }
-                    }
-                }
-            }
-            EnumEvent.UPDATE_FILE_MSG -> {
-                if (event.data is HttpFileEntity) {
-                    updateFileMessage(event.data)
-                }
-            }
-            EnumEvent.CANCEL_OK -> {
+    override fun sendMessageRecallEvent(message: IMessageService.Message) {
+        RxBus.send(IMessageService.MessageReceiveEvent(
+                session = DefMessageService.DefSession(sessionId = mSession.sessionId),
+                message = message
+        ))
+    }
 
+    override fun receiveSendMessageEvent(message: IMessageService.Message) {
+        message.sendStatus = EnumChatSendStatus.SENDING
+        when (message.content.getContentType()) {
+            EnumChatMessageType.FILE.contentType, EnumChatMessageType.AUDIO.contentType,
+            EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType -> {
+                notifyNewMessage(message)
             }
             else -> {
+                sendMessage(message)
             }
         }
     }
@@ -350,15 +293,9 @@ class ChatMessageListFragment(
                 if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
-                        notifySendMessage(obj)
+                        notifyMessageSendStatus(obj)
 
-                        val msg = Message()
-                        msg.what = EnumEvent.CANCEL.type
-                        val data = Bundle()
-                        data.putInt(SESSION_ID, mSession.sessionId)
-                        data.putString(DATA, it.content)
-                        msg.data = data
-                        mActivityHandler.sendMessage(msg)
+                        sendMessageRecallEvent(obj)
                     }
                 }
             }

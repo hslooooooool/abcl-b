@@ -2,13 +2,9 @@ package qsos.base.chat.view.holder
 
 import android.annotation.SuppressLint
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
 import kotlinx.android.synthetic.main.item_message_file.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
-import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.entity.MBaseChatMessageFile
 import qsos.base.chat.data.entity.MChatMessageFile
 import qsos.base.chat.service.IMessageService
 import qsos.core.lib.utils.image.ImageLoaderUtils
@@ -20,10 +16,9 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-文件布局
  */
-class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseFileViewHolder(session, view) {
+class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
-        super.setContent(contentView, data, position, itemListener)
         contentView.apply {
             item_message_view_file.visibility = View.VISIBLE
             data.getRealContent<MChatMessageFile>()?.let {
@@ -44,26 +39,4 @@ class ItemChatMessageFileViewHolder(session: ChatSession, view: View) : ItemChat
         }
     }
 
-    override fun updateFileState(contentView: View, data: IMessageService.Message, position: Int) {
-        contentView.apply {
-            val mMessageState = findViewById<ImageView>(R.id.item_message_state)
-            val mMessageProgressBar = findViewById<ProgressBar>(R.id.item_message_progress)
-            data.getRealContent<MChatMessageFile>()?.let {
-                when (it.uploadState) {
-                    MBaseChatMessageFile.UpLoadState.SUCCESS -> {
-                        mMessageState.visibility = View.INVISIBLE
-                        mMessageProgressBar.visibility = View.INVISIBLE
-                    }
-                    MBaseChatMessageFile.UpLoadState.LOADING -> {
-                        mMessageState.visibility = View.INVISIBLE
-                        mMessageProgressBar.visibility = View.VISIBLE
-                    }
-                    MBaseChatMessageFile.UpLoadState.FAILED -> {
-                        mMessageState.visibility = View.VISIBLE
-                        mMessageProgressBar.visibility = View.INVISIBLE
-                    }
-                }
-            }
-        }
-    }
 }

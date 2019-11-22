@@ -10,9 +10,6 @@ abstract class MBaseChatMessageFile {
     var avatar: String = ""
     var url: String = ""
 
-    /**文件上传状态*/
-    var uploadState: UpLoadState = UpLoadState.SUCCESS
-
     constructor()
     /**
      * @param length 文件长度,kb
@@ -32,10 +29,4 @@ abstract class MBaseChatMessageFile {
         this.url = url
     }
 
-    /**文件上传状态*/
-    enum class UpLoadState {
-        LOADING,
-        SUCCESS,
-        FAILED;
-    }
 }

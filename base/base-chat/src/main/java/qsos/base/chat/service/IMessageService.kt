@@ -10,20 +10,54 @@ import qsos.lib.base.utils.rx.RxBus
  */
 interface IMessageService {
 
-    /**消息推送事件实体
+    /**消息发送事件实体
      * @param session 会话实体
      * @param message 消息实体
      * */
-    data class MessageData(
+    data class MessageSendEvent(
             val session: Session,
             val message: List<Message>
-    ) : RxBus.RxBusEvent<MessageData> {
-        override fun message(): MessageData? {
+    ) : RxBus.RxBusEvent<MessageSendEvent> {
+        override fun message(): MessageSendEvent? {
             return this
         }
 
         override fun name(): String {
-            return "会话"
+            return "消息发送"
+        }
+    }
+
+    /**文件消息更新事件实体
+     * @param session 会话实体
+     * @param message 消息实体
+     * */
+    data class MessageUpdateFileEvent(
+            val session: Session,
+            val message: Message
+    ) : RxBus.RxBusEvent<MessageUpdateFileEvent> {
+        override fun message(): MessageUpdateFileEvent? {
+            return this
+        }
+
+        override fun name(): String {
+            return "文件消息更新"
+        }
+    }
+
+    /**文本消息撤回事件实体
+     * @param session 会话实体
+     * @param message 消息实体
+     * */
+    data class MessageReceiveEvent(
+            val session: Session,
+            val message: Message
+    ) : RxBus.RxBusEvent<MessageReceiveEvent> {
+        override fun message(): MessageReceiveEvent? {
+            return this
+        }
+
+        override fun name(): String {
+            return "文件消息撤回"
         }
     }
 
