@@ -18,6 +18,8 @@ class ChatMessageAdapter(
         val itemListener: OnListItemClickListener? = null
 ) : BaseAdapter<IMessageService.Message>(list) {
 
+    private val mMessageMap: HashMap<Int, View> = HashMap()
+
     override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
@@ -26,10 +28,17 @@ class ChatMessageAdapter(
             payloads.forEach {
                 /**更新消息状态*/
                 if (it is ItemChatMessageBaseViewHolder.UpdateType) {
-                    holder.updateState(position, data[position], it)
+                    mMessageMap[data[position].timeline]?.let { v ->
+                        holder.updateState(v, data[position], it)
+                    }
                 }
             }
         }
+    }
+
+    override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int) {
+        super.onBindViewHolder(holder, position)
+        mMessageMap[data[position].timeline] = holder.itemView
     }
 
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message

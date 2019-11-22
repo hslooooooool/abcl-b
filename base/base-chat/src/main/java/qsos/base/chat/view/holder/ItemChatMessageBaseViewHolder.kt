@@ -44,13 +44,10 @@ abstract class ItemChatMessageBaseViewHolder(
     abstract fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?)
 
     /**更新消息状态*/
-    fun updateState(position: Int, data: IMessageService.Message, type: UpdateType) {
-        val contentView = itemView.getTag(R.id.item_message) as View?
+    fun updateState(contentView: View, data: IMessageService.Message, type: UpdateType) {
         when (type) {
             UpdateType.SEND_STATE -> {
-                contentView?.let {
-                    updateSendStatus(contentView, data)
-                }
+                updateSendStatus(contentView, data)
             }
             else -> {
 
@@ -74,6 +71,10 @@ abstract class ItemChatMessageBaseViewHolder(
 
         if (itemView.getTag(R.id.item_message) == null) {
             itemView.setTag(R.id.item_message, contentView)
+        }
+
+        itemView.item_message_cancel_reedit.setOnClickListener {
+            mItemListener?.onItemClick(it, position, data)
         }
         return contentView
     }
@@ -150,10 +151,6 @@ abstract class ItemChatMessageBaseViewHolder(
                     View.VISIBLE
                 } else {
                     View.GONE
-                }
-
-                itemView.item_message_cancel_reedit.setOnClickListener {
-                    mItemListener?.onItemClick(it, position, data)
                 }
             }
         }

@@ -79,7 +79,7 @@ class DefMessageService(
                             content = mChatContent,
                             createTime = DateUtils.getTimeToNow(Date()))
             ))
-        }, 5000L, 2000L)
+        }, 5000L, 1000000L)
     }
 
     override fun sendMessage(
