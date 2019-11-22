@@ -9,7 +9,7 @@ import qsos.lib.netservice.file.HttpFileEntity
  * @author : 华清松
  * 消息会话操作
  */
-interface IChatSessionModel {
+interface IChatSessionView {
 
     /**获取语音*/
     fun takeAudio()

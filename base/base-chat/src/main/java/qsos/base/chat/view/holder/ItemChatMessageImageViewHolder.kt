@@ -3,7 +3,6 @@ package qsos.base.chat.view.holder
 import android.view.View
 import kotlinx.android.synthetic.main.item_message_image.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
-import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessageImage
 import qsos.base.chat.service.IMessageService
 import qsos.core.lib.utils.image.ImageLoaderUtils
@@ -15,7 +14,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-图片布局
  */
-class ItemChatMessageImageViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageImageViewHolder(session: IMessageService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
 
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
@@ -23,6 +22,8 @@ class ItemChatMessageImageViewHolder(session: ChatSession, view: View) : ItemCha
             data.getRealContent<MChatMessageImage>()?.let {
                 ImageLoaderUtils.display(itemView.context, item_message_image, it.url)
                 item_message_image.setOnClickListener { _ ->
+                    val char = "min-"
+                    val url = it.url.replace(char, "")
                     PlayerConfigHelper.previewImage(
                             context = itemView.context,
                             position = 0,
@@ -30,7 +31,7 @@ class ItemChatMessageImageViewHolder(session: ChatSession, view: View) : ItemCha
                                     PreImageEntity(
                                             name = it.name,
                                             desc = it.name,
-                                            path = it.url
+                                            path = url
                                     )
                             )
                     )

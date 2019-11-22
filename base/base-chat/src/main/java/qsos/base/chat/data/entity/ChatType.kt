@@ -8,10 +8,10 @@ package qsos.base.chat.data.entity
  * @sample ChatType.NOTICE 公告
  * @sample ChatType.SUBSCRIPTION 订阅
  */
-enum class ChatType {
-    SINGLE,
-    GROUP,
+enum class ChatType(val key: Int) {
+    SINGLE(1),
+    GROUP(2),
 
-    NOTICE,
-    SUBSCRIPTION
+    NOTICE(3),
+    SUBSCRIPTION(4);
 }

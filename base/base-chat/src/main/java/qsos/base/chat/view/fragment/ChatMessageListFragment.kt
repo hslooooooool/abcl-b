@@ -15,7 +15,10 @@ import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.android.synthetic.main.item_message_audio.view.*
 import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.*
+import qsos.base.chat.data.entity.EnumChatMessageType
+import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.data.entity.MChatMessageAudio
+import qsos.base.chat.data.entity.MChatMessageText
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.RecycleViewUtils
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -35,12 +38,18 @@ import kotlin.collections.HashMap
 /**
  * @author : 华清松
  * 聊天页面
+ * @param mSession 消息会话数据
+ * @param mMessageService 消息服务，发送、撤销消息实现
+ * @param mNewMessageNumLimit 新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
+ * @param mOnListItemClickListener 消息列表项点击监听
  */
-@SuppressLint("CheckResult")
+@SuppressLint("CheckResult", "SetTextI18n")
 class ChatMessageListFragment(
-        private val mSession: ChatSession,
+        private val mSession: IMessageService.Session,
         private val mMessageService: IMessageService,
         private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
+        private var mNewMessageNumLimit: Int = 4,
+        private var mOnListItemClickListener: OnListItemClickListener? = null,
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
@@ -51,10 +60,7 @@ class ChatMessageListFragment(
     private val mMessageData: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
     private var mActive: Boolean = true
     private var mNewMessageNum = 0
-    /**新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
-     * @see notifyNewMessage
-     * */
-    private var mNewMessageNumLimit = 5
+    private var mMessageScrolling = false
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
@@ -73,15 +79,18 @@ class ChatMessageListFragment(
 
     override fun initView(view: View) {
 
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, object : OnListItemClickListener {
-            override fun onItemClick(view: View, position: Int, obj: Any?) {
-                preOnItemClick(view, position, obj)
-            }
+        if (mOnListItemClickListener == null) {
+            mOnListItemClickListener = object : OnListItemClickListener {
+                override fun onItemClick(view: View, position: Int, obj: Any?) {
+                    preOnItemClick(view, position, obj)
+                }
 
-            override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-                preOnItemLongClick(view, position, obj)
+                override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                    preOnItemLongClick(view, position, obj)
+                }
             }
-        })
+        }
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, mOnListItemClickListener)
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
@@ -90,6 +99,16 @@ class ChatMessageListFragment(
         chat_message_list.itemAnimator = null
 
         chat_message_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    mMessageScrolling = true
+                }
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mMessageScrolling = false
+                }
+            }
+
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (RecycleViewUtils.isSlideToBottom(chat_message_list)) {
@@ -264,19 +283,24 @@ class ChatMessageListFragment(
     }
 
     override fun deleteMessage(message: IMessageService.Message) {
-        message.sendStatus = EnumChatSendStatus.CANCEL_CAN
-        notifyMessageSendStatus(message)
+        mMessageService.revokeMessage(message,
+                failed = { msg, _ ->
+                    ToastUtils.showToast(mContext, msg)
+                },
+                success = {
+                    it.sendStatus = EnumChatSendStatus.CANCEL_CAN
+                    notifyMessageSendStatus(it)
+                })
     }
 
-    @SuppressLint("SetTextI18n")
     override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {
         mMessageData.value!!.add(message)
         val mMessageSize = mMessageData.value!!.size - 1
         mMessageAdapter?.notifyItemInserted(mMessageSize)
         val lastPosition = mLinearLayoutManager?.findLastCompletelyVisibleItemPosition() ?: 0
-        val scroll = mMessageSize - mNewMessageNumLimit < lastPosition
+        val canScroll = mMessageSize - mNewMessageNumLimit < lastPosition
         when {
-            scroll || toBottom -> {
+            (!mMessageScrolling && canScroll) || toBottom -> {
                 mLinearLayoutManager?.scrollToPosition(mMessageSize)
             }
             else -> {

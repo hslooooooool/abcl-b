@@ -55,7 +55,7 @@ import java.util.*
 class ChatSessionActivity(
         override val layoutId: Int = R.layout.activity_chat_message,
         override val reload: Boolean = false
-) : BaseActivity(), IChatSessionModel {
+) : BaseActivity(), IChatSessionView {
 
     @Autowired(name = "/CHAT/SESSION_ID")
     @JvmField

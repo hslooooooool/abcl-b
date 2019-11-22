@@ -71,6 +71,8 @@ interface IMessageService {
         var sessionId: Int
         /**会话名称*/
         var sessionName: String
+        /**会话类型*/
+        var sessionType: Int
     }
 
     /**消息实体属性*/

@@ -13,7 +13,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-名片布局
  */
-class ItemChatMessageCardViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageCardViewHolder(session: IMessageService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
 
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Job
 import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.ChatMessage
+import qsos.base.chat.data.entity.ChatType
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.service.AbsMessageService
 import qsos.base.chat.service.IMessageService
@@ -25,7 +26,12 @@ class DefMessageService(
         private val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : AbsMessageService() {
 
-    class DefSession(override var sessionId: Int, override var sessionName: String = "") : IMessageService.Session
+    class DefSession(
+            override var sessionId: Int,
+            override var sessionName: String = "",
+            override var sessionType: Int = ChatType.SINGLE.key
+    ) : IMessageService.Session
+
     class DefMessage(
             override var messageId: Int = -1,
             override var sessionId: Int,
@@ -73,7 +79,7 @@ class DefMessageService(
                             content = mChatContent,
                             createTime = DateUtils.getTimeToNow(Date()))
             ))
-        }, 5000L, 5000L)
+        }, 5000L, 2000L)
     }
 
     override fun sendMessage(
@@ -110,8 +116,20 @@ class DefMessageService(
             failed: (msg: String, message: IMessageService.Message) -> Unit,
             success: (message: IMessageService.Message) -> Unit
     ) {
-
-
+        CoroutineScope(mJob).retrofitByDef<Boolean> {
+            api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(messageId = message.messageId)
+            onFailed { _, msg, error ->
+                failed.invoke(msg ?: "撤回失败${error?.message}", message)
+            }
+            onSuccess {
+                if (it == true) {
+                    message.sendStatus = EnumChatSendStatus.CANCEL_OK
+                    success.invoke(message)
+                } else {
+                    failed.invoke("撤回失败", message)
+                }
+            }
+        }
     }
 
 }

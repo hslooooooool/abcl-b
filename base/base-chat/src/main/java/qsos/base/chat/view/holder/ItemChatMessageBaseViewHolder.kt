@@ -7,7 +7,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.ChatType
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.EnumChatSendStatus
@@ -25,7 +24,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @param view 消息布局
  */
 abstract class ItemChatMessageBaseViewHolder(
-        private val session: ChatSession, view: View
+        private val session: IMessageService.Session, view: View
 ) : BaseHolder<IMessageService.Message>(view) {
 
     enum class UpdateType(val str: String) {
@@ -84,11 +83,11 @@ abstract class ItemChatMessageBaseViewHolder(
 
             this.findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
 
-            this.findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
-                ChatType.GROUP -> {
+            this.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
+                ChatType.GROUP.key -> {
                     if (data.readNum < 1) "" else "${data.readNum}人已读"
                 }
-                ChatType.SINGLE -> {
+                ChatType.SINGLE.key -> {
                     if (data.readNum == 0) "未读" else "已读"
                 }
                 else -> ""

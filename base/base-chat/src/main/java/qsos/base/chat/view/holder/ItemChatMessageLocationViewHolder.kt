@@ -14,7 +14,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-位置布局
  */
-class ItemChatMessageLocationViewHolder(session: ChatSession, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageLocationViewHolder(session: IMessageService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {

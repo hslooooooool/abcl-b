@@ -3,7 +3,6 @@ package qsos.base.chat.view.adapter
 import android.view.View
 import qsos.base.chat.DefChatMessageViewConfig
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.lib.base.base.adapter.BaseAdapter
@@ -15,7 +14,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * 聊天消息列表
  */
 class ChatMessageAdapter(
-        val session: ChatSession, list: ArrayList<IMessageService.Message>,
+        val session: IMessageService.Session, list: ArrayList<IMessageService.Message>,
         val itemListener: OnListItemClickListener? = null
 ) : BaseAdapter<IMessageService.Message>(list) {
 
