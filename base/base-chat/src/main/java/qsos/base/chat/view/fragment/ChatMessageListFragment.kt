@@ -254,17 +254,10 @@ class ChatMessageListFragment(
     }
 
     override fun notifyMessageSendStatus(message: IMessageService.Message) {
-        var position: Int? = null
-        for ((index, msg) in mMessageData.value!!.withIndex()) {
-            if (msg.timeline == message.timeline) {
-                msg.sendStatus = message.sendStatus
-                position = index
-                break
-            }
-        }
+        val position: Int? = mMessageAdapter?.mStateLiveDataMap!![message.timeline]?.adapterPosition
         if (mActive) {
             position?.let {
-                mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.UpdateType.SEND_STATE)
+                mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.Update(1, message.sendStatus!!))
             }
         } else {
             LogUtil.d("聊天界面", "页面隐藏，缓存数据")

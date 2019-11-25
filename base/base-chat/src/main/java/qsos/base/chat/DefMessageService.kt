@@ -51,7 +51,7 @@ class DefMessageService(
             return if (content.getContentType() == -1) null else {
                 val gson = Gson()
                 val json = gson.toJson(content.fields)
-                val type = DefChatMessageViewConfig.getContentType(content.getContentType())
+                val type = ChatMessageViewConfig.getContentType(content.getContentType())
                 try {
                     gson.fromJson(json, type) as T?
                 } catch (e: Exception) {

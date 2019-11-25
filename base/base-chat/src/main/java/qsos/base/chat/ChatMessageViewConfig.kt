@@ -12,7 +12,7 @@ import java.lang.reflect.Type
  * @author : 华清松
  * 消息内容多类型布局配置
  */
-object DefChatMessageViewConfig : IMessageViewConfig {
+object ChatMessageViewConfig : IMessageViewConfig {
 
     private var mChatMessageConfig: IMessageViewConfig? = null
 

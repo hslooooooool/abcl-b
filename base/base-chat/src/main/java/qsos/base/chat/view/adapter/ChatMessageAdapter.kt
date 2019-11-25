@@ -1,7 +1,8 @@
 package qsos.base.chat.view.adapter
 
+import android.annotation.SuppressLint
 import android.view.View
-import qsos.base.chat.DefChatMessageViewConfig
+import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.R
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
@@ -18,33 +19,30 @@ class ChatMessageAdapter(
         val itemListener: OnListItemClickListener? = null
 ) : BaseAdapter<IMessageService.Message>(list) {
 
-    private val mMessageMap: HashMap<Int, View> = HashMap()
+    @SuppressLint("UseSparseArrays")
+    val mStateLiveDataMap = HashMap<Int, BaseHolder<*>>()
 
     override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
+            mStateLiveDataMap[data[position].timeline] = holder
         } else {
             holder as ItemChatMessageBaseViewHolder
             payloads.forEach {
-                /**更新消息状态*/
-                if (it is ItemChatMessageBaseViewHolder.UpdateType) {
-                    mMessageMap[data[position].timeline]?.let { v ->
-                        holder.updateState(v, data[position], it)
+                when (it) {
+                    is ItemChatMessageBaseViewHolder.Update -> {
+                        /**更新消息状态*/
+                        holder.updateState(it)
                     }
                 }
             }
         }
     }
 
-    override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int) {
-        super.onBindViewHolder(holder, position)
-        mMessageMap[data[position].timeline] = holder.itemView
-    }
-
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
     override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageService.Message> {
-        return DefChatMessageViewConfig.getHolder(session, view, viewType)
+        return ChatMessageViewConfig.getHolder(session, view, viewType)
                 .setOnListItemClickListener(itemListener)
     }
 

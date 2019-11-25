@@ -189,7 +189,7 @@ class ChatSessionActivity(
                     val file = File(it.audioPath)
                     if (file.exists()) {
                         val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
-                        fileEntity.adjoin = it.recordTime
+                        fileEntity.adjoin = it.recordTime + 0L
                         sendFileMessage(EnumChatMessageType.AUDIO, arrayListOf(
                                 fileEntity
                         ))

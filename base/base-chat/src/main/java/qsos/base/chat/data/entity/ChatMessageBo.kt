@@ -1,7 +1,7 @@
 package qsos.base.chat.data.entity
 
 import com.google.gson.Gson
-import qsos.base.chat.DefChatMessageViewConfig
+import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.service.IMessageService
 
 /**
@@ -56,7 +56,7 @@ data class ChatMessageBo(
         return if (contentType == -1) null else {
             val gson = Gson()
             val json = gson.toJson(message.content.fields)
-            val type = DefChatMessageViewConfig.getContentType(contentType)
+            val type = ChatMessageViewConfig.getContentType(contentType)
             try {
                 gson.fromJson(json, type) as T?
             } catch (e: Exception) {
