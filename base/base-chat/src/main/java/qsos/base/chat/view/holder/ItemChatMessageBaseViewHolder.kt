@@ -30,12 +30,12 @@ abstract class ItemChatMessageBaseViewHolder(
     data class Update(
             /**更新类型
              * 1 更新发送状态
-             * 2 更新读取状态
+             * 2 更新已读状态
              * */
             val type: Int,
             /**更新数据
              * 1 发送状态
-             * 2 读取状态
+             * 2 已读状态
              * */
             val data: Any
     )

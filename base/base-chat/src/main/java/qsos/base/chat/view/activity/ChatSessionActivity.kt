@@ -23,13 +23,9 @@ import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.data.model.DefChatMessageModelIml
-import qsos.base.chat.data.model.DefChatSessionModelIml
-import qsos.base.chat.data.model.DefChatUserModelIml
-import qsos.base.chat.data.model.IChatModel
+import qsos.base.chat.data.model.*
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
-import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatMessageListFragment
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
@@ -76,16 +72,17 @@ class ChatSessionActivity(
     private var mMessageService: IMessageService? = null
     private val mMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
     private var mChatUserModel: IChatModel.IUser? = null
+    private var mChatGroupModel: IChatModel.IGroup? = null
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
-    private var mChatFriendListFragment: ChatFriendListFragment? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
         mChatMessageModel = DefChatMessageModelIml()
         mMessageService = DefMessageService()
         mChatUserModel = DefChatUserModelIml()
+        mChatGroupModel = DefChatGroupModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
         mMessageList.value = arrayListOf()
 
@@ -212,11 +209,13 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    mTitle.text = it.sessionName
                     mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
                     supportFragmentManager.beginTransaction()
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
+                    mChatGroupModel?.getGroupById(mSessionId!!) { group ->
+                        mTitle.text = group.name
+                    }
                     mChatMessageModel?.getMessageListBySessionId(mSessionId!!)
                     mChatUserModel?.getAllChatUser()
                 }
@@ -227,6 +226,7 @@ class ChatSessionActivity(
         mChatSessionModel?.clear()
         mChatMessageModel?.clear()
         mChatUserModel?.clear()
+        mChatGroupModel?.clear()
         super.onDestroy()
     }
 
@@ -394,14 +394,6 @@ class ChatSessionActivity(
                     }
                 }
             })
-        }
-    }
-
-    override fun receiveEvent(type: Int, data: String) {
-        when (type) {
-            ChatMessageListFragment.EnumEvent.CANCEL.type -> {
-                chat_message_edit.setText(data)
-            }
         }
     }
 

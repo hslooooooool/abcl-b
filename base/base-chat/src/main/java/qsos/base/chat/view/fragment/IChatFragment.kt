@@ -27,8 +27,11 @@ interface IChatFragment {
      * */
     fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean = true)
 
-    /**更新消息状态*/
+    /**更新文本消息状态*/
     fun notifyFileMessage(message: IMessageService.Message)
+
+    /**更新文本消息状态*/
+    fun notifyMessageReadNum(message: IMessageService.Message)
 
     /**删除（撤销）消息*/
     fun deleteMessage(message: IMessageService.Message)

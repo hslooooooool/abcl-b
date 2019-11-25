@@ -65,13 +65,6 @@ class ChatMessageListFragment(
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
 
-    enum class EnumEvent(val key: String, val type: Int) {
-        SEND("发送消息", -1),
-        CANCEL_OK("已撤回消息", -2),
-        UPDATE_FILE_MSG("更新文件消息", -3),
-        CANCEL("撤回消息", 1)
-    }
-
     override fun initData(savedInstanceState: Bundle?) {
         mMessageData.value = arrayListOf()
         mMessageUpdateCancel.value = HashMap()
@@ -138,6 +131,7 @@ class ChatMessageListFragment(
         mMessageUpdateCancel.observe(this, Observer {
             it.values.forEach { msg ->
                 notifyMessageSendStatus(msg)
+                notifyMessageReadNum(msg)
             }
             mMessageUpdateCancel.value?.clear()
             LogUtil.d("聊天界面", "页面显示，更新缓存数据")
@@ -146,32 +140,35 @@ class ChatMessageListFragment(
         /**接收消息发送事件*/
         RxBus.toFlow(IMessageService.MessageSendEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        {
-                            if (mActive && it.session.sessionId == mSession.sessionId) {
-                                it.message.forEach { message ->
-                                    if (it.send) {
-                                        sendMessage(message)
-                                    } else {
-                                        notifyNewMessage(message, it.bottom)
-                                    }
-                                }
+                .subscribe {
+                    if (mActive && it.session.sessionId == mSession.sessionId) {
+                        it.message.forEach { message ->
+                            if (it.send) {
+                                sendMessage(message)
+                            } else {
+                                notifyNewMessage(message, it.bottom)
                             }
-                        }, {
-                    it.printStackTrace()
-                })
+                        }
+                    }
+                }
+
+        /**接收消息已读数更新事件*/
+        RxBus.toFlow(IMessageService.MessageUpdateReadNumEvent::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (mActive && it.session.sessionId == mSession.sessionId) {
+                        notifyMessageReadNum(it.message)
+                    }
+                }
 
         /**接收文件消息更新事件*/
         RxBus.toFlow(IMessageService.MessageUpdateFileEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        {
-                            if (mActive && it.session.sessionId == mSession.sessionId) {
-                                notifyFileMessage(it.message)
-                            }
-                        }, {
-                    it.printStackTrace()
-                })
+                .subscribe {
+                    if (mActive && it.session.sessionId == mSession.sessionId) {
+                        notifyFileMessage(it.message)
+                    }
+                }
 
         getData()
 
@@ -272,6 +269,20 @@ class ChatMessageListFragment(
             sendMessage(message, false)
         } else {
             notifyMessageSendStatus(message)
+        }
+    }
+
+    override fun notifyMessageReadNum(message: IMessageService.Message) {
+        val position: Int? = mMessageAdapter?.mStateLiveDataMap!![message.timeline]?.adapterPosition
+        if (mActive) {
+            position?.let {
+                mMessageAdapter?.notifyItemChanged(it, ItemChatMessageBaseViewHolder.Update(2, message.readNum))
+            }
+        } else {
+            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+            val list = mMessageUpdateCancel.value
+            list?.put(message.timeline, message)
+            mMessageUpdateCancel.postValue(list)
         }
     }
 

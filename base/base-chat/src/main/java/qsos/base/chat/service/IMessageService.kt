@@ -65,6 +65,23 @@ interface IMessageService {
         }
     }
 
+    /**消息已读数更新事件实体
+     * @param session 会话实体
+     * @param message 消息实体
+     * */
+    data class MessageUpdateReadNumEvent(
+            val session: Session,
+            val message: Message
+    ) : RxBus.RxBusEvent<MessageUpdateReadNumEvent> {
+        override fun message(): MessageUpdateReadNumEvent? {
+            return this
+        }
+
+        override fun name(): String {
+            return "消息已读数更新"
+        }
+    }
+
     /**会话实体属性*/
     interface Session {
         /**会话ID*/

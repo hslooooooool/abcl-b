@@ -21,11 +21,18 @@ class DefChatGroupModelIml(
         override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroup>> = BaseHttpLiveData()
 ) : IChatModel.IGroup {
 
-    override fun getGroupById(groupId: Int): ChatGroup {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getGroupById(groupId: Int, success: (message: ChatGroup) -> Unit) {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatGroup>> {
+            api = ApiEngine.createService(ApiChatGroup::class.java).getGroupById(groupId = groupId)
+            onSuccess {
+                it?.data?.let { group ->
+                    success.invoke(group)
+                }
+            }
+        }
     }
 
-    override fun getGroupByBySessionId(sessionId: Int): ChatGroup {
+    override fun getGroupBySessionId(sessionId: Int): ChatGroup {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

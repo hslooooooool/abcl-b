@@ -132,9 +132,12 @@ interface IChatModel {
 
         /**获取聊天群数据
          * @param groupId 聊天群ID
-         * @return 聊天群数据
+         * @param success 聊天群数据
          * */
-        fun getGroupById(groupId: Int): ChatGroup
+        fun getGroupById(
+                groupId: Int,
+                success: (message: ChatGroup) -> Unit
+        )
 
         //TODO 建立消息数据库，读取最新消息并进行未读统计后入库，消息列表与群列表从数据库获取经过排序的数据并更新未读数
         /**获取当前用户所在的所有聊天群列表数据*/
@@ -144,7 +147,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 聊天群数据
          * */
-        fun getGroupByBySessionId(sessionId: Int): ChatGroup
+        fun getGroupBySessionId(sessionId: Int): ChatGroup
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告

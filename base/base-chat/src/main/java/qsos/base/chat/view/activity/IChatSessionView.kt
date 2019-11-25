@@ -40,7 +40,4 @@ interface IChatSessionView {
     /**发送文件消息更新事件到聊天列表*/
     fun sendFileMessageUpdate(message: IMessageService.Message)
 
-    /**接收聊天列表消息处理事件*/
-    fun receiveEvent(type: Int, data: String)
-
 }
