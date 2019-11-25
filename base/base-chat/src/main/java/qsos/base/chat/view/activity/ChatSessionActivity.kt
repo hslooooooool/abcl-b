@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
@@ -15,16 +16,20 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat_message.*
+import kotlinx.android.synthetic.main.item_chat_friend.view.*
 import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatContent
+import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.data.model.DefChatMessageModelIml
 import qsos.base.chat.data.model.DefChatSessionModelIml
+import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
+import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatMessageListFragment
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
@@ -34,6 +39,8 @@ import qsos.core.lib.utils.dialog.BottomDialog
 import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.core.lib.utils.file.FileUtils
 import qsos.lib.base.base.activity.BaseActivity
+import qsos.lib.base.base.adapter.BaseAdapter
+import qsos.lib.base.base.adapter.BaseNormalAdapter
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.DateUtils
@@ -61,18 +68,30 @@ class ChatSessionActivity(
     @JvmField
     var mSessionId: Int? = -1
 
+    private lateinit var mTitle: TextView
+
     private var mChatSessionModel: IChatModel.ISession? = null
     private var mFileModel: IFileModel? = null
     private var mChatMessageModel: IChatModel.IMessage? = null
     private var mMessageService: IMessageService? = null
     private val mMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
+    private var mChatUserModel: IChatModel.IUser? = null
+    private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
+    private val mChatUserList = arrayListOf<ChatUser>()
+    private var mChatMessageListFragment: ChatMessageListFragment? = null
+    private var mChatFriendListFragment: ChatFriendListFragment? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
         mChatMessageModel = DefChatMessageModelIml()
         mMessageService = DefMessageService()
+        mChatUserModel = DefChatUserModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
         mMessageList.value = arrayListOf()
+
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+                R.anim.nav_default_enter_anim,
+                R.anim.nav_default_enter_anim)
     }
 
     override fun initView() {
@@ -94,6 +113,8 @@ class ChatSessionActivity(
         }, {
             it.printStackTrace()
         })
+
+        mTitle = base_title_bar.findViewById(R.id.base_title_bar_title)
 
         chat_message_send.setOnClickListener {
             val content = chat_message_edit.text.toString().trim()
@@ -135,12 +156,44 @@ class ChatSessionActivity(
             finish()
         }
 
+        mChatUserAdapter = BaseNormalAdapter(R.layout.item_chat_friend, mChatUserList) { holder, data, _ ->
+            holder.itemView.item_chat_friend_state.visibility = View.GONE
+            holder.itemView.item_chat_friend_name.text = data.userName
+            holder.itemView.setOnClickListener {
+                mChatSessionModel?.addUserListToSession(arrayListOf(data.userId), mSessionId!!,
+                        failed = {
+                            ToastUtils.showToast(this, it)
+                        },
+                        success = {
+                            if (mSessionId == it.sessionId) {
+                                ToastUtils.showToast(this, "已添加")
+                            } else {
+                                ARouter.getInstance().build("/CHAT/SESSION")
+                                        .withInt("/CHAT/SESSION_ID", it.sessionId)
+                                        .navigation()
+                            }
+                        }
+                )
+            }
+        }
+        val mLinearLayoutManager = LinearLayoutManager(mContext)
+        chat_message_friends.layoutManager = mLinearLayoutManager
+        chat_message_friends.adapter = mChatUserAdapter
+
         mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
             if (it.code == 200) {
                 mMessageList.postValue(it.data)
             } else {
                 ToastUtils.showToast(this, it.msg ?: "消息获取失败")
             }
+        })
+
+        mChatUserModel?.mDataOfChatUserList?.observe(this, Observer {
+            mChatUserList.clear()
+            it.data?.let { users ->
+                mChatUserList.addAll(users)
+            }
+            mChatUserAdapter?.notifyDataSetChanged()
         })
 
         RxBus.toFlow(IMessageService.MessageReceiveEvent::class.java)
@@ -159,11 +212,13 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    val fragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
+                    mTitle.text = it.sessionName
+                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
                     supportFragmentManager.beginTransaction()
-                            .add(R.id.chat_message_frg, fragment, "ChatMessageListFragment")
+                            .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
                     mChatMessageModel?.getMessageListBySessionId(mSessionId!!)
+                    mChatUserModel?.getAllChatUser()
                 }
         )
     }
@@ -171,6 +226,7 @@ class ChatSessionActivity(
     override fun onDestroy() {
         mChatSessionModel?.clear()
         mChatMessageModel?.clear()
+        mChatUserModel?.clear()
         super.onDestroy()
     }
 

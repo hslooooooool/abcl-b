@@ -88,7 +88,11 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 加入的会话数据
          * */
-        fun addUserListToSession(userIdList: List<Int>, sessionId: Int): ChatSession
+        fun addUserListToSession(
+                userIdList: List<Int>, sessionId: Int,
+                failed: (msg: String) -> Unit,
+                success: (session: ChatSession) -> Unit
+        )
 
         /**解散会话
          * @param sessionId 会话ID

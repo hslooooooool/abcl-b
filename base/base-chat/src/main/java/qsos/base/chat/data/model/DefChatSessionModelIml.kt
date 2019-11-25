@@ -65,8 +65,24 @@ class DefChatSessionModelIml(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addUserListToSession(userIdList: List<Int>, sessionId: Int): ChatSession {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun addUserListToSession(
+            userIdList: List<Int>, sessionId: Int,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSession) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
+            api = ApiEngine.createService(ApiChatSession::class.java).addUserListToSession(
+                    sessionId = sessionId, userIdList = userIdList
+            )
+            onFailed { _, msg, error ->
+                failed.invoke(msg ?: "添加失败${error.toString()}")
+            }
+            onSuccess {
+                it?.let {
+                    success.invoke(it.data!!)
+                } ?: failed.invoke(it?.msg ?: "添加失败")
+            }
+        }
     }
 
     override fun deleteSession(sessionId: Int) {

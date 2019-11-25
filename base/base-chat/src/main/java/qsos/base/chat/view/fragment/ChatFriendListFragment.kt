@@ -4,15 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_chat_about_me.*
 import kotlinx.android.synthetic.main.fragment_chat_friend_list.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
-import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.base.chat.view.adapter.ChatFriendAdapter
-import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.fragment.BaseFragment
 
 /**
