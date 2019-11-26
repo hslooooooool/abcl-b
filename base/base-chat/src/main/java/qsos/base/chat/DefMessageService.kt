@@ -89,7 +89,7 @@ class DefMessageService(
     ) {
         val sendMessage = ChatMessage(
                 sessionId = message.sessionId,
-                sequence = message.timeline,
+                timeline = message.timeline,
                 content = message.content
         )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {

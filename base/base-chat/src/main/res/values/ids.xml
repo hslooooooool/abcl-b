@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--聊天列表项数据-->
+	<item name="tag_of_chat_item_data" type="id" />
+</resources>

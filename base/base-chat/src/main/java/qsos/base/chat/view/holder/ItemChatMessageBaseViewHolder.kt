@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.MutableLiveData
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.ChatType
@@ -104,10 +103,8 @@ abstract class ItemChatMessageBaseViewHolder(
         if (itemView.getTag(R.id.item_message) == null) {
             itemView.setTag(R.id.item_message, contentView)
         }
-        if (itemView.getTag(R.id.item_message) == null) {
-            val stateLiveData = MutableLiveData<EnumChatSendStatus>()
-            stateLiveData.value = data.sendStatus
-            itemView.setTag(R.id.item_message_state, stateLiveData)
+        if (itemView.getTag(R.id.tag_of_chat_item_data) == null) {
+            itemView.setTag(R.id.tag_of_chat_item_data, data)
         }
         if (contentView.getTag(R.id.item_message_state) == null) {
             contentView.setTag(R.id.item_message_state, contentView.findViewById(R.id.item_message_state))

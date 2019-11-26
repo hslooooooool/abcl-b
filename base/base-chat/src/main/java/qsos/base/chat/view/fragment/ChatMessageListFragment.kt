@@ -100,6 +100,7 @@ class ChatMessageListFragment(
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     mMessageScrolling = false
                 }
+                updateReadState()
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -320,6 +321,20 @@ class ChatMessageListFragment(
                 session = DefMessageService.DefSession(sessionId = mSession.sessionId),
                 message = message
         ))
+    }
+
+    override fun updateReadState() {
+        val firstPosition = mLinearLayoutManager?.findFirstCompletelyVisibleItemPosition() ?: 0
+        val lastPosition = mLinearLayoutManager?.findLastCompletelyVisibleItemPosition() ?: -1
+        if (firstPosition <= lastPosition) {
+            for (index in firstPosition..lastPosition) {
+                val holder = chat_message_list.findViewHolderForAdapterPosition(index)
+                        as ItemChatMessageBaseViewHolder
+                val data = holder.itemView.getTag(R.id.tag_of_chat_item_data)
+                        as IMessageService.Message
+                LogUtil.d("聊天详情", "查看了消息${data.messageId}")
+            }
+        }
     }
 
     /**停止所有语音播放*/

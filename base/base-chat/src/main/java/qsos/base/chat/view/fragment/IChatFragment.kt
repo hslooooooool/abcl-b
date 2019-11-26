@@ -38,4 +38,7 @@ interface IChatFragment {
 
     /**发送撤回消息事件到聊天列表*/
     fun sendMessageRecallEvent(message: IMessageService.Message)
+
+    /**更新消息读取状态*/
+    fun updateReadState()
 }

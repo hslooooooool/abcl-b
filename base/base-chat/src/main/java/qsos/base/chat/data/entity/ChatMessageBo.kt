@@ -3,6 +3,8 @@ package qsos.base.chat.data.entity
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.service.IMessageService
+import qsos.lib.base.utils.LogUtil
+import java.util.*
 
 /**
  * @author : 华清松
@@ -23,10 +25,11 @@ data class ChatMessageBo(
     override var sessionId: Int
         get() = message.sessionId
         set(value) {}
-    override var timeline: Int = message.sequence
+    override var timeline: Int = message.timeline
         get() {
             if (field == -1) {
-                field = message.content.hashCode()
+                field = UUID.randomUUID().hashCode()
+                LogUtil.e("消息时序错误messageId=${message.messageId}")
             }
             return field
         }
