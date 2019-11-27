@@ -61,7 +61,7 @@ data class ChatMessageBo(
         get() = if (field == null) true else field
         set(value) {}
 
-    override var readNum: Int = 0
+    override var readNum: Int = 1
 
     override fun <T> getRealContent(): T? {
         val contentType: Int = message.content.getContentType()

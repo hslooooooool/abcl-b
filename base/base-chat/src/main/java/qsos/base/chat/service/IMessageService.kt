@@ -112,7 +112,7 @@ interface IMessageService {
         var content: ChatContent
         /**发送状态*/
         var sendStatus: EnumChatSendStatus?
-        /**读取状态*/
+        /**当前用户消息读取状态*/
         var readStatus: Boolean?
         /**消息读取人数,单聊时1即为已读，群聊时代表读取人数*/
         var readNum: Int
@@ -127,6 +127,17 @@ interface IMessageService {
      * @param success 成功回执
      * */
     fun sendMessage(
+            message: Message,
+            failed: (msg: String, message: Message) -> Unit,
+            success: (message: Message) -> Unit
+    )
+
+    /**读取消息
+     * @param message 消息实体
+     * @param failed 失败回执
+     * @param success 成功回执
+     * */
+    fun readMessage(
             message: Message,
             failed: (msg: String, message: Message) -> Unit,
             success: (message: Message) -> Unit

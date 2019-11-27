@@ -30,7 +30,7 @@ interface IChatFragment {
     /**更新文本消息状态*/
     fun notifyFileMessage(message: IMessageService.Message)
 
-    /**更新文本消息状态*/
+    /**更新消息已读数*/
     fun notifyMessageReadNum(message: IMessageService.Message)
 
     /**删除（撤销）消息*/
@@ -39,6 +39,6 @@ interface IChatFragment {
     /**发送撤回消息事件到聊天列表*/
     fun sendMessageRecallEvent(message: IMessageService.Message)
 
-    /**更新消息读取状态*/
-    fun updateReadState(adapterPosition: Int)
+    /**更新当前用户消息读取状态*/
+    fun readMessage(adapterPosition: Int)
 }

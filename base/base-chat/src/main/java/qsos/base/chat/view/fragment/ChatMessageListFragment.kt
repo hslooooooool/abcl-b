@@ -51,8 +51,6 @@ class ChatMessageListFragment(
         private var mNewMessageNumLimit: Int = 4,
         /**消息列表项点击监听*/
         private var mOnListItemClickListener: OnListItemClickListener? = null,
-        /**消息列表项显示监听，返回消息列表项视图位置=adapterPosition*/
-        private val mOnItemShowedListener: OnTListener<IMessageService.Message>? = null,
 
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
@@ -80,7 +78,7 @@ class ChatMessageListFragment(
 
         mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, mOnListItemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
-                updateReadState(t)
+                readMessage(t)
             }
         })
         mLinearLayoutManager = LinearLayoutManager(mContext)
@@ -321,15 +319,18 @@ class ChatMessageListFragment(
         ))
     }
 
-    override fun updateReadState(adapterPosition: Int) {
-        val holder = chat_message_list.findViewHolderForAdapterPosition(adapterPosition)
-                as ItemChatMessageBaseViewHolder
-        val data = holder.itemView.getTag(R.id.tag_of_chat_item_data)
-                as IMessageService.Message
-        if (data.readStatus == false) {
-            mOnItemShowedListener?.back(data)
+    override fun readMessage(adapterPosition: Int) {
+        mMessageData.value?.let {
+            val data = it[adapterPosition]
+            if (data.readStatus == false) {
+                mMessageService.readMessage(data, failed = { msg, _ ->
+                    LogUtil.e("聊天详情", msg)
+                }, success = { message ->
+                    notifyMessageReadNum(message)
+                })
+            }
+            LogUtil.d("聊天详情", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
         }
-        LogUtil.d("聊天详情", "查看了消息${data.content.getContentDesc()}")
     }
 
     /**停止所有语音播放*/

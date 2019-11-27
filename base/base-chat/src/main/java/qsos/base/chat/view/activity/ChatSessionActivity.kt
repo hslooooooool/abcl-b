@@ -38,7 +38,6 @@ import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.adapter.BaseNormalAdapter
 import qsos.lib.base.callback.OnTListener
-import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
@@ -76,7 +75,6 @@ class ChatSessionActivity(
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
-    private var mOnItemShowedListener: OnTListener<IMessageService.Message>? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
@@ -125,7 +123,7 @@ class ChatSessionActivity(
                                 .put("content", content), send = true, bottom = true
                 )
 
-                BaseUtils.closeKeyBord(mContext, chat_message_edit)
+                // FIXME BaseUtils.closeKeyBord(mContext, chat_message_edit)
                 chat_message_edit.setText("")
                 chat_message_edit.clearFocus()
             }
@@ -211,10 +209,7 @@ class ChatSessionActivity(
                 },
                 success = {
 
-                    initOnItemShowedListener()
-
-                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList,
-                            mOnItemShowedListener = mOnItemShowedListener)
+                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
                     supportFragmentManager.beginTransaction()
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
@@ -407,16 +402,5 @@ class ChatSessionActivity(
                 session = DefMessageService.DefSession(sessionId = mSessionId!!),
                 message = message
         ))
-    }
-
-    /**初始化消息列表项显示监听*/
-    private fun initOnItemShowedListener() {
-        if (mOnItemShowedListener == null) {
-            mOnItemShowedListener = object : OnTListener<IMessageService.Message> {
-                override fun back(t: IMessageService.Message) {
-
-                }
-            }
-        }
     }
 }

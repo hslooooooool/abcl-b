@@ -5,10 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import qsos.base.chat.data.ApiChatMessage
-import qsos.base.chat.data.entity.ChatContent
-import qsos.base.chat.data.entity.ChatMessage
-import qsos.base.chat.data.entity.ChatType
-import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.data.entity.*
 import qsos.base.chat.service.AbsMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.lib.base.utils.DateUtils
@@ -110,6 +107,24 @@ class DefMessageService(
                     message.sendStatus = EnumChatSendStatus.SUCCESS
                     message.messageId = it.messageId
                     success.invoke(message)
+                }
+            }
+        }
+    }
+
+    override fun readMessage(message: IMessageService.Message, failed: (msg: String, message: IMessageService.Message) -> Unit, success: (message: IMessageService.Message) -> Unit) {
+        CoroutineScope(mJob).retrofitByDef<ChatMessageReadStatusBo> {
+            api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId)
+            onFailed { _, msg, error ->
+                failed.invoke(msg ?: "更新已读失败${error?.message}", message)
+            }
+            onSuccess {
+                if (it?.readStatus == true) {
+                    message.readStatus = it.readStatus
+                    message.readNum = it.readNum
+                    success.invoke(message)
+                } else {
+                    failed.invoke("更新已读失败", message)
                 }
             }
         }

@@ -2,6 +2,7 @@ package qsos.base.chat.data
 
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatMessageBo
+import qsos.base.chat.data.entity.ChatMessageReadStatusBo
 import qsos.base.core.config.BaseConfig
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
@@ -36,6 +37,12 @@ interface ApiChatMessage {
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
     ): Call<BaseResponse<List<ChatMessageBo>>>
+
+    @POST(value = "$GROUP/readMessage")
+    fun readMessage(
+            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Query(value = "messageId") messageId: Int
+    ): Call<BaseResponse<ChatMessageReadStatusBo>>
 
     @DELETE(value = "$GROUP/deleteMessage")
     fun deleteMessage(

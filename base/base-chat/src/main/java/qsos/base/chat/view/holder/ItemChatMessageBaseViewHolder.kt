@@ -60,10 +60,10 @@ abstract class ItemChatMessageBaseViewHolder(
             this.findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
             this.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
                 ChatType.GROUP.key -> {
-                    if (data.readNum < 1) "" else "${data.readNum}人已读"
+                    "${data.readNum}人已读"
                 }
                 ChatType.SINGLE.key -> {
-                    if (data.readNum == 0) "未读" else "已读"
+                    if (data.readNum < 2) "未读" else "已读"
                 }
                 else -> ""
             }
@@ -178,10 +178,10 @@ abstract class ItemChatMessageBaseViewHolder(
     private fun updateReadStatus(contentView: View, readNum: Int) {
         contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
             ChatType.GROUP.key -> {
-                if (readNum < 1) "" else "${readNum}人已读"
+                "${readNum}人已读"
             }
             ChatType.SINGLE.key -> {
-                if (readNum == 0) "未读" else "已读"
+                if (readNum < 2) "未读" else "已读"
             }
             else -> ""
         }
