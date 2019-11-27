@@ -97,19 +97,19 @@ interface IMessageService {
         /**消息ID*/
         var messageId: Int
         /**会话ID*/
-        var sessionId: Int
+        val sessionId: Int
         /**消息时间线，发送时本地以content.hashCode为值，发送后服务器统一设置*/
         var timeline: Int
         /**发送人ID*/
-        var sendUserId: Int
+        val sendUserId: Int
         /**发送人名称*/
-        var sendUserName: String
+        val sendUserName: String
         /**发送人头像*/
-        var sendUserAvatar: String
+        val sendUserAvatar: String
         /**创建时间*/
-        var createTime: String
+        val createTime: String
         /**消息内容*/
-        var content: ChatContent
+        val content: ChatContent
         /**发送状态*/
         var sendStatus: EnumChatSendStatus?
         /**当前用户消息读取状态*/

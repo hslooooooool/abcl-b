@@ -36,14 +36,13 @@ class DefMessageService(
             override var sendUserName: String = "测试用户",
             override var sendUserAvatar: String = "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png",
             override var timeline: Int,
-            override var content: ChatContent,
+            override val content: ChatContent = ChatContent(),
             override var createTime: String,
             override var readNum: Int = 1
     ) : IMessageService.Message {
 
         override var readStatus: Boolean? = null
             get() = if (field == null) true else field
-            set(value) {}
 
         override var sendStatus: EnumChatSendStatus? = null
             get() = if (field == null) EnumChatSendStatus.SUCCESS else field

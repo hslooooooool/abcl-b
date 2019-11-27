@@ -19,13 +19,11 @@ data class ChatMessageBo(
         var message: ChatMessage
 ) : IMessageService.Message {
 
-    override var messageId: Int
+    override var messageId: Int = -1
         get() = message.messageId
-        set(value) {}
 
-    override var sessionId: Int
+    override val sessionId: Int
         get() = message.sessionId
-        set(value) {}
 
     override var timeline: Int = message.timeline
         get() {
@@ -35,23 +33,18 @@ data class ChatMessageBo(
             }
             return field
         }
-        set(value) {}
 
-    override var sendUserId: Int
+    override val sendUserId: Int
         get() = user.userId
-        set(value) {}
 
-    override var sendUserName: String
+    override val sendUserName: String
         get() = user.userName
-        set(value) {}
 
-    override var sendUserAvatar: String
+    override val sendUserAvatar: String
         get() = user.avatar ?: ""
-        set(value) {}
 
-    override var content: ChatContent
+    override val content: ChatContent
         get() = message.content
-        set(value) {}
 
     /**消息发送状态,本地存储*/
     override var sendStatus: EnumChatSendStatus? = null
@@ -59,7 +52,6 @@ data class ChatMessageBo(
 
     override var readStatus: Boolean? = null
         get() = if (field == null) true else field
-        set(value) {}
 
     override var readNum: Int = 1
 
