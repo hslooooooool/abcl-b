@@ -22,9 +22,11 @@ data class ChatMessageBo(
     override var messageId: Int
         get() = message.messageId
         set(value) {}
+
     override var sessionId: Int
         get() = message.sessionId
         set(value) {}
+
     override var timeline: Int = message.timeline
         get() {
             if (field == -1) {
@@ -34,15 +36,19 @@ data class ChatMessageBo(
             return field
         }
         set(value) {}
+
     override var sendUserId: Int
         get() = user.userId
         set(value) {}
+
     override var sendUserName: String
         get() = user.userName
         set(value) {}
+
     override var sendUserAvatar: String
         get() = user.avatar ?: ""
         set(value) {}
+
     override var content: ChatContent
         get() = message.content
         set(value) {}
@@ -51,7 +57,10 @@ data class ChatMessageBo(
     override var sendStatus: EnumChatSendStatus? = null
         get() = if (field == null) EnumChatSendStatus.SUCCESS else field
 
-    /**消息读取人数,单聊时1即为已读，群聊时代表读取人数，本地存储*/
+    override var readStatus: Boolean? = null
+        get() = if (field == null) true else field
+        set(value) {}
+
     override var readNum: Int = 0
 
     override fun <T> getRealContent(): T? {

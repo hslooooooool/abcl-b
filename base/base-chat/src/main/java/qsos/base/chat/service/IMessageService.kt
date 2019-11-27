@@ -112,7 +112,9 @@ interface IMessageService {
         var content: ChatContent
         /**发送状态*/
         var sendStatus: EnumChatSendStatus?
-        /**已读人数*/
+        /**读取状态*/
+        var readStatus: Boolean?
+        /**消息读取人数,单聊时1即为已读，群聊时代表读取人数*/
         var readNum: Int
 
         /**消息转换后实体*/

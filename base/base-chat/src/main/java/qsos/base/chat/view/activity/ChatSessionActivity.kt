@@ -76,6 +76,7 @@ class ChatSessionActivity(
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
+    private var mOnItemShowedListener: OnTListener<IMessageService.Message>? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
@@ -209,7 +210,11 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
+
+                    initOnItemShowedListener()
+
+                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList,
+                            mOnItemShowedListener = mOnItemShowedListener)
                     supportFragmentManager.beginTransaction()
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
@@ -402,5 +407,16 @@ class ChatSessionActivity(
                 session = DefMessageService.DefSession(sessionId = mSessionId!!),
                 message = message
         ))
+    }
+
+    /**初始化消息列表项显示监听*/
+    private fun initOnItemShowedListener() {
+        if (mOnItemShowedListener == null) {
+            mOnItemShowedListener = object : OnTListener<IMessageService.Message> {
+                override fun back(t: IMessageService.Message) {
+
+                }
+            }
+        }
     }
 }

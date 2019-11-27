@@ -44,6 +44,10 @@ class DefMessageService(
             override var readNum: Int = 1
     ) : IMessageService.Message {
 
+        override var readStatus: Boolean? = null
+            get() = if (field == null) true else field
+            set(value) {}
+
         override var sendStatus: EnumChatSendStatus? = null
             get() = if (field == null) EnumChatSendStatus.SUCCESS else field
 

@@ -49,7 +49,11 @@ class ChatMessageListFragment(
         private val mMessageService: IMessageService,
         private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
         private var mNewMessageNumLimit: Int = 4,
+        /**消息列表项点击监听*/
         private var mOnListItemClickListener: OnListItemClickListener? = null,
+        /**消息列表项显示监听，返回消息列表项视图位置=adapterPosition*/
+        private val mOnItemShowedListener: OnTListener<IMessageService.Message>? = null,
+
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
@@ -72,18 +76,13 @@ class ChatMessageListFragment(
 
     override fun initView(view: View) {
 
-        if (mOnListItemClickListener == null) {
-            mOnListItemClickListener = object : OnListItemClickListener {
-                override fun onItemClick(view: View, position: Int, obj: Any?) {
-                    preOnItemClick(view, position, obj)
-                }
+        initOnItemClickListener()
 
-                override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-                    preOnItemLongClick(view, position, obj)
-                }
+        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, mOnListItemClickListener, object : OnTListener<Int> {
+            override fun back(t: Int) {
+                updateReadState(t)
             }
-        }
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, mOnListItemClickListener)
+        })
         mLinearLayoutManager = LinearLayoutManager(mContext)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
@@ -100,7 +99,6 @@ class ChatMessageListFragment(
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     mMessageScrolling = false
                 }
-                updateReadState()
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -323,18 +321,15 @@ class ChatMessageListFragment(
         ))
     }
 
-    override fun updateReadState() {
-        val firstPosition = mLinearLayoutManager?.findFirstCompletelyVisibleItemPosition() ?: 0
-        val lastPosition = mLinearLayoutManager?.findLastCompletelyVisibleItemPosition() ?: -1
-        if (firstPosition <= lastPosition) {
-            for (index in firstPosition..lastPosition) {
-                val holder = chat_message_list.findViewHolderForAdapterPosition(index)
-                        as ItemChatMessageBaseViewHolder
-                val data = holder.itemView.getTag(R.id.tag_of_chat_item_data)
-                        as IMessageService.Message
-                LogUtil.d("聊天详情", "查看了消息${data.messageId}")
-            }
+    override fun updateReadState(adapterPosition: Int) {
+        val holder = chat_message_list.findViewHolderForAdapterPosition(adapterPosition)
+                as ItemChatMessageBaseViewHolder
+        val data = holder.itemView.getTag(R.id.tag_of_chat_item_data)
+                as IMessageService.Message
+        if (data.readStatus == false) {
+            mOnItemShowedListener?.back(data)
         }
+        LogUtil.d("聊天详情", "查看了消息${data.content.getContentDesc()}")
     }
 
     /**停止所有语音播放*/
@@ -351,6 +346,21 @@ class ChatMessageListFragment(
         }
         chat_message_new_message_num.visibility = View.GONE
         mNewMessageNum = 0
+    }
+
+    /**初始化消息列表项点击监听*/
+    private fun initOnItemClickListener() {
+        if (mOnListItemClickListener == null) {
+            mOnListItemClickListener = object : OnListItemClickListener {
+                override fun onItemClick(view: View, position: Int, obj: Any?) {
+                    preOnItemClick(view, position, obj)
+                }
+
+                override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                    preOnItemLongClick(view, position, obj)
+                }
+            }
+        }
     }
 
     /**列表项点击*/

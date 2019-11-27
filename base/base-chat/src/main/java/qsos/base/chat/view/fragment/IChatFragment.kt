@@ -40,5 +40,5 @@ interface IChatFragment {
     fun sendMessageRecallEvent(message: IMessageService.Message)
 
     /**更新消息读取状态*/
-    fun updateReadState()
+    fun updateReadState(adapterPosition: Int)
 }
