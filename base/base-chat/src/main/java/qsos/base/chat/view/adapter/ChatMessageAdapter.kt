@@ -46,7 +46,7 @@ class ChatMessageAdapter(
             payloads.forEach {
                 when (it) {
                     is ItemChatMessageBaseViewHolder.Update -> {
-                        /**更新消息状态*/
+                        /**更新消息状态 TODO 没有即时更新*/
                         holder.updateState(it)
                     }
                 }
