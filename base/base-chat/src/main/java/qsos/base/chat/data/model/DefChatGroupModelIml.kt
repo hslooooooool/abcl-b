@@ -5,7 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatGroup
+import qsos.base.chat.data.db.DBChatDatabase
+import qsos.base.chat.data.db.DBChatSession
 import qsos.base.chat.data.entity.ChatGroup
+import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
@@ -42,10 +45,28 @@ class DefChatGroupModelIml(
             onSuccess {
                 it?.let {
                     mGroupListWithMeLiveData.postValue(it)
-                    // TODO 查询各个群下未读消息列表listA按消息序列排序，以各群最新消息的消息序列减去listA最早一条消息的序列，将得到未读消息数，更新
-
-                    // TODO 开启消息获取服务，通知群内新消息上屏，通知群外新消息提醒
-
+                    /**保存或更新会话数据，用于新消息获取*/
+                    it.data?.forEach { group ->
+                        DBChatDatabase.DefChatSessionDao.getChatSessionById(group.groupId) { oldSession ->
+                            val newSession = DBChatSession(
+                                    sessionId = group.groupId,
+                                    lastMessageId = group.lastMessage?.message?.messageId,
+                                    lastMessageTimeline = group.lastMessage?.message?.timeline
+                            )
+                            if (oldSession == null) {
+                                DBChatDatabase.DefChatSessionDao.insert(newSession) { ok ->
+                                    LogUtil.d("会话更新", if (ok) "已增加" else "未增加")
+                                }
+                            } else if (
+                                    newSession.lastMessageId != null
+                                    && oldSession.lastMessageId != newSession.lastMessageId
+                            ) {
+                                DBChatDatabase.DefChatSessionDao.update(newSession) { ok ->
+                                    LogUtil.d("会话更新", if (ok) "已更新" else "未更新")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

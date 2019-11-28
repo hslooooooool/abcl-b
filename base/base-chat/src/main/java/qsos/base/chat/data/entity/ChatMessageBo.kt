@@ -20,13 +20,20 @@ data class ChatMessageBo(
 ) : IMessageService.Message {
 
     override var messageId: Int = -1
-        get() = message.messageId
-
-    override val sessionId: Int
-        get() = message.sessionId
-
-    override var timeline: Int = message.timeline
         get() {
+            field = message.messageId
+            return field
+        }
+
+    override var sessionId: Int = -1
+        get() {
+            field = message.sessionId
+            return field
+        }
+
+    override var timeline: Int = -1
+        get() {
+            field = message.timeline
             if (field == -1) {
                 field = UUID.randomUUID().hashCode()
                 LogUtil.e("消息时序错误messageId=${message.messageId}")

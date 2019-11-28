@@ -97,7 +97,7 @@ interface IMessageService {
         /**消息ID*/
         var messageId: Int
         /**会话ID*/
-        val sessionId: Int
+        var sessionId: Int
         /**消息时间线，发送时本地以content.hashCode为值，发送后服务器统一设置*/
         var timeline: Int
         /**发送人ID*/
@@ -120,6 +120,12 @@ interface IMessageService {
         /**消息转换后实体*/
         fun <T> getRealContent(): T?
     }
+
+    /**拉取到新消息进行会话内更新
+     * @param session 会话实体
+     * @param message 消息列表
+     * */
+    fun notifyNewMessage(session: Session, message: List<Message>)
 
     /**发送消息
      * @param message 消息实体

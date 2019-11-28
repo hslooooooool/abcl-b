@@ -1,5 +1,6 @@
 package qsos.base.chat.view.holder
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -21,6 +22,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @param session 消息会话数据
  * @param view 消息布局
  */
+@SuppressLint("SetTextI18n")
 abstract class ItemChatMessageBaseViewHolder(
         private val session: IMessageService.Session, view: View
 ) : BaseHolder<IMessageService.Message>(view) {
@@ -58,15 +60,6 @@ abstract class ItemChatMessageBaseViewHolder(
                     data.sendUserAvatar
             )
             this.findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
-            this.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
-                ChatType.GROUP.key -> {
-                    "${data.readNum}人已读"
-                }
-                ChatType.SINGLE.key -> {
-                    if (data.readNum < 2) "未读" else "已读"
-                }
-                else -> ""
-            }
             this.findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
                 mItemListener?.onItemClick(it, position, data)
             }
@@ -78,10 +71,8 @@ abstract class ItemChatMessageBaseViewHolder(
                 return@setOnLongClickListener true
             }
 
-            /**设置消息发送状态*/
             updateSendStatus(this, data.sendStatus)
-
-            /**设置消息内容数据*/
+            updateReadStatus(this, data.readNum)
             setContent(this, data, position, mItemListener)
         }
     }
@@ -93,9 +84,16 @@ abstract class ItemChatMessageBaseViewHolder(
         if (BaseConfig.userId == data.sendUserId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_right)
+            contentView.findViewById<TextView>(R.id.item_message_read_state).visibility = View.VISIBLE
         } else {
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_left)
+            contentView.findViewById<TextView>(R.id.item_message_read_state).visibility =
+                    if (session.sessionType == ChatType.SINGLE.key) {
+                        View.INVISIBLE
+                    } else {
+                        View.VISIBLE
+                    }
         }
 
         contentView.visibility = View.VISIBLE
@@ -128,9 +126,6 @@ abstract class ItemChatMessageBaseViewHolder(
                 }
                 2 -> {
                     updateReadStatus(contentView as View, update.data as Int)
-                }
-                else -> {
-
                 }
             }
         }
@@ -177,13 +172,12 @@ abstract class ItemChatMessageBaseViewHolder(
     /**更新消息读取状态*/
     private fun updateReadStatus(contentView: View, readNum: Int) {
         contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
-            ChatType.GROUP.key -> {
-                "${readNum}人已读"
-            }
             ChatType.SINGLE.key -> {
                 if (readNum < 2) "未读" else "已读"
             }
-            else -> ""
+            else -> {
+                "${readNum}人已读"
+            }
         }
     }
 }

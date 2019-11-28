@@ -38,15 +38,15 @@ class ChatMessageAdapter(
     }
 
     override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
         if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads)
             mStateLiveDataMap[data[position].timeline] = holder
         } else {
             holder as ItemChatMessageBaseViewHolder
             payloads.forEach {
                 when (it) {
                     is ItemChatMessageBaseViewHolder.Update -> {
-                        /**更新消息状态 TODO 没有即时更新*/
+                        /**更新消息状态*/
                         holder.updateState(it)
                     }
                 }

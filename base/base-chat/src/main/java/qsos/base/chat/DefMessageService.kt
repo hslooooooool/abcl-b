@@ -8,11 +8,8 @@ import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.service.AbsMessageService
 import qsos.base.chat.service.IMessageService
-import qsos.lib.base.utils.DateUtils
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.expand.retrofitByDef
-import java.util.*
-import kotlin.concurrent.timerTask
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -60,26 +57,6 @@ class DefMessageService(
                 }
             }
         }
-    }
-
-    init {
-        var mChatContent: ChatContent
-        var index: Int
-        Timer().schedule(timerTask {
-            index = UUID.randomUUID().hashCode()
-            mChatContent = ChatContent()
-                    .create(0, "自动发送文本$index")
-                    .put("content", "自动发送文本$index")
-
-            notifyMessage(DefSession(sessionId = 1), arrayListOf(
-                    DefMessage(
-                            index,
-                            sessionId = 1,
-                            timeline = index,
-                            content = mChatContent,
-                            createTime = DateUtils.getTimeToNow(Date()))
-            ))
-        }, 5000L, 1000000L)
     }
 
     override fun sendMessage(

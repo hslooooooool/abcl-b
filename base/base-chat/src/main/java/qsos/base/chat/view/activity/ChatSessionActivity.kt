@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_chat_message.*
 import kotlinx.android.synthetic.main.item_chat_friend.view.*
 import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
+import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.ChatUser
 import qsos.base.chat.data.entity.EnumChatMessageType
@@ -47,6 +48,7 @@ import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import java.io.File
 import java.util.*
+import kotlin.concurrent.timerTask
 
 /**
  * @author : 华清松
@@ -75,6 +77,8 @@ class ChatSessionActivity(
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
+    private var mPullMessageTimer: Timer? = null
+    private var mLastMessageTimeline: Int = -1
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
@@ -178,7 +182,22 @@ class ChatSessionActivity(
 
         mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
             if (it.code == 200) {
-                mMessageList.postValue(it.data)
+                if (it.data?.isNotEmpty() == true) {
+                    val firstTimeline = it.data!!.first().message.timeline
+                    val nowMessageList = arrayListOf<IMessageService.Message>()
+                    nowMessageList.addAll(mMessageList.value!!)
+                    /**如果获取的消息第一条时序与现有最后一条消息差1，则是连续的消息>>>更新*/
+                    if (firstTimeline - 1 == mLastMessageTimeline) {
+                        mLastMessageTimeline = it.data!!.last().message.timeline
+                        nowMessageList.addAll(it.data!!)
+                        mMessageList.postValue(nowMessageList)
+                    } else {
+                        /**时序非连续，消息断层，校正时序，重新请求>>>不更新*/
+                        if (nowMessageList.isNotEmpty()) {
+                            mLastMessageTimeline = nowMessageList.last().timeline
+                        }
+                    }
+                }
             } else {
                 ToastUtils.showToast(this, it.msg ?: "消息获取失败")
             }
@@ -208,7 +227,6 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-
                     mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
                     supportFragmentManager.beginTransaction()
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
@@ -216,8 +234,11 @@ class ChatSessionActivity(
                     mChatGroupModel?.getGroupById(mSessionId!!) { group ->
                         mTitle.text = group.name
                     }
-                    mChatMessageModel?.getMessageListBySessionId(mSessionId!!)
+                    mChatMessageModel?.getMessageListBySessionId(mSessionId!!, mLastMessageTimeline)
                     mChatUserModel?.getAllChatUser()
+
+                    // FIXME 测试新消息推送（拉取）
+                    pullNewMessage(it)
                 }
         )
     }
@@ -227,6 +248,7 @@ class ChatSessionActivity(
         mChatMessageModel?.clear()
         mChatUserModel?.clear()
         mChatGroupModel?.clear()
+        mPullMessageTimer?.cancel()
         super.onDestroy()
     }
 
@@ -402,5 +424,17 @@ class ChatSessionActivity(
                 session = DefMessageService.DefSession(sessionId = mSessionId!!),
                 message = message
         ))
+    }
+
+    override fun pullNewMessage(session: IMessageService.Session) {
+        /**TODO 往后走Socket*/
+        mPullMessageTimer = Timer()
+        mPullMessageTimer!!.schedule(timerTask {
+            DBChatDatabase.DefChatSessionDao.getChatSessionById(mSessionId!!) { session ->
+                if (mLastMessageTimeline < session?.lastMessageTimeline ?: -1) {
+                    mChatMessageModel?.getMessageListBySessionId(mSessionId!!, mLastMessageTimeline)
+                }
+            }
+        }, 1000L, 1000L)
     }
 }

@@ -23,13 +23,16 @@ class DefChatMessageModelIml(
         override val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>> = BaseHttpLiveData()
 ) : IChatModel.IMessage {
 
-    override fun getMessageListBySessionId(sessionId: Int) {
+    override fun getMessageListBySessionId(sessionId: Int, lastTimeline: Int) {
         CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(
-                    sessionId = sessionId
+            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
+                    sessionId = sessionId, timeline = lastTimeline
             )
             onSuccess {
                 it?.data?.let { list ->
+                    list.sortedBy { msg ->
+                        msg.timeline
+                    }
                     mDataOfChatMessageList.postValue(BaseResponse(
                             code = it.code, msg = it.msg, data = list
                     ))
