@@ -20,10 +20,7 @@ import kotlinx.android.synthetic.main.item_chat_friend.view.*
 import qsos.base.chat.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.db.DBChatDatabase
-import qsos.base.chat.data.entity.ChatContent
-import qsos.base.chat.data.entity.ChatUser
-import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.*
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
@@ -71,13 +68,14 @@ class ChatSessionActivity(
     private var mFileModel: IFileModel? = null
     private var mChatMessageModel: IChatModel.IMessage? = null
     private var mMessageService: IMessageService? = null
-    private val mMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
+    private val mMessageSession: MutableLiveData<ChatSession> = MutableLiveData()
     private var mChatUserModel: IChatModel.IUser? = null
     private var mChatGroupModel: IChatModel.IGroup? = null
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
     private var mPullMessageTimer: Timer? = null
+    private var mFirstMessageTimeline: Int = -1
     private var mLastMessageTimeline: Int = -1
 
     override fun initData(savedInstanceState: Bundle?) {
@@ -87,7 +85,6 @@ class ChatSessionActivity(
         mChatUserModel = DefChatUserModelIml()
         mChatGroupModel = DefChatGroupModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
-        mMessageList.value = arrayListOf()
 
         supportFragmentManager.beginTransaction().setCustomAnimations(
                 R.anim.nav_default_enter_anim,
@@ -102,8 +99,7 @@ class ChatSessionActivity(
         }
 
         RxPermissions(this).request(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO
         ).subscribe({ pass ->
             if (!pass) {
@@ -123,11 +119,11 @@ class ChatSessionActivity(
             } else {
 
                 sendMessage(
-                        ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
+                        ChatContent()
+                                .create(EnumChatMessageType.TEXT.contentType, content)
                                 .put("content", content), send = true, bottom = true
                 )
 
-                // FIXME BaseUtils.closeKeyBord(mContext, chat_message_edit)
                 chat_message_edit.setText("")
                 chat_message_edit.clearFocus()
             }
@@ -183,19 +179,54 @@ class ChatSessionActivity(
         mChatMessageModel?.mDataOfChatMessageList?.observe(this, Observer {
             if (it.code == 200) {
                 if (it.data?.isNotEmpty() == true) {
-                    val firstTimeline = it.data!!.first().message.timeline
-                    val nowMessageList = arrayListOf<IMessageService.Message>()
-                    nowMessageList.addAll(mMessageList.value!!)
-                    /**如果获取的消息第一条时序与现有最后一条消息差1，则是连续的消息>>>更新*/
-                    if (firstTimeline - 1 == mLastMessageTimeline) {
-                        mLastMessageTimeline = it.data!!.last().message.timeline
-                        nowMessageList.addAll(it.data!!)
-                        mMessageList.postValue(nowMessageList)
+                    val newFirstTimeline = it.data!!.first().timeline
+                    val newLastTimeline = it.data!!.last().timeline
+                    if (mChatMessageListFragment!!.getMessageList().isEmpty()) {
+                        mFirstMessageTimeline = newFirstTimeline
+                        mLastMessageTimeline = newLastTimeline
+                        mMessageService?.notifyMessage(
+                                session = mMessageSession.value!!,
+                                message = it.data!!
+                        )
                     } else {
-                        /**时序非连续，消息断层，校正时序，重新请求>>>不更新*/
-                        if (nowMessageList.isNotEmpty()) {
-                            mLastMessageTimeline = nowMessageList.last().timeline
+                        if (newFirstTimeline > mLastMessageTimeline) {
+                            // 下一页消息（新消息）
+                            when (newFirstTimeline - mLastMessageTimeline) {
+                                1 -> {
+                                    /**如果获取的消息第一条时序与现有最后一条消息差1（下一页消息），则是连续的消息>>>更新*/
+                                    mLastMessageTimeline = newLastTimeline
+                                    mMessageService?.notifyNewMessage(
+                                            session = mMessageSession.value!!,
+                                            message = it.data!!
+                                    )
+                                }
+                                else -> {
+                                    /**时序非连续，消息断层，校正时序，重新请求>>>不更新*/
+                                    LogUtil.d("消息列表", "消息缺失mSessionId=${mSessionId} \n" +
+                                            " mLastMessageTimeline=$mLastMessageTimeline")
+                                    ToastUtils.showToast(this, "消息缺失")
+                                }
+                            }
+                        } else if (newLastTimeline < mFirstMessageTimeline) {
+                            // 上一页消息（历史消息）
+                            when (mFirstMessageTimeline - newLastTimeline) {
+                                1 -> {
+                                    /**如果获取的消息最后一条时序与现有第一条消息差1（上一页消息），则是连续的消息>>>更新*/
+                                    mFirstMessageTimeline = newFirstTimeline
+                                    mMessageService?.notifyOldMessage(
+                                            session = mMessageSession.value!!,
+                                            message = it.data!!
+                                    )
+                                }
+                                else -> {
+                                    /**时序非连续，消息断层，校正时序，重新请求>>>不更新*/
+                                    LogUtil.d("消息列表", "消息缺失mSessionId=${mSessionId} \n" +
+                                            " mFirstMessageTimeline=$mFirstMessageTimeline")
+                                    ToastUtils.showToast(this, "消息缺失")
+                                }
+                            }
                         }
+
                     }
                 }
             } else {
@@ -227,15 +258,16 @@ class ChatSessionActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mMessageList)
-                    supportFragmentManager.beginTransaction()
-                            .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
-                            .commit()
+                    mMessageSession.postValue(it)
                     mChatGroupModel?.getGroupById(mSessionId!!) { group ->
                         mTitle.text = group.name
                     }
-                    mChatMessageModel?.getMessageListBySessionId(mSessionId!!, mLastMessageTimeline)
                     mChatUserModel?.getAllChatUser()
+
+                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!)
+                    supportFragmentManager.beginTransaction()
+                            .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
+                            .commit()
 
                     // FIXME 测试新消息推送（拉取）
                     pullNewMessage(it)
@@ -257,6 +289,7 @@ class ChatSessionActivity(
                 .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                 .navigation()
         super.onBackPressed()
+        finish()
     }
 
     override fun takeAudio() {

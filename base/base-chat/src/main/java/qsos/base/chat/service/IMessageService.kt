@@ -1,5 +1,6 @@
 package qsos.base.chat.service
 
+import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.base.utils.rx.RxBus
@@ -20,7 +21,8 @@ interface IMessageService {
             val session: Session,
             val message: List<Message>,
             val send: Boolean = false,
-            val bottom: Boolean = true
+            val bottom: Boolean = true,
+            val update: Boolean = false
     ) : RxBus.RxBusEvent<MessageSendEvent> {
         override fun message(): MessageSendEvent? {
             return this
@@ -121,11 +123,29 @@ interface IMessageService {
         fun <T> getRealContent(): T?
     }
 
+    /**拉取到消息进行会话内更新
+     * @param session 会话实体
+     * @param message 消息列表
+     * */
+    fun notifyMessage(session: Session, message: List<Message>)
+
+    /**拉取到历史消息进行会话内更新
+     * @param session 会话实体
+     * @param message 消息列表
+     * */
+    fun notifyOldMessage(session: Session, message: List<Message>)
+
     /**拉取到新消息进行会话内更新
      * @param session 会话实体
      * @param message 消息列表
      * */
     fun notifyNewMessage(session: Session, message: List<Message>)
+
+    /**获取消息列表
+     * @param session 会话实体
+     * @param messageList 消息列表
+     * */
+    fun getMessageList(session: Session, messageList: MutableLiveData<ArrayList<Message>>)
 
     /**发送消息
      * @param message 消息实体
@@ -159,4 +179,7 @@ interface IMessageService {
             failed: (msg: String, message: Message) -> Unit,
             success: (message: Message) -> Unit
     )
+
+    /**释放资源*/
+    fun clear()
 }

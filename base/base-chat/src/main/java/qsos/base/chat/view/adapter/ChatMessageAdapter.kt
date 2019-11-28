@@ -20,7 +20,7 @@ class ChatMessageAdapter(
         /**会话数据*/
         val session: IMessageService.Session,
         /**消息列表数据*/
-        list: ArrayList<IMessageService.Message>,
+        val list: ArrayList<IMessageService.Message>,
         /**消息列表项点击监听*/
         private val onItemClickListener: OnListItemClickListener? = null,
         /**消息列表项显示监听，返回消息列表项视图位置=adapterPosition*/

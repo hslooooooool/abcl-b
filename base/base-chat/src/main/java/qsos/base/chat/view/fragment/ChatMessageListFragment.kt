@@ -29,11 +29,10 @@ import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
+import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
-import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * @author : 华清松
@@ -47,7 +46,6 @@ import kotlin.collections.HashMap
 class ChatMessageListFragment(
         private val mSession: IMessageService.Session,
         private val mMessageService: IMessageService,
-        private val mMessageList: MutableLiveData<List<IMessageService.Message>>,
         private var mNewMessageNumLimit: Int = 4,
         /**消息列表项点击监听*/
         private var mOnListItemClickListener: OnListItemClickListener? = null,
@@ -59,16 +57,22 @@ class ChatMessageListFragment(
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
-    private val mMessageData: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
     private var mActive: Boolean = true
     private var mNewMessageNum = 0
     private var mMessageScrolling = false
+    private val mMessageList: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
+    private var mFirstMessageTimeline: Int = -1
+    private var mLastMessageTimeline: Int = -1
+
+    /**获取现有消息列表*/
+    fun getMessageList(): ArrayList<IMessageService.Message> {
+        return mMessageAdapter?.list ?: arrayListOf()
+    }
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
 
     override fun initData(savedInstanceState: Bundle?) {
-        mMessageData.value = arrayListOf()
         mMessageUpdateCancel.value = HashMap()
     }
 
@@ -76,7 +80,7 @@ class ChatMessageListFragment(
 
         initOnItemClickListener()
 
-        mMessageAdapter = ChatMessageAdapter(mSession, mMessageData.value!!, mOnListItemClickListener, object : OnTListener<Int> {
+        mMessageAdapter = ChatMessageAdapter(mSession, arrayListOf(), mOnListItemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
             }
@@ -105,6 +109,10 @@ class ChatMessageListFragment(
                     chat_message_new_message_num.visibility = View.GONE
                     mNewMessageNum = 0
                 }
+                LogUtil.d("滚动$dy")
+                if (dy < 0) {
+                    BaseUtils.closeKeyBord(mContext, recyclerView)
+                }
             }
         })
 
@@ -113,16 +121,7 @@ class ChatMessageListFragment(
         }
 
         mMessageList.observe(this, Observer {
-            mMessageData.value?.clear()
-            it?.let { messages ->
-                mMessageData.value!!.addAll(messages)
-                mMessageAdapter?.notifyDataSetChanged()
-                mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
-            }
-        })
-
-        mMessageData.observe(this, Observer {
-            mMessageAdapter?.notifyDataSetChanged()
+            notifyMessage(it)
         })
 
         mMessageUpdateCancel.observe(this, Observer {
@@ -139,11 +138,19 @@ class ChatMessageListFragment(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (mActive && it.session.sessionId == mSession.sessionId) {
-                        it.message.forEach { message ->
-                            if (it.send) {
-                                sendMessage(message)
-                            } else {
-                                notifyNewMessage(message, it.bottom)
+                        when {
+                            it.send -> {
+                                it.message.forEach { message ->
+                                    sendMessage(message)
+                                }
+                            }
+                            it.update -> {
+                                notifyMessage(it.message)
+                            }
+                            else -> {
+                                it.message.forEach { message ->
+                                    notifyNewMessage(message, it.bottom)
+                                }
                             }
                         }
                     }
@@ -168,11 +175,10 @@ class ChatMessageListFragment(
                 }
 
         getData()
-
     }
 
     override fun getData() {
-
+        mMessageService.getMessageList(mSession, mMessageList)
     }
 
     override fun onResume() {
@@ -181,9 +187,15 @@ class ChatMessageListFragment(
     }
 
     override fun onPause() {
+        mMessageList.value = getMessageList()
         mActive = false
         stopAudioPlay()
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        mMessageService.clear()
+        super.onDestroy()
     }
 
     override fun playAudio(view: View, data: MChatMessageAudio) {
@@ -225,6 +237,21 @@ class ChatMessageListFragment(
             /**停止当前音频播放*/
             mPlayList.remove(data.url)
             mAudioPlayerHelper.stop()
+        }
+    }
+
+    override fun notifyMessage(data: ArrayList<IMessageService.Message>) {
+        if (data.isNotEmpty()) {
+            val newFirstTimeline = data.first().timeline
+            val newLastTimeline = data.last().timeline
+            mFirstMessageTimeline = newFirstTimeline
+            mLastMessageTimeline = newLastTimeline
+            mMessageAdapter?.list?.clear()
+            mMessageAdapter?.list?.addAll(data)
+            mMessageAdapter?.notifyDataSetChanged()
+            scrollToBottom()
+        } else {
+            ToastUtils.showToast(mContext, "暂无消息")
         }
     }
 
@@ -294,9 +321,19 @@ class ChatMessageListFragment(
                 })
     }
 
+    override fun notifyMessage(messageList: List<IMessageService.Message>) {
+        val array = arrayListOf<IMessageService.Message>()
+        array.addAll(messageList)
+        mMessageList.postValue(array)
+    }
+
+    override fun notifyOldMessage(messageList: List<IMessageService.Message>) {
+        // TODO 更新历史消息
+    }
+
     override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {
-        mMessageData.value!!.add(message)
-        val mMessageSize = mMessageData.value!!.size - 1
+        mMessageAdapter?.data?.add(message)
+        val mMessageSize = getMessageList().size - 1
         mMessageAdapter?.notifyItemInserted(mMessageSize)
         val lastPosition = mLinearLayoutManager?.findLastCompletelyVisibleItemPosition() ?: 0
         val canScroll = mMessageSize - mNewMessageNumLimit < lastPosition
@@ -320,7 +357,7 @@ class ChatMessageListFragment(
     }
 
     override fun readMessage(adapterPosition: Int) {
-        mMessageData.value?.let {
+        mMessageList.value?.let {
             val data = it[adapterPosition]
             if (data.readStatus == false) {
                 mMessageService.readMessage(data, failed = { msg, _ ->
@@ -342,8 +379,8 @@ class ChatMessageListFragment(
 
     /**消息列表滚动到底部*/
     private fun scrollToBottom() {
-        if (mMessageData.value?.isNotEmpty() == true) {
-            mLinearLayoutManager?.scrollToPosition(mMessageData.value!!.size - 1)
+        if (mMessageList.value?.isNotEmpty() == true) {
+            mLinearLayoutManager?.scrollToPosition(mMessageList.value!!.size - 1)
         }
         chat_message_new_message_num.visibility = View.GONE
         mNewMessageNum = 0

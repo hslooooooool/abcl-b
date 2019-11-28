@@ -1,15 +1,20 @@
 package qsos.base.chat
 
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.service.AbsMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.lib.netservice.ApiEngine
+import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
+import qsos.lib.netservice.expand.retrofitWithSuccess
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,6 +24,7 @@ import kotlin.coroutines.CoroutineContext
 class DefMessageService(
         private val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : AbsMessageService() {
+    private var mPullMessageTimer: Timer? = null
 
     class DefSession(
             override var sessionId: Int,
@@ -54,6 +60,29 @@ class DefMessageService(
                 } catch (e: Exception) {
                     e.printStackTrace()
                     null
+                }
+            }
+        }
+    }
+
+    override fun getMessageList(session: IMessageService.Session, messageList: MutableLiveData<ArrayList<IMessageService.Message>>) {
+        val lastTimeline: Int = if (messageList.value.isNullOrEmpty()) {
+            -1
+        } else {
+            messageList.value!!.last().timeline
+        }
+        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
+            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
+                    sessionId = session.sessionId, timeline = lastTimeline
+            )
+            onSuccess {
+                it?.data?.let { list ->
+                    list.sortedBy { msg ->
+                        msg.timeline
+                    }
+                    val array = arrayListOf<IMessageService.Message>()
+                    array.addAll(list)
+                    messageList.postValue(array)
                 }
             }
         }
@@ -127,4 +156,8 @@ class DefMessageService(
         }
     }
 
+    override fun clear() {
+        mPullMessageTimer?.cancel()
+        mJob.cancel()
+    }
 }
