@@ -8,6 +8,7 @@ import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
@@ -50,17 +51,22 @@ class DefChatMessageModelIml(
                     }
                     onSuccess {
                         it?.let { list ->
-                            list.sortedBy { msg ->
+                            /**排除登录用户发送的消息并按时序正序排列*/
+                            val messageList = list.filterNot { msg ->
+                                msg.user.userId == ChatMainActivity.mLoginUser.value?.userId
+                            }.sortedBy { msg ->
                                 msg.timeline
                             }
-                            oldSession.nowLastMessageId = list.last().messageId
-                            oldSession.nowLastMessageTimeline = list.last().timeline
-                            DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
-                                mDataOfNewMessage.postValue(BaseResponse(
-                                        code = 200, msg = "请求成功", data = list
-                                ))
-                                pullNewMessageIng = false
-                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
+                            if (messageList.isNotEmpty()) {
+                                oldSession.nowLastMessageId = messageList.last().messageId
+                                oldSession.nowLastMessageTimeline = messageList.last().timeline
+                                DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
+                                    mDataOfNewMessage.postValue(BaseResponse(
+                                            code = 200, msg = "请求成功", data = messageList
+                                    ))
+                                    pullNewMessageIng = false
+                                    LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
+                                }
                             }
                         }
                     }

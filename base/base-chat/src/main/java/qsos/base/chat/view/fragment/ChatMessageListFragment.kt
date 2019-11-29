@@ -13,7 +13,6 @@ import com.noober.menu.FloatMenu
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.android.synthetic.main.item_message_audio.view.*
-import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.EnumChatSendStatus
@@ -64,7 +63,7 @@ class ChatMessageListFragment(
 
     /**获取现有消息列表*/
     fun getMessageList(): ArrayList<IMessageService.Message> {
-        return mMessageAdapter?.list ?: arrayListOf()
+        return mMessageAdapter?.data ?: arrayListOf()
     }
 
     /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
@@ -240,8 +239,8 @@ class ChatMessageListFragment(
 
     override fun notifyMessage(data: ArrayList<IMessageService.Message>) {
         if (data.isNotEmpty()) {
-            mMessageAdapter?.list?.clear()
-            mMessageAdapter?.list?.addAll(data)
+            mMessageAdapter?.data?.clear()
+            mMessageAdapter?.data?.addAll(data)
             mMessageAdapter?.notifyDataSetChanged()
             scrollToBottom()
         } else {
@@ -345,7 +344,7 @@ class ChatMessageListFragment(
 
     override fun sendMessageRecallEvent(message: IMessageService.Message) {
         RxBus.send(IMessageService.MessageReceiveEvent(
-                session = DefMessageService.DefSession(sessionId = mSession.sessionId),
+                session = mSession,
                 message = message
         ))
     }

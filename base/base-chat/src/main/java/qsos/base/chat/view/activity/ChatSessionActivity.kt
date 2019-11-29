@@ -341,18 +341,18 @@ class ChatSessionActivity(
     }
 
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message {
-        val message = DefMessageService.DefMessage(
-                sessionId = mSessionId!!,
-                sendUserId = ChatMainActivity.mLoginUser.value!!.userId,
-                sendUserName = ChatMainActivity.mLoginUser.value!!.userName,
-                sendUserAvatar = ChatMainActivity.mLoginUser.value!!.avatar ?: "",
-                timeline = UUID.randomUUID().hashCode(),
-                content = content,
-                createTime = DateUtils.getTimeToNow(Date())
+        val message = ChatMessageBo(
+                user = ChatMainActivity.mLoginUser.value!!,
+                createTime = DateUtils.getTimeToNow(Date()),
+                message = ChatMessage(
+                        sessionId = mSessionId!!,
+                        timeline = UUID.randomUUID().hashCode(),
+                        content = content
+                )
         )
 
         RxBus.send(IMessageService.MessageSendEvent(
-                session = DefMessageService.DefSession(sessionId = mSessionId!!),
+                session = mMessageSession.value!!,
                 message = arrayListOf(message),
                 send = send, bottom = bottom
         ))
@@ -406,7 +406,7 @@ class ChatSessionActivity(
 
     override fun sendFileMessageUpdate(message: IMessageService.Message) {
         RxBus.send(IMessageService.MessageUpdateFileEvent(
-                session = DefMessageService.DefSession(sessionId = mSessionId!!),
+                session = mMessageSession.value!!,
                 message = message
         ))
     }
