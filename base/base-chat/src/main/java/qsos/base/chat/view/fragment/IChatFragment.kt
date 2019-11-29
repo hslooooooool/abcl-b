@@ -1,7 +1,5 @@
 package qsos.base.chat.view.fragment
 
-import android.view.View
-import qsos.base.chat.data.entity.MChatMessageAudio
 import qsos.base.chat.service.IMessageService
 
 /**
@@ -9,9 +7,6 @@ import qsos.base.chat.service.IMessageService
  * 聊天消息列表页功能接口
  */
 interface IChatFragment {
-
-    /**语音播放*/
-    fun playAudio(view: View, data: MChatMessageAudio)
 
     /**更新消息（全部更新）*/
     fun notifyMessage(data: ArrayList<IMessageService.Message>)
@@ -22,8 +17,8 @@ interface IChatFragment {
      * */
     fun sendMessage(msg: IMessageService.Message, new: Boolean = true)
 
-    /**更新消息发送状态*/
-    fun notifyMessageSendStatus(message: IMessageService.Message)
+    /**更新消息状态（发送状态、读取状态）*/
+    fun notifyMessageState(oldMessageId: Int, message: IMessageService.Message)
 
     /**更新消息
      * */
@@ -42,13 +37,7 @@ interface IChatFragment {
     fun notifyFileMessage(message: IMessageService.Message)
 
     /**更新消息已读数*/
-    fun notifyMessageReadNum(message: IMessageService.Message)
-
-    /**删除（撤销）消息*/
-    fun deleteMessage(message: IMessageService.Message)
-
-    /**发送撤回消息事件到聊天列表*/
-    fun sendMessageRecallEvent(message: IMessageService.Message)
+    fun notifyMessageReadNum(oldMessageId: Int, message: IMessageService.Message)
 
     /**更新当前用户消息读取状态*/
     fun readMessage(adapterPosition: Int)

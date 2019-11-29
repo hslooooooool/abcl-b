@@ -119,6 +119,9 @@ interface IMessageService {
         /**消息读取人数,单聊时1即为已读，群聊时代表读取人数*/
         var readNum: Int
 
+        /**消息更新发送状态*/
+        fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus)
+
         /**消息转换后实体*/
         fun <T> getRealContent(): T?
     }
@@ -155,7 +158,7 @@ interface IMessageService {
     fun sendMessage(
             message: Message,
             failed: (msg: String, message: Message) -> Unit,
-            success: (message: Message) -> Unit
+            success: (oldMessageId: Int, message: Message) -> Unit
     )
 
     /**读取消息

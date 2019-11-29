@@ -27,20 +27,6 @@ abstract class ItemChatMessageBaseViewHolder(
         private val session: IMessageService.Session, view: View
 ) : BaseHolder<IMessageService.Message>(view) {
 
-    /**更新数据*/
-    data class Update(
-            /**更新类型
-             * 1 更新发送状态
-             * 2 更新已读状态
-             * */
-            val type: Int,
-            /**更新数据
-             * 1 发送状态
-             * 2 已读状态
-             * */
-            val data: Any
-    )
-
     private var mItemListener: OnListItemClickListener? = null
 
     /**设置消息列表项点击监听*/
@@ -117,23 +103,8 @@ abstract class ItemChatMessageBaseViewHolder(
         return contentView
     }
 
-    /**更新消息状态*/
-    fun updateState(update: Update) {
-        itemView.getTag(R.id.item_message)?.let { contentView ->
-            when (update.type) {
-                1 -> {
-                    updateSendStatus(contentView as View, update.data as EnumChatSendStatus)
-                }
-                2 -> {
-                    updateReadStatus(contentView as View, update.data as Int)
-                }
-            }
-        }
-    }
-
     /**更新消息发送状态*/
     private fun updateSendStatus(contentView: View, state: EnumChatSendStatus?) {
-
         itemView.item_message_cancel.visibility = View.GONE
         itemView.item_message_main.visibility = View.VISIBLE
         val messageStateView = contentView.getTag(R.id.item_message_state) as View

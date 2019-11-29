@@ -5,7 +5,6 @@ import android.view.View
 import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.R
 import qsos.base.chat.service.IMessageService
-import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import qsos.lib.base.callback.OnListItemClickListener
@@ -39,19 +38,7 @@ class ChatMessageAdapter(
 
     override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
         super.onBindViewHolder(holder, position, payloads)
-        if (payloads.isEmpty()) {
-            mStateLiveDataMap[data[position].timeline] = holder
-        } else {
-            holder as ItemChatMessageBaseViewHolder
-            payloads.forEach {
-                when (it) {
-                    is ItemChatMessageBaseViewHolder.Update -> {
-                        /**更新消息状态*/
-                        holder.updateState(it)
-                    }
-                }
-            }
-        }
+        mStateLiveDataMap[data[position].messageId] = holder
     }
 
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message

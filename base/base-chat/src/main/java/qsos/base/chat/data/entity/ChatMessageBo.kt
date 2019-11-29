@@ -23,11 +23,17 @@ data class ChatMessageBo(
             field = message.messageId
             return field
         }
+        set(value) {
+            message.messageId = value
+        }
 
     override var sessionId: Int = -1
         get() {
             field = message.sessionId
             return field
+        }
+        set(value) {
+            message.sessionId = value
         }
 
     override var timeline: Int = -1
@@ -37,6 +43,9 @@ data class ChatMessageBo(
                 LogUtil.e("消息时序错误messageId=${message.messageId}")
             }
             return field
+        }
+        set(value) {
+            message.timeline = value
         }
 
     override val sendUserId: Int
@@ -59,6 +68,12 @@ data class ChatMessageBo(
         get() = if (field == null) true else field
 
     override var readNum: Int = 1
+
+    override fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus) {
+        this.message.messageId = messageId
+        this.message.timeline = timeline
+        this.sendStatus = sendStatus
+    }
 
     override fun <T> getRealContent(): T? {
         val contentType: Int = message.content.getContentType()

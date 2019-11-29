@@ -2,21 +2,25 @@ package qsos.base.chat.view.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.graphics.Point
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
+import com.noober.menu.FloatMenu
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat_message.*
 import kotlinx.android.synthetic.main.item_chat_friend.view.*
+import kotlinx.android.synthetic.main.item_message_audio.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.*
@@ -31,9 +35,13 @@ import qsos.core.lib.utils.dialog.AbsBottomDialog
 import qsos.core.lib.utils.dialog.BottomDialog
 import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.core.lib.utils.file.FileUtils
+import qsos.core.player.PlayerConfigHelper
+import qsos.core.player.audio.AudioPlayerHelper
+import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.adapter.BaseNormalAdapter
+import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
@@ -74,6 +82,7 @@ class ChatSessionActivity(
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mChatMessageListFragment: ChatMessageListFragment? = null
     private var mPullMessageTimer: Timer? = null
+    private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = DefChatSessionModelIml()
@@ -173,19 +182,6 @@ class ChatSessionActivity(
         chat_message_friends.layoutManager = mLinearLayoutManager
         chat_message_friends.adapter = mChatUserAdapter
 
-        mChatMessageModel?.mDataOfNewMessage?.observe(this, Observer {
-            if (it.code == 200) {
-                if (it.data?.isNotEmpty() == true) {
-                    mMessageService?.notifyNewMessage(
-                            session = mMessageSession.value!!,
-                            message = it.data!!
-                    )
-                }
-            } else {
-                ToastUtils.showToast(this, it.msg ?: "消息获取失败")
-            }
-        })
-
         mChatUserModel?.mDataOfChatUserList?.observe(this, Observer {
             mChatUserList.clear()
             it.data?.let { users ->
@@ -193,12 +189,6 @@ class ChatSessionActivity(
             }
             mChatUserAdapter?.notifyDataSetChanged()
         })
-
-        RxBus.toFlow(IMessageService.MessageReceiveEvent::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    chat_message_edit.setText(it.message.content.getContentDesc())
-                }
 
         getData()
     }
@@ -216,7 +206,7 @@ class ChatSessionActivity(
                     }
                     mChatUserModel?.getAllChatUser()
 
-                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!)
+                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mOnListItemClickListener)
                     supportFragmentManager.beginTransaction()
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
@@ -225,6 +215,11 @@ class ChatSessionActivity(
                     pullNewMessage(it)
                 }
         )
+    }
+
+    override fun onPause() {
+        stopAudioPlay()
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -340,13 +335,76 @@ class ChatSessionActivity(
         }
     }
 
+    override fun playAudio(view: View, data: MChatMessageAudio) {
+        var mAudioPlayerHelper: AudioPlayerHelper? = mPlayList[data.url]
+        if (mAudioPlayerHelper == null) {
+            /**停止其它播放*/
+            stopAudioPlay()
+            mAudioPlayerHelper = PlayerConfigHelper.previewAudio(
+                    context = mContext, position = 0,
+                    list = arrayListOf(
+                            PreAudioEntity(
+                                    name = data.name,
+                                    desc = data.name,
+                                    path = data.url
+                            )
+                    ),
+                    onPlayerListener = object : OnTListener<AudioPlayerHelper.State> {
+                        override fun back(t: AudioPlayerHelper.State) {
+                            view.apply {
+                                this.item_message_audio_state.setImageDrawable(AppCompatResources.getDrawable(mContext, when (t) {
+                                    AudioPlayerHelper.State.STOP -> {
+                                        R.drawable.icon_play
+                                    }
+                                    AudioPlayerHelper.State.ERROR -> {
+                                        ToastUtils.showToast(mContext, "播放错误")
+                                        R.drawable.icon_play
+                                    }
+                                    else -> {
+                                        R.drawable.icon_pause
+                                    }
+                                }))
+                            }
+
+                        }
+                    }
+            )
+            mPlayList[data.url] = mAudioPlayerHelper
+        } else {
+            /**停止当前音频播放*/
+            mPlayList.remove(data.url)
+            mAudioPlayerHelper.stop()
+        }
+    }
+
+    override fun stopAudioPlay() {
+        mPlayList.values.forEach {
+            it?.stop()
+        }
+    }
+
+    override fun deleteMessage(message: IMessageService.Message) {
+        mMessageService?.revokeMessage(message,
+                failed = { msg, _ ->
+                    ToastUtils.showToast(mContext, msg)
+                },
+                success = {
+                    it.sendStatus = EnumChatSendStatus.CANCEL_CAN
+                    RxBus.send(IMessageService.MessageSendEvent(
+                            session = mMessageSession.value!!,
+                            message = arrayListOf(it),
+                            send = true, update = true, bottom = false
+                    ))
+                })
+    }
+
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message {
         val message = ChatMessageBo(
                 user = ChatMainActivity.mLoginUser.value!!,
                 createTime = DateUtils.getTimeToNow(Date()),
                 message = ChatMessage(
                         sessionId = mSessionId!!,
-                        timeline = UUID.randomUUID().hashCode(),
+                        messageId = UUID.randomUUID().hashCode(),
                         content = content
                 )
         )
@@ -415,7 +473,77 @@ class ChatSessionActivity(
         /**TODO 往后走Socket*/
         mPullMessageTimer = Timer()
         mPullMessageTimer!!.schedule(timerTask {
-            mChatMessageModel?.getNewMessageBySessionId(mSessionId!!)
-        }, 1000L, 1000L)
+            mChatMessageModel?.getNewMessageBySessionId(mSessionId!!) {
+                if (it.isNotEmpty()) {
+                    mMessageService?.notifyNewMessage(
+                            session = mMessageSession.value!!,
+                            message = it
+                    )
+                }
+            }
+        }, 2000L, 500L)
     }
+
+    val mOnListItemClickListener = object : OnListItemClickListener {
+        override fun onItemClick(view: View, position: Int, obj: Any?) {
+            preOnItemClick(view, position, obj)
+        }
+
+        override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+            preOnItemLongClick(view, position, obj)
+        }
+    }
+
+
+    /**列表项点击*/
+    private fun preOnItemClick(view: View, position: Int, obj: Any?) {
+        when (view.id) {
+            R.id.item_message_view_audio -> {
+                if (obj is IMessageService.Message) {
+                    obj.getRealContent<MChatMessageAudio>()?.let {
+                        playAudio(view, it)
+                    }
+                }
+            }
+            R.id.item_message_cancel_reedit -> {
+                if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
+                    obj.getRealContent<MChatMessageText>()?.let {
+                        obj.sendStatus = EnumChatSendStatus.CANCEL_OK
+                        RxBus.send(IMessageService.MessageSendEvent(
+                                session = mMessageSession.value!!,
+                                message = arrayListOf(obj),
+                                send = true, update = true, bottom = false
+                        ))
+
+                        chat_message_edit.setText(obj.content.getContentDesc())
+                    }
+                }
+            }
+        }
+    }
+
+    /**列表项长按*/
+    private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
+        when (view.id) {
+            R.id.item_message_content -> {
+                if (obj != null && obj is IMessageService.Message) {
+                    val point = IntArray(2)
+                    view.getLocationOnScreen(point)
+                    val floatMenu = FloatMenu(this)
+                    floatMenu.items("撤销", "其它")
+                    floatMenu.setOnItemClickListener { _, index ->
+                        when (index) {
+                            0 -> {
+                                deleteMessage(obj)
+                            }
+                            else -> {
+                            }
+                        }
+                    }
+                    floatMenu.show(Point(point[0], point[1]))
+                }
+            }
+        }
+    }
+
 }

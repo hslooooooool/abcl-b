@@ -11,8 +11,6 @@ import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
-import qsos.lib.netservice.data.BaseHttpLiveData
-import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
@@ -22,14 +20,13 @@ import kotlin.coroutines.CoroutineContext
  * 聊天消息相关接口默认实现
  */
 class DefChatMessageModelIml(
-        override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mDataOfNewMessage: BaseHttpLiveData<List<ChatMessageBo>> = BaseHttpLiveData()
+        override val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : IChatModel.IMessage {
 
     /**是否正在获取新消息*/
     private var pullNewMessageIng = false
 
-    override fun getNewMessageBySessionId(sessionId: Int) {
+    override fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
         if (pullNewMessageIng) {
             return
         }
@@ -42,10 +39,7 @@ class DefChatMessageModelIml(
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
                             sessionId = sessionId, timeline = nowLastMessageTimeline, next = true
                     )
-                    onFailed { code, msg, error ->
-                        mDataOfNewMessage.postValue(BaseResponse(
-                                code = code, msg = msg, data = null
-                        ))
+                    onFailed { _, _, error ->
                         pullNewMessageIng = false
                         Timber.e(error)
                     }
@@ -61,10 +55,8 @@ class DefChatMessageModelIml(
                                 oldSession.nowLastMessageId = messageList.last().messageId
                                 oldSession.nowLastMessageTimeline = messageList.last().timeline
                                 DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
-                                    mDataOfNewMessage.postValue(BaseResponse(
-                                            code = 200, msg = "请求成功", data = messageList
-                                    ))
                                     pullNewMessageIng = false
+                                    success.invoke(messageList)
                                     LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                                 }
                             }

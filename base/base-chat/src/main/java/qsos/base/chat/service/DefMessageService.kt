@@ -65,11 +65,16 @@ class DefMessageService(
     override fun sendMessage(
             message: IMessageService.Message,
             failed: (msg: String, message: IMessageService.Message) -> Unit,
-            success: (message: IMessageService.Message) -> Unit
+            success: (oldMessageId: Int, message: IMessageService.Message) -> Unit
     ) {
+        val oldMessageId = message.messageId
+        if (oldMessageId == -1) {
+            message.sendStatus = EnumChatSendStatus.FAILED
+            failed.invoke("发送失败，消息临时ID不能为-1", message)
+            return
+        }
         val sendMessage = ChatMessage(
                 sessionId = message.sessionId,
-                timeline = message.timeline,
                 content = message.content
         )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
@@ -83,10 +88,9 @@ class DefMessageService(
                     message.sendStatus = EnumChatSendStatus.FAILED
                     failed.invoke("发送失败", message)
                 } else {
-                    message.sendStatus = EnumChatSendStatus.SUCCESS
-                    message.messageId = it.messageId
+                    message.updateSendState(it.messageId, it.timeline, EnumChatSendStatus.SUCCESS)
                     DBChatDatabase.DefChatSessionDao.update(it.sessionId, it.messageId, it.timeline) { ok ->
-                        success.invoke(message)
+                        success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                     }
                 }
