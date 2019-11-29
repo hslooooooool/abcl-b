@@ -20,7 +20,7 @@ interface ApiChatGroup {
         const val GROUP = "/chat/group"
     }
 
-    @POST(value = "$GROUP/getGroupById")
+    @GET(value = "$GROUP/getGroupById")
     fun getGroupById(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "groupId") groupId: Int
@@ -31,7 +31,7 @@ interface ApiChatGroup {
             @Header(value = "userId") meId: Int = BaseConfig.userId
     ): Call<BaseResponse<List<ChatGroup>>>
 
-    @POST(value = "$GROUP/getGroupByBySessionId")
+    @POST(value = "$GROUP/getGroupBySessionId")
     fun getGroupByBySessionId(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
@@ -46,6 +46,6 @@ interface ApiChatGroup {
     @POST(value = "$GROUP/updateGroupName")
     fun updateGroupName(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "name") name: String
+            @Query(value = "sessionName") name: String
     ): Call<BaseResponse<Boolean>>
 }

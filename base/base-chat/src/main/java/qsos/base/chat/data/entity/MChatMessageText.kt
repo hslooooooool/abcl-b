@@ -9,5 +9,5 @@ data class MChatMessageText(
         val content: String
 ) : IChatMessageType {
     override var contentDesc: String = content
-    override var contentType: Int = MChatMessageType.TEXT.contentType
+    override var contentType: Int = EnumChatMessageType.TEXT.contentType
 }

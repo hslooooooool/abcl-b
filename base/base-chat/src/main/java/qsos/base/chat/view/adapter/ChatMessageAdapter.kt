@@ -1,47 +1,55 @@
 package qsos.base.chat.view.adapter
 
+import android.annotation.SuppressLint
 import android.view.View
-import qsos.base.chat.ChatMessageHelper
+import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatSession
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
+import qsos.base.chat.service.IMessageService
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import qsos.lib.base.callback.OnListItemClickListener
+import qsos.lib.base.callback.OnTListener
+import qsos.lib.base.utils.LogUtil
 
 /**
  * @author : 华清松
  * 聊天消息列表
  */
 class ChatMessageAdapter(
-        val session: ChatSession, list: ArrayList<MChatMessage>,
-        val itemListener: OnListItemClickListener? = null
-) : BaseAdapter<MChatMessage>(list) {
+        /**会话数据*/
+        val session: IMessageService.Session,
+        /**消息列表数据*/
+        list: ArrayList<IMessageService.Message>,
+        /**消息列表项点击监听*/
+        private val onItemClickListener: OnListItemClickListener? = null,
+        /**消息列表项显示监听，返回消息列表项视图位置=adapterPosition*/
+        private val onItemShowedListener: OnTListener<Int>? = null
+) : BaseAdapter<IMessageService.Message>(list) {
 
-    override fun onBindViewHolder(holder: BaseHolder<MChatMessage>, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads)
-        } else {
-            holder as ItemChatMessageBaseViewHolder
-            payloads.forEach {
-                /**更新消息状态*/
-                if (it is ItemChatMessageBaseViewHolder.UpdateType) {
-                    holder.updateState(position, data[position], it)
-                }
-            }
-        }
+    @SuppressLint("UseSparseArrays")
+    val mStateLiveDataMap = HashMap<Int, BaseHolder<*>>()
+
+    override fun onViewAttachedToWindow(holder: BaseHolder<IMessageService.Message>) {
+        super.onViewAttachedToWindow(holder)
+        val position = holder.adapterPosition
+        onItemShowedListener?.back(position)
+        LogUtil.d("聊天列表", "${session.sessionId}显示了消息位$position")
+    }
+
+    override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+        mStateLiveDataMap[data[position].messageId] = holder
     }
 
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
-    override fun getHolder(view: View, viewType: Int): BaseHolder<MChatMessage> {
-        return ChatMessageHelper.getHolder(session, view, viewType)
-                .setOnListItemClickListener(itemListener)
+    override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageService.Message> {
+        return ChatMessageViewConfig.getHolder(session, view, viewType)
+                .setOnListItemClickListener(onItemClickListener)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return data[position].contentType
+        return data[position].content.getContentType()
     }
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {}

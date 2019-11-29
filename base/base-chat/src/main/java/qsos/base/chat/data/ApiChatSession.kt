@@ -36,7 +36,6 @@ interface ApiChatSession {
     ): Call<BaseResponse<List<ChatSession>>>
 
     @POST(value = "$GROUP/addUserListToSession")
-    @FormUrlEncoded
     fun addUserListToSession(
             @Header(value = "userId") meId: Int = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int,

@@ -6,8 +6,20 @@ package qsos.base.chat.data.entity
  * @param fields 内容map集合
  */
 data class ChatContent(
-        val fields: HashMap<String, Any?>
+        val fields: HashMap<String, Any?> = HashMap()
 ) {
+
+    fun create(type: Int, desc: String): ChatContent {
+        setContentType(type)
+        setContentDesc(desc)
+        return this
+    }
+
+    fun put(key: String, value: Any?): ChatContent {
+        this.fields[key] = value
+        return this
+    }
+
     /**设置消息类型*/
     fun setContentType(contentType: Int): ChatContent {
         this.fields["contentType"] = contentType
@@ -16,15 +28,20 @@ data class ChatContent(
 
     /**设置消息摘要*/
     fun setContentDesc(contentDesc: String): ChatContent {
-        this.fields["contentDesc"] = contentDesc
+        var desc: String = contentDesc
+        val length = contentDesc.length
+        if (length > 20) {
+            desc = contentDesc.substring(0, 20) + "..."
+        }
+        this.fields["contentDesc"] = desc
         return this
     }
 
     /**获取消息类型*/
-    fun getContentType(): Int? {
+    fun getContentType(): Int {
         val type = (this.fields["contentType"] as Number?)?.toInt()
         this.fields["contentType"] = type
-        return type
+        return type ?: -1
     }
 
     /**获取消息摘要*/

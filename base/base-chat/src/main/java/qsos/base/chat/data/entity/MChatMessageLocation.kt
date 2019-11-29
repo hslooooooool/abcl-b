@@ -32,5 +32,5 @@ data class MChatMessageLocation(
     }
 
     override var contentDesc: String = name
-    override var contentType: Int = MChatMessageType.LOCATION.contentType
+    override var contentType: Int = EnumChatMessageType.LOCATION.contentType
 }

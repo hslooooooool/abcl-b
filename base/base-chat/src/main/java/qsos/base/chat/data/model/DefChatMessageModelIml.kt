@@ -5,14 +5,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.ApiChatMessage
-import qsos.base.chat.data.entity.ChatMessage
-import qsos.base.chat.data.entity.MChatMessage
-import qsos.base.chat.data.entity.MChatSendStatus
+import qsos.base.chat.data.db.DBChatDatabase
+import qsos.base.chat.data.entity.ChatMessageBo
+import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.view.activity.ChatMainActivity
+import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
-import qsos.lib.netservice.data.BaseHttpLiveData
-import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
-import qsos.lib.netservice.expand.retrofitWithSuccess
+import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -20,53 +20,62 @@ import kotlin.coroutines.CoroutineContext
  * 聊天消息相关接口默认实现
  */
 class DefChatMessageModelIml(
-        override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>> = BaseHttpLiveData()
+        override val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : IChatModel.IMessage {
 
-    override fun sendMessage(
-            message: MChatMessage,
-            failed: (msg: String, message: MChatMessage) -> Unit,
-            success: (message: MChatMessage) -> Unit
-    ) {
-        CoroutineScope(mJob).retrofitByDef<ChatMessage> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).sendMessage(message = message.message)
-            onFailed { _, msg, error ->
-                message.sendStatus = MChatSendStatus.FAILED
-                failed.invoke(msg ?: "发送失败${error?.message}", message)
-            }
-            onSuccess {
-                if (it == null) {
-                    message.sendStatus = MChatSendStatus.FAILED
-                    failed.invoke("发送失败", message)
-                } else {
-                    message.sendStatus = MChatSendStatus.SUCCESS
-                    message.message.messageId = it.messageId
-                    success.invoke(message)
-                }
-            }
-        }
-    }
+    /**是否正在获取新消息*/
+    private var pullNewMessageIng = false
 
-    override fun getMessageListBySessionId(sessionId: Int) {
-        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<MChatMessage>>> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionId(
-                    sessionId = sessionId
-            )
-            onSuccess {
-                it?.data?.let { list ->
-                    mDataOfChatMessageList.postValue(BaseResponse(
-                            code = it.code, msg = it.msg, data = list
-                    ))
+    override fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
+        if (pullNewMessageIng) {
+            return
+        }
+        pullNewMessageIng = true
+        DBChatDatabase.DefChatSessionDao.getChatSessionById(sessionId) { oldSession ->
+            val nowLastMessageTimeline = oldSession?.nowLastMessageTimeline
+            /**本地最新消息以获取过!=null,可能为-1，但依然比服务器最新消息Timeline小，则获取新的消息*/
+            if (nowLastMessageTimeline != null && nowLastMessageTimeline < oldSession.lastMessageTimeline ?: -1) {
+                CoroutineScope(mJob).retrofitByDef<List<ChatMessageBo>> {
+                    api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
+                            sessionId = sessionId, timeline = nowLastMessageTimeline, next = true
+                    )
+                    onFailed { _, _, error ->
+                        pullNewMessageIng = false
+                        Timber.e(error)
+                    }
+                    onSuccess {
+                        if (it == null || it.isEmpty()) {
+                            pullNewMessageIng = false
+                        } else {
+                            oldSession.nowLastMessageId = it.last().messageId
+                            oldSession.nowLastMessageTimeline = it.last().timeline
+                            /**排除登录用户发送的消息并按时序正序排列*/
+                            val messageList = it.filterNot { msg ->
+                                msg.user.userId == ChatMainActivity.mLoginUser.value?.userId
+                            }.sortedBy { msg ->
+                                msg.timeline
+                            }
+                            /**更新本地最新消息记录*/
+                            DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
+                                pullNewMessageIng = false
+                                if (messageList.isNotEmpty()) {
+                                    success.invoke(messageList)
+                                }
+                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
+                            }
+                        }
+                    }
                 }
+            } else {
+                pullNewMessageIng = false
             }
         }
     }
 
     override fun deleteMessage(
-            message: MChatMessage,
-            failed: (msg: String, message: MChatMessage) -> Unit,
-            success: (message: MChatMessage) -> Unit
+            message: ChatMessageBo,
+            failed: (msg: String, message: ChatMessageBo) -> Unit,
+            success: (message: ChatMessageBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofitByDef<Boolean> {
             api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(
@@ -77,7 +86,7 @@ class DefChatMessageModelIml(
             }
             onSuccess {
                 if (it == true) {
-                    message.sendStatus = MChatSendStatus.CANCEL_OK
+                    message.sendStatus = EnumChatSendStatus.CANCEL_OK
                     success.invoke(message)
                 } else {
                     failed.invoke("撤销失败", message)

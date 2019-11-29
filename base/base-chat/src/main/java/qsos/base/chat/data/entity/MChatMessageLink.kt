@@ -12,6 +12,6 @@ data class MChatMessageLink(
         val desc: String,
         val url: String
 ) : IChatMessageType {
-    override var contentDesc: String = MChatMessageType.LINK.contentDesc
-    override var contentType: Int = MChatMessageType.LINK.contentType
+    override var contentDesc: String = EnumChatMessageType.LINK.contentDesc
+    override var contentType: Int = EnumChatMessageType.LINK.contentType
 }

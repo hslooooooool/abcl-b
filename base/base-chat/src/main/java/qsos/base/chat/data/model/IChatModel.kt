@@ -88,7 +88,11 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 加入的会话数据
          * */
-        fun addUserListToSession(userIdList: List<Int>, sessionId: Int): ChatSession
+        fun addUserListToSession(
+                userIdList: List<Int>, sessionId: Int,
+                failed: (msg: String) -> Unit,
+                success: (session: ChatSession) -> Unit
+        )
 
         /**解散会话
          * @param sessionId 会话ID
@@ -101,31 +105,19 @@ interface IChatModel {
 
         val mJob: CoroutineContext
         fun clear()
-        val mDataOfChatMessageList: BaseHttpLiveData<List<MChatMessage>>
 
-        /**发送消息
-         * @param message 消息数据
-         * @return 消息数据
-         * */
-        fun sendMessage(
-                message: MChatMessage,
-                failed: (msg: String, message: MChatMessage) -> Unit,
-                success: (message: MChatMessage) -> Unit
-        )
-
-        /**获取会话下的消息列表
+        /**获取会话下的新消息列表
          * @param sessionId 会话ID
-         * @return 会话下的消息列表 List<ChatMessage>
          * */
-        fun getMessageListBySessionId(sessionId: Int)
+        fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit)
 
         /**撤回消息
          * @param message 消息
          * */
         fun deleteMessage(
-                message: MChatMessage,
-                failed: (msg: String, message: MChatMessage) -> Unit,
-                success: (message: MChatMessage) -> Unit
+                message: ChatMessageBo,
+                failed: (msg: String, message: ChatMessageBo) -> Unit,
+                success: (message: ChatMessageBo) -> Unit
         )
 
     }
@@ -138,9 +130,12 @@ interface IChatModel {
 
         /**获取聊天群数据
          * @param groupId 聊天群ID
-         * @return 聊天群数据
+         * @param success 聊天群数据
          * */
-        fun getGroupById(groupId: Int): ChatGroup
+        fun getGroupById(
+                groupId: Int,
+                success: (message: ChatGroup) -> Unit
+        )
 
         //TODO 建立消息数据库，读取最新消息并进行未读统计后入库，消息列表与群列表从数据库获取经过排序的数据并更新未读数
         /**获取当前用户所在的所有聊天群列表数据*/
@@ -150,7 +145,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @return 聊天群数据
          * */
-        fun getGroupByBySessionId(sessionId: Int): ChatGroup
+        fun getGroupBySessionId(sessionId: Int): ChatGroup
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告

@@ -1,12 +1,15 @@
 package qsos.base.chat.view.holder
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.*
+import qsos.base.chat.data.entity.ChatType
+import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.service.IMessageService
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -19,15 +22,10 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @param session 消息会话数据
  * @param view 消息布局
  */
+@SuppressLint("SetTextI18n")
 abstract class ItemChatMessageBaseViewHolder(
-        private val session: ChatSession, view: View
-) : BaseHolder<MChatMessage>(view) {
-
-    enum class UpdateType(val str: String) {
-        UPLOAD_STATE("上传状态"),
-        READ_STATE("读取状态"),
-        SEND_STATE("发送状态");
-    }
+        private val session: IMessageService.Session, view: View
+) : BaseHolder<IMessageService.Message>(view) {
 
     private var mItemListener: OnListItemClickListener? = null
 
@@ -37,103 +35,119 @@ abstract class ItemChatMessageBaseViewHolder(
         return this
     }
 
-    /**更新消息状态*/
-    fun updateState(position: Int, data: MChatMessage, type: UpdateType) {
-        val contentView = itemView.getTag(R.id.item_message_time) as View
-        when (type) {
-            UpdateType.UPLOAD_STATE -> {
-                /**更新消息文件上传状态*/
-                if (this is ItemChatMessageBaseFileViewHolder) {
-                    // 注意这行代码，置 null 后让程序重新解析 json 数据
-                    data.content = null
-                    this.updateFileState(contentView, data, position)
-                }
-            }
-            else -> {
-
-            }
-        }
-    }
-
     /**展示消息内容数据*/
-    abstract fun setContent(contentView: View, data: MChatMessage, position: Int, itemListener: OnListItemClickListener?)
+    abstract fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?)
 
-    override fun setData(data: MChatMessage, position: Int) {
-
-        itemView.item_message_time.text = data.createTime
-
-        if (BaseConfig.userId == data.user.userId) {
-            itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
-            itemView.findViewById<View>(R.id.item_message_right)
-        } else {
-            itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
-            itemView.findViewById<View>(R.id.item_message_left)
-        }.apply {
-            if (itemView.getTag(R.id.item_message_time) == null) {
-                itemView.setTag(R.id.item_message_time, this)
-            }
-
-            visibility = View.VISIBLE
-
-            findViewById<TextView>(R.id.item_message_user_name).text = data.user.userName
-
-            findViewById<ImageView>(R.id.item_message_state).visibility =
-                    if (data.sendStatus == MChatSendStatus.FAILED) {
-                        View.VISIBLE
-                    } else {
-                        View.INVISIBLE
-                    }
-
-            findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
-                ChatType.GROUP -> {
-                    if (data.readStatus < 1) "" else "${data.readStatus}人已读"
-                }
-                ChatType.SINGLE -> {
-                    if (data.readStatus == 0) "未读" else "已读"
-                }
-                else -> ""
-            }
-
-            findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
-                mItemListener?.onItemClick(it, position, data)
-            }
-
+    override fun setData(data: IMessageService.Message, position: Int) {
+        getContentView(data, position).apply {
             ImageLoaderUtils.display(
                     context,
-                    findViewById(R.id.item_message_user_avatar),
-                    data.user.avatar
+                    this.findViewById(R.id.item_message_user_avatar),
+                    data.sendUserAvatar
             )
-
-            findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
+            this.findViewById<TextView>(R.id.item_message_user_name).text = data.sendUserName
+            this.findViewById<TextView>(R.id.item_message_read_state).setOnClickListener {
                 mItemListener?.onItemClick(it, position, data)
             }
-
-            findViewById<LinearLayout>(R.id.item_message_content).setOnLongClickListener {
+            this.findViewById<ImageView>(R.id.item_message_user_avatar).setOnClickListener {
+                mItemListener?.onItemClick(it, position, data)
+            }
+            this.findViewById<LinearLayout>(R.id.item_message_content).setOnLongClickListener {
                 mItemListener?.onItemLongClick(it, position, data)
                 return@setOnLongClickListener true
             }
 
-            if (data.sendStatus == MChatSendStatus.CANCEL_CAN || data.sendStatus == MChatSendStatus.CANCEL_OK) {
+            updateSendStatus(this, data.sendStatus)
+            updateReadStatus(this, data.readNum)
+            setContent(this, data, position, mItemListener)
+        }
+    }
+
+    /**判断获取具体内容视图*/
+    private fun getContentView(data: IMessageService.Message, position: Int): View {
+        itemView.item_message_time.text = data.createTime
+        val contentView: View
+        if (BaseConfig.userId == data.sendUserId) {
+            itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
+            contentView = itemView.findViewById<View>(R.id.item_message_right)
+            contentView.findViewById<TextView>(R.id.item_message_read_state).visibility = View.VISIBLE
+        } else {
+            itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
+            contentView = itemView.findViewById<View>(R.id.item_message_left)
+            contentView.findViewById<TextView>(R.id.item_message_read_state).visibility =
+                    if (session.sessionType == ChatType.SINGLE.key) {
+                        View.INVISIBLE
+                    } else {
+                        View.VISIBLE
+                    }
+        }
+
+        contentView.visibility = View.VISIBLE
+
+        if (itemView.getTag(R.id.item_message) == null) {
+            itemView.setTag(R.id.item_message, contentView)
+        }
+        if (itemView.getTag(R.id.tag_of_chat_item_data) == null) {
+            itemView.setTag(R.id.tag_of_chat_item_data, data)
+        }
+        if (contentView.getTag(R.id.item_message_state) == null) {
+            contentView.setTag(R.id.item_message_state, contentView.findViewById(R.id.item_message_state))
+        }
+        if (contentView.getTag(R.id.item_message_progress) == null) {
+            contentView.setTag(R.id.item_message_progress, contentView.findViewById(R.id.item_message_progress))
+        }
+
+        itemView.item_message_cancel_reedit.setOnClickListener {
+            mItemListener?.onItemClick(it, position, data)
+        }
+        return contentView
+    }
+
+    /**更新消息发送状态*/
+    private fun updateSendStatus(contentView: View, state: EnumChatSendStatus?) {
+        itemView.item_message_cancel.visibility = View.GONE
+        itemView.item_message_main.visibility = View.VISIBLE
+        val messageStateView = contentView.getTag(R.id.item_message_state) as View
+        val messageProgressView = contentView.getTag(R.id.item_message_progress) as View
+        when (state) {
+            EnumChatSendStatus.FAILED -> {
+                messageStateView.visibility = View.VISIBLE
+                messageProgressView.visibility = View.INVISIBLE
+            }
+            EnumChatSendStatus.SENDING -> {
+                messageStateView.visibility = View.INVISIBLE
+                messageProgressView.visibility = View.VISIBLE
+            }
+            EnumChatSendStatus.SUCCESS -> {
+                messageStateView.visibility = View.INVISIBLE
+                messageProgressView.visibility = View.INVISIBLE
+            }
+            EnumChatSendStatus.CANCEL_CAN, EnumChatSendStatus.CANCEL_OK -> {
+                messageStateView.visibility = View.INVISIBLE
+                messageProgressView.visibility = View.INVISIBLE
+
                 itemView.item_message_cancel.visibility = View.VISIBLE
                 itemView.item_message_main.visibility = View.GONE
                 itemView.item_message_cancel_reedit.visibility =
-                        if (
-                                data.sendStatus == MChatSendStatus.CANCEL_CAN
-                                && data.contentType == MChatMessageType.TEXT.contentType
-                        ) {
+                        if (state == EnumChatSendStatus.CANCEL_CAN) {
                             View.VISIBLE
                         } else {
                             View.GONE
                         }
+            }
+            else -> {
+            }
+        }
+    }
 
-                itemView.item_message_cancel_reedit.setOnClickListener {
-                    mItemListener?.onItemClick(it, position, data)
-                }
-            } else {
-                itemView.item_message_cancel.visibility = View.GONE
-                itemView.item_message_main.visibility = View.VISIBLE
-
-                setContent(this, data, position, mItemListener)
+    /**更新消息读取状态*/
+    private fun updateReadStatus(contentView: View, readNum: Int) {
+        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
+            ChatType.SINGLE.key -> {
+                if (readNum < 2) "未读" else "已读"
+            }
+            else -> {
+                "${readNum}人已读"
             }
         }
     }
