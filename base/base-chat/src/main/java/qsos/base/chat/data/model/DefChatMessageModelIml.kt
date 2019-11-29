@@ -44,9 +44,11 @@ class DefChatMessageModelIml(
                         Timber.e(error)
                     }
                     onSuccess {
-                        it?.let { list ->
+                        if (it == null) {
+                            pullNewMessageIng = false
+                        } else {
                             /**排除登录用户发送的消息并按时序正序排列*/
-                            val messageList = list.filterNot { msg ->
+                            val messageList = it.filterNot { msg ->
                                 msg.user.userId == ChatMainActivity.mLoginUser.value?.userId
                             }.sortedBy { msg ->
                                 msg.timeline
@@ -59,6 +61,8 @@ class DefChatMessageModelIml(
                                     success.invoke(messageList)
                                     LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                                 }
+                            } else {
+                                pullNewMessageIng = false
                             }
                         }
                     }
