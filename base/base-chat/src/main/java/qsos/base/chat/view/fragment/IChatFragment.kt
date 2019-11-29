@@ -38,7 +38,7 @@ interface IChatFragment {
      * */
     fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean = true)
 
-    /**更新文本消息状态*/
+    /**更新文件消息状态*/
     fun notifyFileMessage(message: IMessageService.Message)
 
     /**更新消息已读数*/

@@ -51,7 +51,9 @@ class DefChatGroupModelIml(
                             val newSession = DBChatSession(
                                     sessionId = group.groupId,
                                     lastMessageId = group.lastMessage?.message?.messageId,
-                                    lastMessageTimeline = group.lastMessage?.message?.timeline
+                                    lastMessageTimeline = group.lastMessage?.message?.timeline,
+                                    nowLastMessageId = oldSession?.nowLastMessageId,
+                                    nowLastMessageTimeline = oldSession?.nowLastMessageTimeline
                             )
                             if (oldSession == null) {
                                 DBChatDatabase.DefChatSessionDao.insert(newSession) { ok ->

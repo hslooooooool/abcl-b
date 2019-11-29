@@ -105,14 +105,12 @@ interface IChatModel {
 
         val mJob: CoroutineContext
         fun clear()
-        val mDataOfChatMessageList: BaseHttpLiveData<List<ChatMessageBo>>
+        val mDataOfNewMessage: BaseHttpLiveData<List<ChatMessageBo>>
 
-        /**获取会话下的消息列表
+        /**获取会话下的新消息列表
          * @param sessionId 会话ID
-         * @param lastTimeline 最后一条消息时序
-         * @return 会话下的消息列表 List<ChatMessage>
          * */
-        fun getMessageListBySessionId(sessionId: Int, lastTimeline: Int = -1)
+        fun getNewMessageBySessionId(sessionId: Int)
 
         /**撤回消息
          * @param message 消息

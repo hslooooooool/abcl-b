@@ -13,7 +13,7 @@ import com.noober.menu.FloatMenu
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_chat_message.*
 import kotlinx.android.synthetic.main.item_message_audio.view.*
-import qsos.base.chat.DefMessageService
+import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.EnumChatSendStatus
@@ -61,8 +61,6 @@ class ChatMessageListFragment(
     private var mNewMessageNum = 0
     private var mMessageScrolling = false
     private val mMessageList: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
-    private var mFirstMessageTimeline: Int = -1
-    private var mLastMessageTimeline: Int = -1
 
     /**获取现有消息列表*/
     fun getMessageList(): ArrayList<IMessageService.Message> {
@@ -242,10 +240,6 @@ class ChatMessageListFragment(
 
     override fun notifyMessage(data: ArrayList<IMessageService.Message>) {
         if (data.isNotEmpty()) {
-            val newFirstTimeline = data.first().timeline
-            val newLastTimeline = data.last().timeline
-            mFirstMessageTimeline = newFirstTimeline
-            mLastMessageTimeline = newLastTimeline
             mMessageAdapter?.list?.clear()
             mMessageAdapter?.list?.addAll(data)
             mMessageAdapter?.notifyDataSetChanged()
@@ -357,17 +351,15 @@ class ChatMessageListFragment(
     }
 
     override fun readMessage(adapterPosition: Int) {
-        mMessageList.value?.let {
-            val data = it[adapterPosition]
-            if (data.readStatus == false) {
-                mMessageService.readMessage(data, failed = { msg, _ ->
-                    LogUtil.e("聊天详情", msg)
-                }, success = { message ->
-                    notifyMessageReadNum(message)
-                })
-            }
-            LogUtil.d("聊天详情", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
+        val data = getMessageList()[adapterPosition]
+        if (data.readStatus == false) {
+            mMessageService.readMessage(data, failed = { msg, _ ->
+                LogUtil.e("聊天详情", msg)
+            }, success = { message ->
+                notifyMessageReadNum(message)
+            })
         }
+        LogUtil.d("聊天详情", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
     }
 
     /**停止所有语音播放*/
@@ -379,8 +371,8 @@ class ChatMessageListFragment(
 
     /**消息列表滚动到底部*/
     private fun scrollToBottom() {
-        if (mMessageList.value?.isNotEmpty() == true) {
-            mLinearLayoutManager?.scrollToPosition(mMessageList.value!!.size - 1)
+        if (getMessageList().isNotEmpty()) {
+            mLinearLayoutManager?.scrollToPosition(getMessageList().size - 1)
         }
         chat_message_new_message_num.visibility = View.GONE
         mNewMessageNum = 0

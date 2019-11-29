@@ -1,4 +1,4 @@
-package qsos.base.chat
+package qsos.base.chat.service
 
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
@@ -6,10 +6,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.data.ApiChatMessage
+import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.*
-import qsos.base.chat.service.AbsMessageService
-import qsos.base.chat.service.IMessageService
+import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
@@ -66,23 +67,29 @@ class DefMessageService(
     }
 
     override fun getMessageList(session: IMessageService.Session, messageList: MutableLiveData<ArrayList<IMessageService.Message>>) {
-        val lastTimeline: Int = if (messageList.value.isNullOrEmpty()) {
-            -1
-        } else {
-            messageList.value!!.last().timeline
-        }
-        CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
-                    sessionId = session.sessionId, timeline = lastTimeline
-            )
-            onSuccess {
-                it?.data?.let { list ->
-                    list.sortedBy { msg ->
-                        msg.timeline
+        DBChatDatabase.DefChatSessionDao.getChatSessionById(session.sessionId) { oldSession ->
+            oldSession?.let {
+                val lastTimeline: Int = it.lastMessageTimeline ?: -1
+                CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
+                    /**获取此会话sessionId下最后一条消息lastTimeline以上第1页20条数据*/
+                    api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
+                            sessionId = session.sessionId, timeline = lastTimeline, next = false, page = 1, size = 20
+                    )
+                    onSuccess { result ->
+                        result?.data?.let { list ->
+                            list.sortedBy { msg ->
+                                msg.timeline
+                            }
+                            val array = arrayListOf<IMessageService.Message>()
+                            array.addAll(list)
+                            oldSession.nowLastMessageId = array.last().messageId
+                            oldSession.nowLastMessageTimeline = array.last().timeline
+                            DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
+                                messageList.postValue(array)
+                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
+                            }
+                        }
                     }
-                    val array = arrayListOf<IMessageService.Message>()
-                    array.addAll(list)
-                    messageList.postValue(array)
                 }
             }
         }
