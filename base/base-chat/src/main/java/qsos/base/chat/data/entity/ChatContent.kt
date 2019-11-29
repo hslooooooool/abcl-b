@@ -28,7 +28,12 @@ data class ChatContent(
 
     /**设置消息摘要*/
     fun setContentDesc(contentDesc: String): ChatContent {
-        this.fields["contentDesc"] = contentDesc
+        var desc: String = contentDesc
+        val length = contentDesc.length
+        if (length > 20) {
+            desc = contentDesc.substring(0, 20) + "..."
+        }
+        this.fields["contentDesc"] = desc
         return this
     }
 

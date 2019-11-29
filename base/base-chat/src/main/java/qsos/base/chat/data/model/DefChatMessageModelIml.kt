@@ -44,25 +44,24 @@ class DefChatMessageModelIml(
                         Timber.e(error)
                     }
                     onSuccess {
-                        if (it == null) {
+                        if (it == null || it.isEmpty()) {
                             pullNewMessageIng = false
                         } else {
+                            oldSession.nowLastMessageId = it.last().messageId
+                            oldSession.nowLastMessageTimeline = it.last().timeline
                             /**排除登录用户发送的消息并按时序正序排列*/
                             val messageList = it.filterNot { msg ->
                                 msg.user.userId == ChatMainActivity.mLoginUser.value?.userId
                             }.sortedBy { msg ->
                                 msg.timeline
                             }
-                            if (messageList.isNotEmpty()) {
-                                oldSession.nowLastMessageId = messageList.last().messageId
-                                oldSession.nowLastMessageTimeline = messageList.last().timeline
-                                DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
-                                    pullNewMessageIng = false
-                                    success.invoke(messageList)
-                                    LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
-                                }
-                            } else {
+                            /**更新本地最新消息记录*/
+                            DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
                                 pullNewMessageIng = false
+                                if (messageList.isNotEmpty()) {
+                                    success.invoke(messageList)
+                                }
+                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                             }
                         }
                     }
