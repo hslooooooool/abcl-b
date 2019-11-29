@@ -124,11 +124,8 @@ class ChatSessionActivity(
                 chat_message_edit.hint = "请输入内容"
             } else {
 
-                sendMessage(
-                        ChatContent()
-                                .create(EnumChatMessageType.TEXT.contentType, content)
-                                .put("content", content), send = true, bottom = true
-                )
+                sendMessage(ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
+                        .put("content", content), send = true, bottom = true)
 
                 chat_message_edit.setText("")
                 chat_message_edit.clearFocus()
@@ -211,7 +208,6 @@ class ChatSessionActivity(
                             .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
                             .commit()
 
-                    // FIXME 测试新消息推送（拉取）
                     pullNewMessage(it)
                 }
         )
@@ -471,6 +467,7 @@ class ChatSessionActivity(
 
     override fun pullNewMessage(session: IMessageService.Session) {
         /**TODO 往后走Socket*/
+        mPullMessageTimer?.cancel()
         mPullMessageTimer = Timer()
         mPullMessageTimer!!.schedule(timerTask {
             mChatMessageModel?.getNewMessageBySessionId(mSessionId!!) {
@@ -493,7 +490,6 @@ class ChatSessionActivity(
             preOnItemLongClick(view, position, obj)
         }
     }
-
 
     /**列表项点击*/
     private fun preOnItemClick(view: View, position: Int, obj: Any?) {
