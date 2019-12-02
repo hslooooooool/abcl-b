@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
+import com.google.gson.Gson
 import com.noober.menu.FloatMenu
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
@@ -215,6 +216,7 @@ class ChatSessionActivity(
                 success = {
                     mMessageSession.postValue(it)
                     mChatGroupModel?.getGroupById(mSessionId!!) { group ->
+                        chat_message_group_info.text = Gson().toJson(group)
                         mTitle.text = group.name
                     }
 
