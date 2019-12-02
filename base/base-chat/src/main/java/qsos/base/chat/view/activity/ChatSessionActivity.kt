@@ -35,6 +35,7 @@ import qsos.core.lib.utils.dialog.AbsBottomDialog
 import qsos.core.lib.utils.dialog.BottomDialog
 import qsos.core.lib.utils.dialog.BottomDialogUtils
 import qsos.core.lib.utils.file.FileUtils
+import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.audio.AudioPlayerHelper
 import qsos.core.player.data.PreAudioEntity
@@ -43,6 +44,7 @@ import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.adapter.BaseNormalAdapter
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
+import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
@@ -133,7 +135,6 @@ class ChatSessionActivity(
                         .put("content", content), send = true, bottom = true)
 
                 chat_message_edit.setText("")
-                chat_message_edit.clearFocus()
             }
         }
         chat_message_audio.setOnClickListener {
@@ -161,6 +162,7 @@ class ChatSessionActivity(
         }
 
         mChatUserAdapter = BaseNormalAdapter(R.layout.item_chat_friend, mChatUserList) { holder, data, _ ->
+            ImageLoaderUtils.display(mContext, holder.itemView.item_chat_friend_avatar, data.avatar)
             holder.itemView.item_chat_friend_state.visibility = View.GONE
             holder.itemView.item_chat_friend_name.text = data.userName
             holder.itemView.setOnClickListener {
@@ -242,6 +244,7 @@ class ChatSessionActivity(
     }
 
     override fun takeAudio() {
+        clearEditFocus()
         BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
             @SuppressLint("CheckResult")
             override fun bindView(dialog: AbsBottomDialog) {
@@ -264,6 +267,7 @@ class ChatSessionActivity(
     }
 
     override fun takePhoto() {
+        clearEditFocus()
         RxImagePicker.with(supportFragmentManager).takeImage(type = Sources.DEVICE)
                 .flatMap {
                     RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createImageFile())
@@ -277,6 +281,7 @@ class ChatSessionActivity(
     }
 
     override fun takeAlbum() {
+        clearEditFocus()
         RxImagePicker.with(supportFragmentManager)
                 .takeFiles(arrayOf("image/*")).flatMap {
                     val files = arrayListOf<File>()
@@ -302,6 +307,7 @@ class ChatSessionActivity(
     }
 
     override fun takeVideo() {
+        clearEditFocus()
         RxImagePicker.with(supportFragmentManager).takeVideo().flatMap {
             RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
         }.observeOn(AndroidSchedulers.mainThread()).subscribe {
@@ -312,6 +318,7 @@ class ChatSessionActivity(
     }
 
     override fun takeFile() {
+        clearEditFocus()
         RxImagePicker.with(supportFragmentManager).takeFiles(
                 arrayOf("application/vnd.ms-powerpoint", "application/pdf", "application/msword")
         ).flatMap {
@@ -548,4 +555,8 @@ class ChatSessionActivity(
         }
     }
 
+    private fun clearEditFocus() {
+        chat_message_edit.clearFocus()
+        BaseUtils.hideKeyboard(this)
+    }
 }

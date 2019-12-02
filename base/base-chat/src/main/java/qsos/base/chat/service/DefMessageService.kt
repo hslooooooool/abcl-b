@@ -28,7 +28,10 @@ class DefMessageService(
 ) : AbsMessageService() {
     private var mPullMessageTimer: Timer? = null
 
-    override fun getMessageList(session: IMessageService.Session, messageList: MutableLiveData<ArrayList<IMessageService.Message>>) {
+    override fun getMessageListBySessionId(
+            session: IMessageService.Session,
+            messageList: MutableLiveData<ArrayList<IMessageService.Message>>
+    ) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(session.sessionId) { oldSession ->
             oldSession?.let {
                 val lastTimeline: Int = it.lastMessageTimeline ?: -1
@@ -44,11 +47,12 @@ class DefMessageService(
                             }
                             val array = arrayListOf<IMessageService.Message>()
                             array.addAll(list)
+                            /**更新当前会话消息时序记录*/
                             if (array.isEmpty()) {
-                                oldSession.nowLastMessageId = -1
-                                oldSession.nowLastMessageTimeline = -1
                                 oldSession.nowFirstMessageId = -1
                                 oldSession.nowFirstMessageTimeline = -1
+                                oldSession.nowLastMessageId = -1
+                                oldSession.nowLastMessageTimeline = -1
                             } else {
                                 oldSession.nowFirstMessageId = array.first().messageId
                                 oldSession.nowFirstMessageTimeline = array.first().timeline
