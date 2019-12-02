@@ -144,16 +144,18 @@ interface IMessageService {
      * */
     fun notifyNewMessage(session: Session, message: List<Message>)
 
-    /**获取消息列表
+    /**获取消息列表（进入会话页第一次请求）
      * @param session 会话实体
      * @param messageList 消息列表
      * */
-    fun getMessageList(session: Session, messageList: MutableLiveData<ArrayList<Message>>)
+    fun getMessageListBySessionId(session: Session, messageList: MutableLiveData<ArrayList<Message>>)
 
     /**发送消息
      * @param message 消息实体
      * @param failed 失败回执
      * @param success 成功回执
+     * - oldMessageId 为发送消息时本地配置的id，用于消息位子标记
+     * - message 为更新后的消息，更新 messageId timeline sendStatus
      * */
     fun sendMessage(
             message: Message,
@@ -161,10 +163,11 @@ interface IMessageService {
             success: (oldMessageId: Int, message: Message) -> Unit
     )
 
-    /**读取消息
-     * @param message 消息实体
+    /**读取消息，用户读取消息后通知服务器消息已读
+     * @param message 已读的消息实体
      * @param failed 失败回执
      * @param success 成功回执
+     * - message 已读的消息实体
      * */
     fun readMessage(
             message: Message,
@@ -176,6 +179,7 @@ interface IMessageService {
      * @param message 消息实体
      * @param failed 失败回执
      * @param success 成功回执
+     * - message 已撤销的消息实体
      * */
     fun revokeMessage(
             message: Message,

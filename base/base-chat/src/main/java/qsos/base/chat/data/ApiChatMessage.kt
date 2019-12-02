@@ -30,7 +30,6 @@ interface ApiChatMessage {
             @Query(value = "sessionId") sessionId: Int,
             @Query(value = "timeline") timeline: Int = -1,
             @Query(value = "next") next: Boolean = true,
-            @Query(value = "page") page: Int = 1,
             @Query(value = "size") size: Int = 20
     ): Call<BaseResponse<List<ChatMessageBo>>>
 

@@ -26,6 +26,44 @@ class DefChatMessageModelIml(
     /**是否正在获取新消息*/
     private var pullNewMessageIng = false
 
+    override fun getOldMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
+        DBChatDatabase.DefChatSessionDao.getChatSessionById(sessionId) { oldSession ->
+            val nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline
+            if (nowFirstMessageTimeline != null && nowFirstMessageTimeline < oldSession.nowLastMessageTimeline ?: -1) {
+                CoroutineScope(mJob).retrofitByDef<List<ChatMessageBo>> {
+                    /**获取当前会话下第一条已获取的消息以上20条消息*/
+                    api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
+                            sessionId = sessionId, timeline = nowFirstMessageTimeline, next = false, size = 20
+                    )
+                    onFailed { _, _, error ->
+                        success.invoke(arrayListOf())
+                        Timber.e(error)
+                    }
+                    onSuccess {
+                        when {
+                            it == null || it.isEmpty() -> {
+                                success.invoke(arrayListOf())
+                            }
+                            else -> {
+                                oldSession.nowFirstMessageId = it.first().messageId
+                                oldSession.nowFirstMessageTimeline = it.first().timeline
+                                /**按时序正序排列*/
+                                val messageList = it.sortedBy { msg ->
+                                    msg.timeline
+                                }
+                                /**更新本地最新消息记录*/
+                                DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
+                                    success.invoke(messageList)
+                                    LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话历史消息")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
         if (pullNewMessageIng) {
             return
@@ -33,7 +71,7 @@ class DefChatMessageModelIml(
         pullNewMessageIng = true
         DBChatDatabase.DefChatSessionDao.getChatSessionById(sessionId) { oldSession ->
             val nowLastMessageTimeline = oldSession?.nowLastMessageTimeline
-            /**本地最新消息以获取过!=null,可能为-1，但依然比服务器最新消息Timeline小，则获取新的消息*/
+            /**本地最新消息已获取过（!=null）,可能为-1，但依然比服务器最新消息Timeline小，则获取新的消息*/
             if (nowLastMessageTimeline != null && nowLastMessageTimeline < oldSession.lastMessageTimeline ?: -1) {
                 CoroutineScope(mJob).retrofitByDef<List<ChatMessageBo>> {
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(

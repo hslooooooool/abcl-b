@@ -24,7 +24,11 @@ import qsos.lib.base.utils.rx.RxBus
 
 /**
  * @author : 华清松
- * 聊天页面
+ * 聊天页面，提供:
+ * - 消息多类型展示
+ * - 新消息追加上屏与新消息数量展示
+ * - 历史消息追加上屏
+ * - 消息状态发送状态、读取状态更新
  * @param mSession 消息会话数据
  * @param mMessageService 消息服务，发送、撤销消息实现
  * @param mOnListItemClickListener 消息列表项点击监听
@@ -123,19 +127,31 @@ class ChatMessageListFragment(
                     if (mActive && it.session.sessionId == mSession.sessionId) {
                         when {
                             it.send && it.update -> {
+                                /**更新发送消息的状态*/
                                 it.message.forEach { message ->
                                     notifyMessageState(message.messageId, message)
                                 }
                             }
                             it.send && !it.update -> {
+                                /**发送消息*/
                                 it.message.forEach { message ->
                                     sendMessage(message)
                                 }
                             }
+                            it.update && it.bottom -> {
+                                /**更新全部消息*/
+                                if (it.message.isNotEmpty()) {
+                                    val array = arrayListOf<IMessageService.Message>()
+                                    array.addAll(it.message)
+                                    notifyMessage(array)
+                                }
+                            }
                             it.update -> {
-                                notifyMessage(it.message)
+                                /**追加历史消息*/
+                                notifyOldMessage(it.message)
                             }
                             else -> {
+                                /**追加新消息*/
                                 it.message.forEach { message ->
                                     notifyNewMessage(message, it.bottom)
                                 }
@@ -166,7 +182,7 @@ class ChatMessageListFragment(
     }
 
     override fun getData() {
-        mMessageService.getMessageList(mSession, mMessageList)
+        mMessageService.getMessageListBySessionId(mSession, mMessageList)
     }
 
     override fun onResume() {
@@ -190,6 +206,8 @@ class ChatMessageListFragment(
             mMessageAdapter?.data?.addAll(data)
             mMessageAdapter?.notifyDataSetChanged()
             scrollToBottom()
+            mMessageList.value?.clear()
+            mMessageList.value?.addAll(data)
         } else {
             ToastUtils.showToast(mContext, "暂无消息")
         }
@@ -250,18 +268,15 @@ class ChatMessageListFragment(
         }
     }
 
-    override fun notifyMessage(messageList: List<IMessageService.Message>) {
-        val array = arrayListOf<IMessageService.Message>()
-        array.addAll(messageList)
-        mMessageList.postValue(array)
-    }
-
     override fun notifyOldMessage(messageList: List<IMessageService.Message>) {
-        // TODO 更新历史消息
+        if (messageList.isNotEmpty()) {
+            mMessageAdapter?.data?.addAll(0, messageList)
+            mMessageAdapter?.notifyItemRangeInserted(0, messageList.size)
+            mMessageList.value?.addAll(0, messageList)
+        }
     }
 
     override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {
-        mMessageList.value?.add(message)
         mMessageAdapter?.data?.add(message)
         val mMessageSize = getMessageList().size - 1
         mMessageAdapter?.notifyItemInserted(mMessageSize)
@@ -277,6 +292,7 @@ class ChatMessageListFragment(
                 chat_message_new_message_num.text = "有 $mNewMessageNum 条新消息"
             }
         }
+        mMessageList.value?.add(message)
     }
 
     override fun readMessage(adapterPosition: Int) {

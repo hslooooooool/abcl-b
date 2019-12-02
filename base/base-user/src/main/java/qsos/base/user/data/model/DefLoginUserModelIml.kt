@@ -9,7 +9,6 @@ import qsos.base.user.data.entity.LoginUser
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import qsos.lib.netservice.expand.retrofitByDef
 import kotlin.coroutines.CoroutineContext
 
 class DefLoginUserModelIml(
@@ -33,15 +32,15 @@ class DefLoginUserModelIml(
     }
 
     override fun register(account: String, password: String, failed: (msg: String) -> Unit, success: (user: LoginUser) -> Unit) {
-        CoroutineScope(mJob).retrofitByDef<LoginUser> {
+        CoroutineScope(mJob).retrofit<BaseResponse<LoginUser>> {
             api = ApiEngine.createService(ApiLoginUser::class.java).register(account, password)
             onFailed { code, msg, error ->
                 failed.invoke(msg ?: "$code 注册失败${error?.message}")
             }
             onSuccess {
-                it?.let {
-                    success.invoke(it)
-                } ?: failed.invoke("注册失败")
+                it?.data?.let { user ->
+                    success.invoke(user)
+                } ?: failed.invoke("注册失败 ${it?.msg}")
             }
         }
     }
