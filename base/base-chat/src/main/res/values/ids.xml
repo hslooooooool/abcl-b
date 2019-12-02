@@ -2,4 +2,6 @@
 <resources>
 	<!--聊天列表项数据-->
 	<item name="tag_of_chat_item_data" type="id" />
+	<!--聊天列表项发送状态-->
+	<item name="item_message_state" type="id" />
 </resources>

@@ -3,6 +3,7 @@ package qsos.base.chat.service
 import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.service.IMessageService.EventType.*
 import qsos.lib.base.utils.rx.RxBus
 
 /**
@@ -11,76 +12,39 @@ import qsos.lib.base.utils.rx.RxBus
  */
 interface IMessageService {
 
+    /**消息更新策略
+     * @sample SEND
+     * @sample SHOW
+     * @sample SHOW_MORE
+     * @sample SEND_SHOWED
+     * @sample UPDATE_SHOWED
+     * @sample SHOW_NEW
+     * */
+    enum class EventType(val notice: String) {
+        SEND("发送消息，底部上屏，滚动到底部，用于消息发送并上屏"),
+        SHOW("底部上屏，滚动到底部，用于消息推后发送并上屏，如文件消息发送"),
+        SHOW_MORE("顶部上屏，用于历史消息推送"),
+        SEND_SHOWED("发送已上屏消息，用于文件消息上传成功后消息发送"),
+        UPDATE_SHOWED("更新已上屏消息，用于消息发送状态更新"),
+        SHOW_NEW("底部上屏，自动判断是否滚动，用于新消息推送"),
+    }
+
     /**消息发送事件实体
      * @param session 会话实体
      * @param message 消息实体
-     * @param send 是否执行消息发送
-     * @param bottom 是否执行消息列表滚动到底部
+     * @param eventType 消息更新策略
      * */
-    data class MessageSendEvent(
+    data class MessageEvent(
             val session: Session,
             val message: List<Message>,
-            val send: Boolean = false,
-            val bottom: Boolean = true,
-            val update: Boolean = false
-    ) : RxBus.RxBusEvent<MessageSendEvent> {
-        override fun message(): MessageSendEvent? {
+            val eventType: EventType
+    ) : RxBus.RxBusEvent<MessageEvent> {
+        override fun message(): MessageEvent? {
             return this
         }
 
         override fun name(): String {
             return "消息发送"
-        }
-    }
-
-    /**文件消息更新事件实体
-     * @param session 会话实体
-     * @param message 消息实体
-     * */
-    data class MessageUpdateFileEvent(
-            val session: Session,
-            val message: Message
-    ) : RxBus.RxBusEvent<MessageUpdateFileEvent> {
-        override fun message(): MessageUpdateFileEvent? {
-            return this
-        }
-
-        override fun name(): String {
-            return "文件消息更新"
-        }
-    }
-
-    /**文本消息撤回事件实体
-     * @param session 会话实体
-     * @param message 消息实体
-     * */
-    data class MessageReceiveEvent(
-            val session: Session,
-            val message: Message
-    ) : RxBus.RxBusEvent<MessageReceiveEvent> {
-        override fun message(): MessageReceiveEvent? {
-            return this
-        }
-
-        override fun name(): String {
-            return "文件消息撤回"
-        }
-    }
-
-    /**消息已读数更新事件实体
-     * @param session 会话实体
-     * @param message 消息实体
-     * */
-    data class MessageUpdateReadNumEvent(
-            val session: Session,
-            val message: Message
-    ) : RxBus.RxBusEvent<MessageUpdateReadNumEvent> {
-        override fun message(): MessageUpdateReadNumEvent? {
-            return this
-        }
-
-        override fun name(): String {
-            return "消息已读数更新"
         }
     }
 
@@ -125,24 +89,6 @@ interface IMessageService {
         /**消息转换后实体*/
         fun <T> getRealContent(): T?
     }
-
-    /**拉取到消息进行会话内更新
-     * @param session 会话实体
-     * @param message 消息列表
-     * */
-    fun notifyMessage(session: Session, message: List<Message>)
-
-    /**拉取到历史消息进行会话内更新
-     * @param session 会话实体
-     * @param message 消息列表
-     * */
-    fun notifyOldMessage(session: Session, message: List<Message>)
-
-    /**拉取到新消息进行会话内更新
-     * @param session 会话实体
-     * @param message 消息列表
-     * */
-    fun notifyNewMessage(session: Session, message: List<Message>)
 
     /**获取消息列表（进入会话页第一次请求）
      * @param session 会话实体

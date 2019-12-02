@@ -108,73 +108,52 @@ class ChatMessageListFragment(
         }
 
         mMessageList.observe(this, Observer {
-            notifyMessage(it)
+            refreshMessage(it)
         })
 
         mMessageUpdateCancel.observe(this, Observer {
             it.values.forEach { msg ->
-                notifyMessageState(msg.messageId, msg)
-                notifyMessageReadNum(msg.messageId, msg)
+                notifyMessage(msg.messageId, msg)
             }
             mMessageUpdateCancel.value?.clear()
             LogUtil.d("聊天界面", "页面显示，更新缓存数据")
         })
 
         /**接收消息发送事件*/
-        RxBus.toFlow(IMessageService.MessageSendEvent::class.java)
+        RxBus.toFlow(IMessageService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (mActive && it.session.sessionId == mSession.sessionId) {
-                        when {
-                            it.send && it.update -> {
-                                /**更新发送消息的状态*/
+                        when (it.eventType) {
+                            IMessageService.EventType.UPDATE_SHOWED -> {
                                 it.message.forEach { message ->
-                                    notifyMessageState(message.messageId, message)
+                                    notifyMessage(message.messageId, message)
                                 }
                             }
-                            it.send && !it.update -> {
-                                /**发送消息*/
+                            IMessageService.EventType.SEND -> {
                                 it.message.forEach { message ->
-                                    sendMessage(message)
+                                    sendMessage(message, true)
                                 }
                             }
-                            it.update && it.bottom -> {
-                                /**更新全部消息*/
-                                if (it.message.isNotEmpty()) {
-                                    val array = arrayListOf<IMessageService.Message>()
-                                    array.addAll(it.message)
-                                    notifyMessage(array)
+                            IMessageService.EventType.SHOW -> {
+                                it.message.forEach { message ->
+                                    addNewMessage(message, true)
                                 }
                             }
-                            it.update -> {
-                                /**追加历史消息*/
+                            IMessageService.EventType.SEND_SHOWED -> {
+                                it.message.forEach { message ->
+                                    sendMessage(message, false)
+                                }
+                            }
+                            IMessageService.EventType.SHOW_MORE -> {
                                 notifyOldMessage(it.message)
                             }
-                            else -> {
-                                /**追加新消息*/
+                            IMessageService.EventType.SHOW_NEW -> {
                                 it.message.forEach { message ->
-                                    notifyNewMessage(message, it.bottom)
+                                    addNewMessage(message, false)
                                 }
                             }
                         }
-                    }
-                }
-
-        /**接收消息已读数更新事件*/
-        RxBus.toFlow(IMessageService.MessageUpdateReadNumEvent::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (mActive && it.session.sessionId == mSession.sessionId) {
-                        notifyMessageReadNum(it.message.messageId, it.message)
-                    }
-                }
-
-        /**接收文件消息更新事件*/
-        RxBus.toFlow(IMessageService.MessageUpdateFileEvent::class.java)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (mActive && it.session.sessionId == mSession.sessionId) {
-                        notifyFileMessage(it.message)
                     }
                 }
 
@@ -200,7 +179,7 @@ class ChatMessageListFragment(
         super.onDestroy()
     }
 
-    override fun notifyMessage(data: ArrayList<IMessageService.Message>) {
+    override fun refreshMessage(data: ArrayList<IMessageService.Message>) {
         if (data.isNotEmpty()) {
             mMessageAdapter?.data?.clear()
             mMessageAdapter?.data?.addAll(data)
@@ -216,21 +195,21 @@ class ChatMessageListFragment(
     override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
         msg.sendStatus = EnumChatSendStatus.SENDING
         if (new) {
-            notifyNewMessage(msg, true)
+            addNewMessage(msg, true)
         }
         mMessageService.sendMessage(
                 message = msg,
                 failed = { error, result ->
                     ToastUtils.showToast(mContext, error)
-                    notifyMessageState(result.messageId, result)
+                    notifyMessage(result.messageId, result)
                 },
                 success = { oldMessageId, message ->
-                    notifyMessageState(oldMessageId, message)
+                    notifyMessage(oldMessageId, message)
                 }
         )
     }
 
-    override fun notifyMessageState(oldMessageId: Int, message: IMessageService.Message) {
+    override fun notifyMessage(oldMessageId: Int, message: IMessageService.Message) {
         val position: Int? = mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.adapterPosition
         if (mActive) {
             position?.let {
@@ -249,22 +228,7 @@ class ChatMessageListFragment(
         if (message.sendStatus == EnumChatSendStatus.SUCCESS) {
             sendMessage(message, false)
         } else {
-            notifyMessageState(message.messageId, message)
-        }
-    }
-
-    override fun notifyMessageReadNum(oldMessageId: Int, message: IMessageService.Message) {
-        val position: Int? = mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.adapterPosition
-        if (mActive) {
-            position?.let {
-                mMessageAdapter?.data!![it].updateSendState(message.messageId, message.timeline, message.sendStatus!!)
-                mMessageAdapter?.notifyItemChanged(it)
-            }
-        } else {
-            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
-            val list = mMessageUpdateCancel.value
-            list?.put(message.timeline, message)
-            mMessageUpdateCancel.postValue(list)
+            notifyMessage(message.messageId, message)
         }
     }
 
@@ -276,7 +240,7 @@ class ChatMessageListFragment(
         }
     }
 
-    override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {
+    override fun addNewMessage(message: IMessageService.Message, toBottom: Boolean) {
         mMessageAdapter?.data?.add(message)
         val mMessageSize = getMessageList().size - 1
         mMessageAdapter?.notifyItemInserted(mMessageSize)
@@ -301,7 +265,7 @@ class ChatMessageListFragment(
             mMessageService.readMessage(data, failed = { msg, _ ->
                 LogUtil.e("聊天详情", msg)
             }, success = { message ->
-                notifyMessageReadNum(message.messageId, message)
+                notifyMessage(message.messageId, message)
             })
         }
         LogUtil.d("聊天详情", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")

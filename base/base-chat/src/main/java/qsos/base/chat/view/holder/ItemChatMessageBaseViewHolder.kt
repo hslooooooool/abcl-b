@@ -57,8 +57,8 @@ abstract class ItemChatMessageBaseViewHolder(
                 return@setOnLongClickListener true
             }
 
-            updateSendStatus(this, data.sendStatus)
-            updateReadStatus(this, data.readNum)
+            updateSendStatus(this, position, data)
+            updateReadStatus(this, position, data)
             setContent(this, data, position, mItemListener)
         }
     }
@@ -104,12 +104,15 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息发送状态*/
-    private fun updateSendStatus(contentView: View, state: EnumChatSendStatus?) {
+    private fun updateSendStatus(contentView: View, position: Int, data: IMessageService.Message) {
         itemView.item_message_cancel.visibility = View.GONE
         itemView.item_message_main.visibility = View.VISIBLE
         val messageStateView = contentView.getTag(R.id.item_message_state) as View
         val messageProgressView = contentView.getTag(R.id.item_message_progress) as View
-        when (state) {
+        messageStateView.setOnClickListener {
+            mItemListener?.onItemClick(it, position, data)
+        }
+        when (data.sendStatus) {
             EnumChatSendStatus.FAILED -> {
                 messageStateView.visibility = View.VISIBLE
                 messageProgressView.visibility = View.INVISIBLE
@@ -129,7 +132,7 @@ abstract class ItemChatMessageBaseViewHolder(
                 itemView.item_message_cancel.visibility = View.VISIBLE
                 itemView.item_message_main.visibility = View.GONE
                 itemView.item_message_cancel_reedit.visibility =
-                        if (state == EnumChatSendStatus.CANCEL_CAN) {
+                        if (data.sendStatus == EnumChatSendStatus.CANCEL_CAN) {
                             View.VISIBLE
                         } else {
                             View.GONE
@@ -141,13 +144,13 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息读取状态*/
-    private fun updateReadStatus(contentView: View, readNum: Int) {
+    private fun updateReadStatus(contentView: View, position: Int, data: IMessageService.Message) {
         contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
             ChatType.SINGLE.key -> {
-                if (readNum < 2) "未读" else "已读"
+                if (data.readNum < 2) "未读" else "已读"
             }
             else -> {
-                "${readNum}人已读"
+                "${data.readNum}人已读"
             }
         }
     }

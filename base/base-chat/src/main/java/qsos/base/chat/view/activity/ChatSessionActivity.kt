@@ -129,7 +129,11 @@ class ChatSessionActivity(
             mChatMessageModel?.getOldMessageBySessionId(mSessionId!!) {
                 chat_message_srl.isRefreshing = false
                 if (it.isNotEmpty()) {
-                    mMessageService?.notifyOldMessage(session = mMessageSession.value!!, message = it)
+                    RxBus.send(IMessageService.MessageEvent(
+                            session = mMessageSession.value!!,
+                            message = it,
+                            eventType = IMessageService.EventType.SHOW_MORE
+                    ))
                 }
             }
         }
@@ -408,10 +412,10 @@ class ChatSessionActivity(
                 },
                 success = {
                     it.sendStatus = EnumChatSendStatus.CANCEL_CAN
-                    RxBus.send(IMessageService.MessageSendEvent(
+                    RxBus.send(IMessageService.MessageEvent(
                             session = mMessageSession.value!!,
                             message = arrayListOf(it),
-                            send = true, update = true, bottom = false
+                            eventType = IMessageService.EventType.UPDATE_SHOWED
                     ))
                 })
     }
@@ -427,10 +431,10 @@ class ChatSessionActivity(
                 )
         )
 
-        RxBus.send(IMessageService.MessageSendEvent(
+        RxBus.send(IMessageService.MessageEvent(
                 session = mMessageSession.value!!,
                 message = arrayListOf(message),
-                send = send, bottom = bottom
+                eventType = IMessageService.EventType.SEND
         ))
 
         return message
@@ -442,7 +446,23 @@ class ChatSessionActivity(
                     .put("name", file.filename)
                     .put("url", file.path)
                     .put("length", file.adjoin as Long?)
-            file.adjoin = sendMessage(content, send = false, bottom = true)
+            val message = ChatMessageBo(
+                    user = ChatMainActivity.mLoginUser.value!!,
+                    createTime = DateUtils.getTimeToNow(Date()),
+                    message = ChatMessage(
+                            sessionId = mSessionId!!,
+                            messageId = UUID.randomUUID().hashCode(),
+                            content = content
+                    )
+            )
+
+            RxBus.send(IMessageService.MessageEvent(
+                    session = mMessageSession.value!!,
+                    message = arrayListOf(message),
+                    eventType = IMessageService.EventType.SHOW
+            ))
+
+            file.adjoin = message
         }
 
         uploadFile(files)
@@ -454,7 +474,12 @@ class ChatSessionActivity(
             val message = file.adjoin as IMessageService.Message
 
             message.sendStatus = EnumChatSendStatus.SENDING
-            sendFileMessageUpdate(message)
+
+            RxBus.send(IMessageService.MessageEvent(
+                    session = mMessageSession.value!!,
+                    message = arrayListOf(message),
+                    eventType = IMessageService.EventType.UPDATE_SHOWED
+            ))
 
             mFileModel?.uploadFile(file, object : OnTListener<HttpFileEntity> {
                 override fun back(t: HttpFileEntity) {
@@ -462,7 +487,12 @@ class ChatSessionActivity(
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
                         message.sendStatus = EnumChatSendStatus.SUCCESS
                         message.content.put("url", file.url)
-                        sendFileMessageUpdate(message)
+
+                        RxBus.send(IMessageService.MessageEvent(
+                                session = mMessageSession.value!!,
+                                message = arrayListOf(message),
+                                eventType = IMessageService.EventType.SEND_SHOWED
+                        ))
 
                         /**【递归】移除当前已上传文件，传递下一文件*/
                         files.removeAt(0)
@@ -472,19 +502,17 @@ class ChatSessionActivity(
                         if (t.progress == -1) {
                             ToastUtils.showToast(mContext, "上传失败")
                             message.sendStatus = EnumChatSendStatus.FAILED
-                            sendFileMessageUpdate(message)
+
+                            RxBus.send(IMessageService.MessageEvent(
+                                    session = mMessageSession.value!!,
+                                    message = arrayListOf(message),
+                                    eventType = IMessageService.EventType.UPDATE_SHOWED
+                            ))
                         }
                     }
                 }
             })
         }
-    }
-
-    override fun sendFileMessageUpdate(message: IMessageService.Message) {
-        RxBus.send(IMessageService.MessageUpdateFileEvent(
-                session = mMessageSession.value!!,
-                message = message
-        ))
     }
 
     override fun pullNewMessage(session: IMessageService.Session) {
@@ -494,9 +522,10 @@ class ChatSessionActivity(
         mPullMessageTimer!!.schedule(timerTask {
             mChatMessageModel?.getNewMessageBySessionId(mSessionId!!) {
                 if (it.isNotEmpty()) {
-                    mMessageService?.notifyNewMessage(
+                    RxBus.send(IMessageService.MessageEvent(
                             session = mMessageSession.value!!,
-                            message = it
+                            message = it,
+                            eventType = IMessageService.EventType.SHOW_NEW)
                     )
                 }
             }
@@ -516,6 +545,15 @@ class ChatSessionActivity(
     /**列表项点击*/
     private fun preOnItemClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
+            R.id.item_message_state -> {
+                if (obj is IMessageService.Message) {
+                    RxBus.send(IMessageService.MessageEvent(
+                            session = mMessageSession.value!!,
+                            message = arrayListOf(obj),
+                            eventType = IMessageService.EventType.SEND_SHOWED
+                    ))
+                }
+            }
             R.id.item_message_view_audio -> {
                 if (obj is IMessageService.Message) {
                     obj.getRealContent<MChatMessageAudio>()?.let {
@@ -527,10 +565,10 @@ class ChatSessionActivity(
                 if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
-                        RxBus.send(IMessageService.MessageSendEvent(
+                        RxBus.send(IMessageService.MessageEvent(
                                 session = mMessageSession.value!!,
                                 message = arrayListOf(obj),
-                                send = true, update = true, bottom = false
+                                eventType = IMessageService.EventType.UPDATE_SHOWED
                         ))
 
                         chat_message_edit.setText(obj.content.getContentDesc())

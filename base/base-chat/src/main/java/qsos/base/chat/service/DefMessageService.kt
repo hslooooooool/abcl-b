@@ -25,7 +25,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class DefMessageService(
         private val mJob: CoroutineContext = Dispatchers.Main + Job()
-) : AbsMessageService() {
+) : IMessageService {
     private var mPullMessageTimer: Timer? = null
 
     override fun getMessageListBySessionId(
