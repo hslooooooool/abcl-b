@@ -52,6 +52,8 @@ class DefChatGroupModelIml(
                                     sessionId = group.groupId,
                                     lastMessageId = group.lastMessage?.message?.messageId,
                                     lastMessageTimeline = group.lastMessage?.message?.timeline,
+                                    nowFirstMessageId = oldSession?.nowFirstMessageId,
+                                    nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline,
                                     nowLastMessageId = oldSession?.nowLastMessageId,
                                     nowLastMessageTimeline = oldSession?.nowLastMessageTimeline
                             )

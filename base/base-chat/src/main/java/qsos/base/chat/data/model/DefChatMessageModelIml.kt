@@ -35,9 +35,8 @@ class DefChatMessageModelIml(
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
                             sessionId = sessionId, timeline = nowFirstMessageTimeline, next = false, size = 20
                     )
-                    onFailed { _, _, error ->
+                    onFailed { _, _, _ ->
                         success.invoke(arrayListOf())
-                        Timber.e(error)
                     }
                     onSuccess {
                         when {
@@ -60,6 +59,8 @@ class DefChatMessageModelIml(
                         }
                     }
                 }
+            } else {
+                success.invoke(arrayListOf())
             }
         }
     }

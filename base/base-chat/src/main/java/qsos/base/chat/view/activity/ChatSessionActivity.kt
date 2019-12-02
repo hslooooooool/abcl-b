@@ -134,6 +134,8 @@ class ChatSessionActivity(
                             message = it,
                             eventType = IMessageService.EventType.SHOW_MORE
                     ))
+                } else {
+                    ToastUtils.showToast(this, "已经到顶")
                 }
             }
         }
@@ -141,6 +143,7 @@ class ChatSessionActivity(
             val content = chat_message_edit.text.toString().trim()
             if (TextUtils.isEmpty(content)) {
                 chat_message_edit.hint = "请输入内容"
+                BaseUtils.hideKeyboard(this)
             } else {
 
                 sendMessage(ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
@@ -173,6 +176,7 @@ class ChatSessionActivity(
             finish()
         }
 
+        /**当前所有用户列表，用于添加用户入群*/
         mChatUserAdapter = BaseNormalAdapter(R.layout.item_chat_friend, mChatUserList) { holder, data, _ ->
             ImageLoaderUtils.display(mContext, holder.itemView.item_chat_friend_avatar, data.avatar)
             holder.itemView.item_chat_friend_state.visibility = View.GONE
@@ -186,6 +190,7 @@ class ChatSessionActivity(
                             if (mSessionId == it.sessionId) {
                                 ToastUtils.showToast(this, "已添加")
                             } else {
+                                /**单聊变群聊，切换到新群聊天*/
                                 ARouter.getInstance().build("/CHAT/SESSION")
                                         .withInt("/CHAT/SESSION_ID", it.sessionId)
                                         .navigation()

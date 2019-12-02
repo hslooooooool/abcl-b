@@ -17,14 +17,13 @@ import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
-import qsos.lib.base.utils.BaseUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
 
 /**
  * @author : 华清松
- * 聊天页面，提供:
+ * 聊天列表页，提供:
  * - 消息多类型展示
  * - 新消息追加上屏与新消息数量展示
  * - 历史消息追加上屏
@@ -96,10 +95,6 @@ class ChatMessageListFragment(
                     chat_message_new_message_num.visibility = View.GONE
                     mNewMessageNum = 0
                 }
-                LogUtil.d("滚动$dy")
-                if (dy < 0) {
-                    BaseUtils.closeKeyBord(mContext, recyclerView)
-                }
             }
         })
 
@@ -116,7 +111,7 @@ class ChatMessageListFragment(
                 notifyMessage(msg.messageId, msg)
             }
             mMessageUpdateCancel.value?.clear()
-            LogUtil.d("聊天界面", "页面显示，更新缓存数据")
+            LogUtil.d("聊天列表页", "页面显示，更新缓存数据")
         })
 
         /**接收消息发送事件*/
@@ -217,7 +212,7 @@ class ChatMessageListFragment(
                 mMessageAdapter?.notifyItemChanged(it)
             }
         } else {
-            LogUtil.d("聊天界面", "页面隐藏，缓存数据")
+            LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
             val list = mMessageUpdateCancel.value
             list?.put(message.timeline, message)
             mMessageUpdateCancel.postValue(list)
@@ -263,12 +258,12 @@ class ChatMessageListFragment(
         val data = getMessageList()[adapterPosition]
         if (data.readStatus == false) {
             mMessageService.readMessage(data, failed = { msg, _ ->
-                LogUtil.e("聊天详情", msg)
+                LogUtil.e("聊天列表页", msg)
             }, success = { message ->
                 notifyMessage(message.messageId, message)
             })
         }
-        LogUtil.d("聊天详情", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
+        LogUtil.d("聊天列表页", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
     }
 
     /**消息列表滚动到底部*/
