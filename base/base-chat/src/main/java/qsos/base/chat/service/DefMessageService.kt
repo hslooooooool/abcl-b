@@ -11,6 +11,7 @@ import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.ChatMessageReadStatusBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
@@ -41,10 +42,28 @@ class DefMessageService(
                             sessionId = session.sessionId, timeline = lastTimeline + 1, next = false, size = 20
                     )
                     onSuccess { result ->
+
                         result?.data?.let { list ->
+                            var mLastTime = ""
                             list.sortedBy { msg ->
                                 msg.timeline
+                            }.forEachIndexed { index, messageBo ->
+                                /**校对时间，第一条时间显示，其余时间以上一条显示的时间差度3分钟以内，忽略（不显示）*/
+                                if (index == 0) {
+                                    mLastTime = messageBo.createTime
+                                } else {
+                                    val lastTime = DateUtils.strToDate(mLastTime)?.time
+                                            ?: -1L
+                                    val thisTime = DateUtils.strToDate(messageBo.createTime)?.time
+                                            ?: -1L
+                                    if (thisTime > lastTime && (thisTime - lastTime) >= IMessageService.showTimeLimit) {
+                                        mLastTime = messageBo.createTime
+                                    } else {
+                                        messageBo.createTime = ""
+                                    }
+                                }
                             }
+
                             val array = arrayListOf<IMessageService.Message>()
                             array.addAll(list)
                             /**更新当前会话消息时序记录*/

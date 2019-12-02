@@ -8,7 +8,9 @@ import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.service.IMessageService
 import qsos.base.chat.view.activity.ChatMainActivity
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.expand.retrofitByDef
@@ -47,12 +49,31 @@ class DefChatMessageModelIml(
                                 oldSession.nowFirstMessageId = it.first().messageId
                                 oldSession.nowFirstMessageTimeline = it.first().timeline
                                 /**按时序正序排列*/
-                                val messageList = it.sortedBy { msg ->
+                                var mLastTime = ""
+                                it.sortedBy { msg ->
                                     msg.timeline
+                                }.forEachIndexed { index, messageBo ->
+                                    /**校对时间，第一条时间显示，其余时间以上一条显示的时间差度3分钟以内，忽略（不显示）*/
+                                    if (index == 0) {
+                                        mLastTime = messageBo.createTime
+                                    } else {
+                                        val lastTime = DateUtils.strToDate(mLastTime)?.time
+                                                ?: -1L
+                                        val thisTime = DateUtils.strToDate(messageBo.createTime)?.time
+                                                ?: -1L
+                                        if (thisTime > lastTime && (thisTime - lastTime) >= IMessageService.showTimeLimit) {
+                                            mLastTime = messageBo.createTime
+                                        } else {
+                                            messageBo.createTime = ""
+                                        }
+                                    }
                                 }
+
+                                val array = arrayListOf<ChatMessageBo>()
+                                array.addAll(it)
                                 /**更新本地最新消息记录*/
                                 DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
-                                    success.invoke(messageList)
+                                    success.invoke(array)
                                     LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话历史消息")
                                 }
                             }

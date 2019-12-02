@@ -2,6 +2,7 @@ package qsos.base.chat.view.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -17,6 +18,7 @@ import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
@@ -39,7 +41,6 @@ class ChatMessageListFragment(
         private val mMessageService: IMessageService,
         private var mOnListItemClickListener: OnListItemClickListener? = null,
         private var mNewMessageNumLimit: Int = 4,
-
         override val layoutId: Int = R.layout.fragment_chat_message,
         override val reload: Boolean = false
 ) : BaseFragment(), IChatFragment {
@@ -237,6 +238,26 @@ class ChatMessageListFragment(
     }
 
     override fun addNewMessage(message: IMessageService.Message, toBottom: Boolean) {
+        if (mMessageAdapter?.data == null) {
+            return
+        }
+        /**判断是否显示时间*/
+        var lastTime = ""
+        for (i in mMessageAdapter!!.data.size - 1 downTo 0) {
+            val time = mMessageAdapter!!.data[i].createTime
+            if (!TextUtils.isEmpty(time)) {
+                lastTime = time
+                break
+            }
+        }
+        val mLastTime = DateUtils.strToDate(lastTime)?.time
+                ?: -1L
+        val thisTime = DateUtils.strToDate(message.createTime)?.time
+                ?: -1L
+        if (thisTime <= mLastTime || (thisTime - mLastTime) < IMessageService.showTimeLimit) {
+            message.createTime = ""
+        }
+
         mMessageAdapter?.data?.add(message)
         val mMessageSize = getMessageList().size - 1
         mMessageAdapter?.notifyItemInserted(mMessageSize)

@@ -428,7 +428,7 @@ class ChatSessionActivity(
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message {
         val message = ChatMessageBo(
                 user = ChatMainActivity.mLoginUser.value!!,
-                createTime = DateUtils.getTimeToNow(Date()),
+                createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
                         sessionId = mSessionId!!,
                         messageId = UUID.randomUUID().hashCode(),
@@ -453,7 +453,7 @@ class ChatSessionActivity(
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
                     user = ChatMainActivity.mLoginUser.value!!,
-                    createTime = DateUtils.getTimeToNow(Date()),
+                    createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
                             sessionId = mSessionId!!,
                             messageId = UUID.randomUUID().hashCode(),
@@ -537,7 +537,7 @@ class ChatSessionActivity(
         }, 2000L, 500L)
     }
 
-    val mOnListItemClickListener = object : OnListItemClickListener {
+    private val mOnListItemClickListener = object : OnListItemClickListener {
         override fun onItemClick(view: View, position: Int, obj: Any?) {
             preOnItemClick(view, position, obj)
         }
@@ -552,6 +552,7 @@ class ChatSessionActivity(
         when (view.id) {
             R.id.item_message_state -> {
                 if (obj is IMessageService.Message) {
+                    // TODO 判断消息类型，如果是文本，直接发送，如果是文件，判断上传是否成功，否-重新上传再发送
                     RxBus.send(IMessageService.MessageEvent(
                             session = mMessageSession.value!!,
                             message = arrayListOf(obj),

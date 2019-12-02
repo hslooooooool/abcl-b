@@ -1,6 +1,7 @@
 package qsos.base.chat.view.holder
 
 import android.annotation.SuppressLint
+import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -65,7 +66,12 @@ abstract class ItemChatMessageBaseViewHolder(
 
     /**判断获取具体内容视图*/
     private fun getContentView(data: IMessageService.Message, position: Int): View {
-        itemView.item_message_time.text = data.createTime
+        if (TextUtils.isEmpty(data.createTime)) {
+            itemView.item_message_time.visibility = View.GONE
+        } else {
+            itemView.item_message_time.visibility = View.VISIBLE
+            itemView.item_message_time.text = data.createTime
+        }
         val contentView: View
         if (BaseConfig.userId == data.sendUserId) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE

@@ -12,6 +12,11 @@ import qsos.lib.base.utils.rx.RxBus
  */
 interface IMessageService {
 
+    companion object {
+        /**消息时间显示间隔，低于此值间的消息不显示时间*/
+        var showTimeLimit = 1 * 60 * 1000
+    }
+
     /**消息更新策略
      * @sample SEND
      * @sample SHOW
@@ -64,7 +69,7 @@ interface IMessageService {
         var messageId: Int
         /**会话ID*/
         var sessionId: Int
-        /**消息时间线，发送时本地以content.hashCode为值，发送后服务器统一设置*/
+        /**消息时序，由服务器统一设置*/
         var timeline: Int
         /**发送人ID*/
         val sendUserId: Int
@@ -73,7 +78,7 @@ interface IMessageService {
         /**发送人头像*/
         val sendUserAvatar: String
         /**创建时间*/
-        val createTime: String
+        var createTime: String
         /**消息内容*/
         val content: ChatContent
         /**发送状态*/
