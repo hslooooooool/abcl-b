@@ -107,6 +107,7 @@ class ChatMessageListFragment(
         })
 
         mMessageUpdateCancel.observe(this, Observer {
+            mActive = true
             it.values.forEach { msg ->
                 notifyMessage(msg.messageId, msg)
             }
@@ -118,7 +119,7 @@ class ChatMessageListFragment(
         RxBus.toFlow(IMessageService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (mActive && it.session.sessionId == mSession.sessionId) {
+                    if (it.session.sessionId == mSession.sessionId) {
                         when (it.eventType) {
                             IMessageService.EventType.UPDATE_SHOWED -> {
                                 it.message.forEach { message ->
@@ -214,7 +215,7 @@ class ChatMessageListFragment(
         } else {
             LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
             val list = mMessageUpdateCancel.value
-            list?.put(message.timeline, message)
+            list?.put(message.messageId, message)
             mMessageUpdateCancel.postValue(list)
         }
     }
