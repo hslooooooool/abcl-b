@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -72,6 +73,7 @@ class ChatSessionActivity(
     var mSessionId: Int? = -1
 
     private lateinit var mTitle: TextView
+    private lateinit var mMenu: TextView
 
     private var mChatSessionModel: IChatModel.ISession? = null
     private var mFileModel: IFileModel? = null
@@ -115,6 +117,11 @@ class ChatSessionActivity(
         })
 
         mTitle = base_title_bar.findViewById(R.id.base_title_bar_title)
+        mMenu = base_title_bar.findViewById(R.id.base_title_bar_menu_more)
+        mMenu.visibility = View.VISIBLE
+        mMenu.setOnClickListener {
+            chat_message_draw.openDrawer(GravityCompat.END)
+        }
 
         chat_message_srl.setColorSchemeResources(R.color.colorPrimary, R.color.black, R.color.green)
         chat_message_srl.setOnRefreshListener {
