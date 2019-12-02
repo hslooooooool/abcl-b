@@ -12,11 +12,17 @@
 			android:id="@+id/base_title_bar"
 			layout="@layout/base_title_bar" />
 		
-		<FrameLayout
-			android:id="@+id/chat_message_frg"
+		<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+			android:id="@+id/chat_message_srl"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1" />
+			android:layout_weight="1">
+			
+			<FrameLayout
+				android:id="@+id/chat_message_frg"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 		
 		<LinearLayout
 			android:layout_width="match_parent"

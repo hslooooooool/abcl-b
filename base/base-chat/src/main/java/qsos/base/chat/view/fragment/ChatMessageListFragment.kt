@@ -123,19 +123,27 @@ class ChatMessageListFragment(
                     if (mActive && it.session.sessionId == mSession.sessionId) {
                         when {
                             it.send && it.update -> {
+                                /**更新发送消息的状态*/
                                 it.message.forEach { message ->
                                     notifyMessageState(message.messageId, message)
                                 }
                             }
                             it.send && !it.update -> {
+                                /**发送消息*/
                                 it.message.forEach { message ->
                                     sendMessage(message)
                                 }
                             }
-                            it.update -> {
+                            it.update && it.bottom -> {
+                                /**更新全部消息*/
                                 notifyMessage(it.message)
                             }
+                            it.update -> {
+                                /**追加历史消息*/
+                                notifyOldMessage(it.message)
+                            }
                             else -> {
+                                /**追加新消息*/
                                 it.message.forEach { message ->
                                     notifyNewMessage(message, it.bottom)
                                 }
@@ -251,13 +259,19 @@ class ChatMessageListFragment(
     }
 
     override fun notifyMessage(messageList: List<IMessageService.Message>) {
-        val array = arrayListOf<IMessageService.Message>()
-        array.addAll(messageList)
-        mMessageList.postValue(array)
+        if (messageList.isNotEmpty()) {
+            val array = arrayListOf<IMessageService.Message>()
+            array.addAll(messageList)
+            mMessageList.postValue(array)
+        }
     }
 
     override fun notifyOldMessage(messageList: List<IMessageService.Message>) {
-        // TODO 更新历史消息
+        if (messageList.isNotEmpty()) {
+            mMessageList.value?.addAll(0, messageList)
+            mMessageAdapter?.data?.addAll(0, messageList)
+            mMessageAdapter?.notifyItemRangeInserted(0, messageList.size)
+        }
     }
 
     override fun notifyNewMessage(message: IMessageService.Message, toBottom: Boolean) {

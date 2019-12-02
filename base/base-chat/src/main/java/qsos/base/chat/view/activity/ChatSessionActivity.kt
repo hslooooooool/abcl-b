@@ -91,10 +91,6 @@ class ChatSessionActivity(
         mChatUserModel = DefChatUserModelIml()
         mChatGroupModel = DefChatGroupModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
-
-        supportFragmentManager.beginTransaction().setCustomAnimations(
-                R.anim.nav_default_enter_anim,
-                R.anim.nav_default_enter_anim)
     }
 
     override fun initView() {
@@ -118,6 +114,15 @@ class ChatSessionActivity(
 
         mTitle = base_title_bar.findViewById(R.id.base_title_bar_title)
 
+        chat_message_srl.setColorSchemeResources(R.color.colorPrimary, R.color.black, R.color.green)
+        chat_message_srl.setOnRefreshListener {
+            mChatMessageModel?.getOldMessageBySessionId(mSessionId!!) {
+                chat_message_srl.isRefreshing = false
+                if (it.isNotEmpty()) {
+                    mMessageService?.notifyOldMessage(session = mMessageSession.value!!, message = it)
+                }
+            }
+        }
         chat_message_send.setOnClickListener {
             val content = chat_message_edit.text.toString().trim()
             if (TextUtils.isEmpty(content)) {
@@ -191,6 +196,8 @@ class ChatSessionActivity(
     }
 
     override fun getData() {
+        mChatUserModel?.getAllChatUser()
+
         mChatSessionModel?.getSessionById(
                 sessionId = mSessionId!!,
                 failed = {
@@ -201,7 +208,6 @@ class ChatSessionActivity(
                     mChatGroupModel?.getGroupById(mSessionId!!) { group ->
                         mTitle.text = group.name
                     }
-                    mChatUserModel?.getAllChatUser()
 
                     mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mOnListItemClickListener)
                     supportFragmentManager.beginTransaction()

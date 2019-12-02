@@ -33,9 +33,9 @@ class DefMessageService(
             oldSession?.let {
                 val lastTimeline: Int = it.lastMessageTimeline ?: -1
                 CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
-                    /**获取此会话sessionId下最后一条消息lastTimeline及其以上第1页20条数据*/
+                    /**获取此会话sessionId下最后一条消息lastTimeline及其以上20条数据*/
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
-                            sessionId = session.sessionId, timeline = lastTimeline + 1, next = false, page = 1, size = 20
+                            sessionId = session.sessionId, timeline = lastTimeline + 1, next = false, size = 20
                     )
                     onSuccess { result ->
                         result?.data?.let { list ->
@@ -47,13 +47,17 @@ class DefMessageService(
                             if (array.isEmpty()) {
                                 oldSession.nowLastMessageId = -1
                                 oldSession.nowLastMessageTimeline = -1
+                                oldSession.nowFirstMessageId = -1
+                                oldSession.nowFirstMessageTimeline = -1
                             } else {
+                                oldSession.nowFirstMessageId = array.first().messageId
+                                oldSession.nowFirstMessageTimeline = array.first().timeline
                                 oldSession.nowLastMessageId = array.last().messageId
                                 oldSession.nowLastMessageTimeline = array.last().timeline
                             }
                             DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
                                 messageList.postValue(array)
-                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
+                                LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话消息")
                             }
                         }
                     }

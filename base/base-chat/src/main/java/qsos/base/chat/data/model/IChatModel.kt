@@ -106,6 +106,11 @@ interface IChatModel {
         val mJob: CoroutineContext
         fun clear()
 
+        /**获取会话下的历史消息列表，即当前第一条消息时序前【20】条消息
+         * @param sessionId 会话ID
+         * */
+        fun getOldMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit)
+
         /**获取会话下的新消息列表
          * @param sessionId 会话ID
          * */

@@ -11,6 +11,8 @@ import androidx.room.PrimaryKey
  * @param sessionId 会话ID
  * @param lastMessageId 服务器最后一条消息ID
  * @param lastMessageTimeline 服务器最后一条消息Timeline
+ * @param nowFirstMessageId 本地第一条消息ID
+ * @param nowFirstMessageTimeline 本地第一条消息Timeline
  * @param nowLastMessageId 本地最后一条消息ID
  * @param nowLastMessageTimeline 本地最后一条消息Timeline
  */
@@ -26,6 +28,10 @@ data class DBChatSession(
         var lastMessageId: Int? = null,
         @ColumnInfo(name = "last_message_timeline")
         var lastMessageTimeline: Int? = null,
+        @ColumnInfo(name = "now_first_message_id")
+        var nowFirstMessageId: Int? = null,
+        @ColumnInfo(name = "now_first_message_timeline")
+        var nowFirstMessageTimeline: Int? = null,
         @ColumnInfo(name = "now_last_message_id")
         var nowLastMessageId: Int? = null,
         @ColumnInfo(name = "now_last_message_timeline")
