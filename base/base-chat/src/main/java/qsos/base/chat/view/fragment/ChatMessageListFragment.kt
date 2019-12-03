@@ -109,8 +109,8 @@ class ChatMessageListFragment(
 
         mMessageUpdateCancel.observe(this, Observer {
             mActive = true
-            it.values.forEach { msg ->
-                notifyMessage(msg.messageId, msg)
+            it.map { v ->
+                notifyMessage(v.key, v.value)
             }
             mMessageUpdateCancel.value?.clear()
             LogUtil.d("聊天列表页", "页面显示，更新缓存数据")
@@ -216,7 +216,7 @@ class ChatMessageListFragment(
         } else {
             LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
             val list = mMessageUpdateCancel.value
-            list?.put(message.messageId, message)
+            list?.put(oldMessageId, message)
             mMessageUpdateCancel.postValue(list)
         }
     }
