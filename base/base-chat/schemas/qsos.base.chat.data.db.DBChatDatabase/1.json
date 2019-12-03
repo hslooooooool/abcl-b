@@ -1,0 +1,79 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "a927b49131984c668f70d4a06831774d",
+    "entities": [
+      {
+        "tableName": "chat_session",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`session_id` INTEGER NOT NULL, `last_message_id` INTEGER, `last_message_timeline` INTEGER, `now_first_message_id` INTEGER, `now_first_message_timeline` INTEGER, `now_last_message_id` INTEGER, `now_last_message_timeline` INTEGER, PRIMARY KEY(`session_id`))",
+        "fields": [
+          {
+            "fieldPath": "sessionId",
+            "columnName": "session_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastMessageId",
+            "columnName": "last_message_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastMessageTimeline",
+            "columnName": "last_message_timeline",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nowFirstMessageId",
+            "columnName": "now_first_message_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nowFirstMessageTimeline",
+            "columnName": "now_first_message_timeline",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nowLastMessageId",
+            "columnName": "now_last_message_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nowLastMessageTimeline",
+            "columnName": "now_last_message_timeline",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "session_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_chat_session_session_id",
+            "unique": true,
+            "columnNames": [
+              "session_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_chat_session_session_id` ON `${TABLE_NAME}` (`session_id`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a927b49131984c668f70d4a06831774d\")"
+    ]
+  }
+}
