@@ -6,53 +6,51 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 	
-	<LinearLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical">
+		android:layout_height="match_parent">
 		
 		<include
 			android:id="@+id/base_title_bar"
 			layout="@layout/base_title_bar"
 			app:layout_constraintTop_toTopOf="parent" />
 		
-		<RelativeLayout
+		<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+			android:id="@+id/chat_message_srl"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1">
+			app:layout_constraintBottom_toTopOf="@id/chat_message_other"
+			app:layout_constraintTop_toBottomOf="@id/base_title_bar">
 			
-			<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-				android:id="@+id/chat_message_srl"
+			<qsos.base.chat.view.widget.MessageRecyclerView
+				android:id="@+id/chat_message_rv"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent">
-				
-				<qsos.base.chat.view.widget.MessageRecyclerView
-					android:id="@+id/chat_message_rv"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent" />
-			
-			</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-			
-			<TextView
-				android:id="@+id/chat_message_new_message_num"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentBottom="true"
-				android:layout_centerInParent="true"
-				android:layout_marginBottom="10dp"
-				android:background="@color/colorPrimary"
-				android:ellipsize="end"
-				android:gravity="center"
-				android:minWidth="32dp"
-				android:padding="5dp"
-				android:singleLine="true"
-				android:textColor="@color/white"
-				android:textSize="@dimen/item_message_text_size_smaller"
-				android:textStyle="bold"
-				android:visibility="gone"
-				tools:text="有10条新消息"
-				tools:visibility="visible" />
-		</RelativeLayout>
+				android:layout_height="match_parent" />
+		
+		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+		
+		<TextView
+			android:id="@+id/chat_message_new_message_num"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_centerInParent="true"
+			android:layout_marginBottom="10dp"
+			android:background="@color/colorPrimary"
+			android:ellipsize="end"
+			android:gravity="center"
+			android:minWidth="32dp"
+			android:padding="5dp"
+			android:singleLine="true"
+			android:textColor="@color/white"
+			android:textSize="@dimen/item_message_text_size_smaller"
+			android:textStyle="bold"
+			android:visibility="gone"
+			app:layout_constraintBottom_toTopOf="@id/chat_message_other"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			tools:text="有10条新消息"
+			tools:visibility="visible" />
 		
 		<LinearLayout
 			android:id="@+id/chat_message_other"
@@ -63,7 +61,8 @@
 			android:paddingStart="10dp"
 			android:paddingTop="5dp"
 			android:paddingEnd="10dp"
-			android:weightSum="5">
+			android:weightSum="5"
+			app:layout_constraintBottom_toTopOf="@id/chat_message_input">
 			
 			<Button
 				android:id="@+id/chat_message_audio"
@@ -118,7 +117,8 @@
 			android:paddingStart="10dp"
 			android:paddingTop="5dp"
 			android:paddingEnd="10dp"
-			android:paddingBottom="5dp">
+			android:paddingBottom="5dp"
+			app:layout_constraintBottom_toBottomOf="parent">
 			
 			<EditText
 				android:id="@+id/chat_message_edit"
@@ -139,8 +139,9 @@
 				android:background="@color/white"
 				android:text="SEND" />
 		</LinearLayout>
-	</LinearLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 	
+	<!--右边抽屉，用户列表-->
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
