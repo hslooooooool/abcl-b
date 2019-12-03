@@ -30,7 +30,7 @@ import qsos.lib.base.utils.rx.RxBus
  * - 历史消息追加上屏
  * - 消息状态发送状态、读取状态更新
  */
-@SuppressLint("CheckResult")
+@SuppressLint("CheckResult", "SetTextI18n")
 class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
     private lateinit var mSession: IMessageService.Session
@@ -257,7 +257,6 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     override fun addNewMessage(message: IMessageService.Message, toBottom: Boolean) {
         if (mMessageAdapter?.data == null) {
             return
@@ -308,8 +307,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         LogUtil.d("聊天列表页", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
     }
 
-    /**消息列表滚动到底部*/
-    fun scrollToBottom() {
+    override fun scrollToBottom() {
         this.stopScroll()
         if (getMessageList().isNotEmpty()) {
             mLinearLayoutManager?.scrollToPosition(getMessageList().size - 1)

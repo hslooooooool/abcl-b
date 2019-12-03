@@ -33,4 +33,7 @@ interface IMessageListUI {
 
     /**更新当前用户消息读取状态*/
     fun readMessage(adapterPosition: Int)
+
+    /**消息列表滚动到底部*/
+    fun scrollToBottom()
 }
