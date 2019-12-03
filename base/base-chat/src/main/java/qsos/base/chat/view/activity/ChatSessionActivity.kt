@@ -62,7 +62,7 @@ import kotlin.concurrent.timerTask
  * @author : 华清松
  * 聊天会话页面
  */
-@SuppressLint("CheckResult")
+@SuppressLint("CheckResult", "SetTextI18n")
 @Route(group = "CHAT", path = "/CHAT/SESSION")
 class ChatSessionActivity(
         override val layoutId: Int = R.layout.activity_chat_message,
@@ -239,10 +239,17 @@ class ChatSessionActivity(
                             newMessageNumLimit = 4, lifecycleOwner = this,
                             readNumListener = object : OnTListener<Int> {
                                 override fun back(t: Int) {
-                                    ToastUtils.showToast(mContext, "$t")
+                                    if (t == 0) {
+                                        chat_message_new_message_num.visibility = View.GONE
+                                    } else {
+                                        chat_message_new_message_num.visibility = View.VISIBLE
+                                        chat_message_new_message_num.text = "有${t}条新消息"
+                                    }
                                 }
                             })
-
+                    chat_message_new_message_num.setOnClickListener {
+                        chat_message_rv.scrollToBottom()
+                    }
                     pullNewMessage(it)
                 }
         )

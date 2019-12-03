@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/chat_message_draw"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -15,18 +16,43 @@
 			layout="@layout/base_title_bar"
 			app:layout_constraintTop_toTopOf="parent" />
 		
-		<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-			android:id="@+id/chat_message_srl"
+		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="1">
 			
-			<qsos.base.chat.view.widget.MessageRecyclerView
-				android:id="@+id/chat_message_rv"
+			<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+				android:id="@+id/chat_message_srl"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
-		
-		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+				android:layout_height="match_parent">
+				
+				<qsos.base.chat.view.widget.MessageRecyclerView
+					android:id="@+id/chat_message_rv"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent" />
+			
+			</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+			
+			<TextView
+				android:id="@+id/chat_message_new_message_num"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"
+				android:layout_centerInParent="true"
+				android:layout_marginBottom="10dp"
+				android:background="@color/colorPrimary"
+				android:ellipsize="end"
+				android:gravity="center"
+				android:minWidth="32dp"
+				android:padding="5dp"
+				android:singleLine="true"
+				android:textColor="@color/white"
+				android:textSize="@dimen/item_message_text_size_smaller"
+				android:textStyle="bold"
+				android:visibility="gone"
+				tools:text="有10条新消息"
+				tools:visibility="visible" />
+		</RelativeLayout>
 		
 		<LinearLayout
 			android:id="@+id/chat_message_other"
