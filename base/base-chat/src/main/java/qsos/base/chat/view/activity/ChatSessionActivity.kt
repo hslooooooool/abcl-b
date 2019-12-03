@@ -2,6 +2,7 @@ package qsos.base.chat.view.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.graphics.Point
 import android.os.Bundle
 import android.text.TextUtils
@@ -254,11 +255,23 @@ class ChatSessionActivity(
     }
 
     override fun onBackPressed() {
-        ARouter.getInstance().build("/CHAT/MAIN")
-                .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
-                .navigation()
-        super.onBackPressed()
-        finish()
+        if (!checkHaveSending()) {
+            goToHome()
+            super.onBackPressed()
+        } else {
+            val build = AlertDialog.Builder(this)
+            build.setTitle("友情提示")
+            build.setMessage("您有正在发送消息，是否等待发送完成？退出有可能导致消息发送失败。")
+            build.setNegativeButton("退出") { dialog, _ ->
+                dialog.dismiss()
+                goToHome()
+                super.onBackPressed()
+            }
+            build.setPositiveButton("等待发送") { dialog, _ ->
+                dialog.dismiss()
+            }
+            build.create().show()
+        }
     }
 
     override fun takeAudio() {
@@ -537,6 +550,25 @@ class ChatSessionActivity(
         }, 2000L, 500L)
     }
 
+    /**检测是否有正在发送的消息，友情提示，防止退出后消息未发送*/
+    private fun checkHaveSending(): Boolean {
+        var haveSending = false
+        mChatMessageListFragment?.getMessageList()?.forEach {
+            if (it.sendStatus == EnumChatSendStatus.SENDING) {
+                haveSending = true
+            }
+        }
+        return haveSending
+    }
+
+    /**跳转到首页*/
+    private fun goToHome() {
+        ARouter.getInstance().build("/CHAT/MAIN")
+                .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
+                .navigation()
+        finish()
+    }
+
     private val mOnListItemClickListener = object : OnListItemClickListener {
         override fun onItemClick(view: View, position: Int, obj: Any?) {
             preOnItemClick(view, position, obj)
@@ -608,6 +640,7 @@ class ChatSessionActivity(
         }
     }
 
+    /**清除输入框焦点并关闭键盘*/
     private fun clearEditFocus() {
         chat_message_edit.clearFocus()
         BaseUtils.hideKeyboard(this)

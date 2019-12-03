@@ -58,11 +58,11 @@ class ChatMessageListFragment(
         return mMessageAdapter?.data ?: arrayListOf()
     }
 
-    /**文件消息发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
-    private val mMessageUpdateCancel: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
+    /**文件消息上传/发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
+    private val mMessageUpdateCache: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
 
     override fun initData(savedInstanceState: Bundle?) {
-        mMessageUpdateCancel.value = HashMap()
+        mMessageUpdateCache.value = HashMap()
     }
 
     override fun initView(view: View) {
@@ -107,12 +107,12 @@ class ChatMessageListFragment(
             refreshMessage(it)
         })
 
-        mMessageUpdateCancel.observe(this, Observer {
+        mMessageUpdateCache.observe(this, Observer {
             mActive = true
             it.map { v ->
                 notifyMessage(v.key, v.value)
             }
-            mMessageUpdateCancel.value?.clear()
+            mMessageUpdateCache.value?.clear()
             LogUtil.d("聊天列表页", "页面显示，更新缓存数据")
         })
 
@@ -215,9 +215,9 @@ class ChatMessageListFragment(
             }
         } else {
             LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
-            val list = mMessageUpdateCancel.value
+            val list = mMessageUpdateCache.value
             list?.put(oldMessageId, message)
-            mMessageUpdateCancel.postValue(list)
+            mMessageUpdateCache.postValue(list)
         }
     }
 
