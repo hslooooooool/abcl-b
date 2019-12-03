@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/chat_message_draw"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -11,7 +12,8 @@
 		
 		<include
 			android:id="@+id/base_title_bar"
-			layout="@layout/base_title_bar" />
+			layout="@layout/base_title_bar"
+			app:layout_constraintTop_toTopOf="parent" />
 		
 		<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 			android:id="@+id/chat_message_srl"
@@ -19,24 +21,28 @@
 			android:layout_height="0dp"
 			android:layout_weight="1">
 			
-			<FrameLayout
-				android:id="@+id/chat_message_frg"
+			<qsos.base.chat.view.widget.MessageRecyclerView
+				android:id="@+id/chat_message_rv"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent" />
+		
 		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 		
 		<LinearLayout
+			android:id="@+id/chat_message_other"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@color/colorPrimary"
 			android:orientation="horizontal"
+			android:paddingStart="10dp"
+			android:paddingTop="5dp"
+			android:paddingEnd="10dp"
 			android:weightSum="5">
 			
 			<Button
 				android:id="@+id/chat_message_audio"
 				android:layout_width="wrap_content"
 				android:layout_height="32dp"
-				android:layout_margin="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:text="AUDIO" />
@@ -45,7 +51,6 @@
 				android:id="@+id/chat_message_phone"
 				android:layout_width="wrap_content"
 				android:layout_height="32dp"
-				android:layout_margin="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:text="PHOTO" />
@@ -54,7 +59,6 @@
 				android:id="@+id/chat_message_album"
 				android:layout_width="wrap_content"
 				android:layout_height="32dp"
-				android:layout_margin="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:text="ALBUM" />
@@ -64,7 +68,6 @@
 				android:id="@+id/chat_message_video"
 				android:layout_width="wrap_content"
 				android:layout_height="32dp"
-				android:layout_margin="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:text="VIDEO" />
@@ -73,7 +76,6 @@
 				android:id="@+id/chat_message_file"
 				android:layout_width="wrap_content"
 				android:layout_height="32dp"
-				android:layout_margin="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:text="FILE" />
@@ -81,28 +83,33 @@
 		</LinearLayout>
 		
 		<LinearLayout
+			android:id="@+id/chat_message_input"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@color/colorPrimary"
 			android:gravity="center_vertical"
-			android:orientation="horizontal">
+			android:orientation="horizontal"
+			android:paddingStart="10dp"
+			android:paddingTop="5dp"
+			android:paddingEnd="10dp"
+			android:paddingBottom="5dp">
 			
 			<EditText
 				android:id="@+id/chat_message_edit"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_margin="10dp"
+				android:layout_marginEnd="10dp"
 				android:layout_weight="1"
 				android:background="@color/white"
 				android:contentDescription="@string/chat_input"
 				android:maxLines="10"
-				android:minHeight="42dp" />
+				android:minHeight="32dp"
+				android:padding="5dp" />
 			
 			<Button
 				android:id="@+id/chat_message_send"
 				android:layout_width="wrap_content"
-				android:layout_height="42dp"
-				android:layout_margin="10dp"
+				android:layout_height="32dp"
 				android:background="@color/white"
 				android:text="SEND" />
 		</LinearLayout>

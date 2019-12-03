@@ -9,49 +9,49 @@
 	android:gravity="center">
 	
 	<include
-		android:id="@+id/item_message_view_text"
+		android:id="@id/item_message_view_text"
 		layout="@layout/item_message_text"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_image"
+		android:id="@id/item_message_view_image"
 		layout="@layout/item_message_image"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_video"
+		android:id="@id/item_message_view_video"
 		layout="@layout/item_message_video"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_audio"
+		android:id="@id/item_message_view_audio"
 		layout="@layout/item_message_audio"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_file"
+		android:id="@id/item_message_view_file"
 		layout="@layout/item_message_file"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_link"
+		android:id="@id/item_message_view_link"
 		layout="@layout/item_message_link"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_card"
+		android:id="@id/item_message_view_card"
 		layout="@layout/item_message_card"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	
 	<include
-		android:id="@+id/item_message_view_location"
+		android:id="@id/item_message_view_location"
 		layout="@layout/item_message_location"
 		android:visibility="gone"
 		tools:visibility="visible" />

@@ -2,6 +2,37 @@
 <resources>
 	<!--聊天列表项数据-->
 	<item name="tag_of_chat_item_data" type="id" />
-	<!--聊天列表项发送状态-->
+	
+	<!--消息列表项基础部分布局-->
+	<!--用户头像-->
+	<item name="item_message_user_avatar" type="id" />
+	<!--用户名称-->
+	<item name="item_message_user_name" type="id" />
+	<!--内容布局-->
+	<item name="item_message_content" type="id" />
+	<!--发送进度-->
+	<item name="item_message_progress" type="id" />
+	<!--发送状态-->
 	<item name="item_message_state" type="id" />
+	<!--已读状态-->
+	<item name="item_message_read_state" type="id" />
+	
+	<!--消息列表项内容布局-->
+	<!--文本内容布局-->
+	<item name="item_message_view_text" type="id" />
+	<!--图片内容布局-->
+	<item name="item_message_view_image" type="id" />
+	<!--视频内容布局-->
+	<item name="item_message_view_video" type="id" />
+	<!--语音内容布局-->
+	<item name="item_message_view_audio" type="id" />
+	<!--文件内容布局-->
+	<item name="item_message_view_file" type="id" />
+	<!--链接内容布局-->
+	<item name="item_message_view_link" type="id" />
+	<!--名片内容布局-->
+	<item name="item_message_view_card" type="id" />
+	<!--位置内容布局-->
+	<item name="item_message_view_location" type="id" />
+
 </resources>

@@ -30,7 +30,6 @@ import qsos.base.chat.data.model.*
 import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.AudioUtils
-import qsos.base.chat.view.fragment.ChatMessageListFragment
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
 import qsos.core.file.Sources
@@ -86,7 +85,6 @@ class ChatSessionActivity(
     private var mChatGroupModel: IChatModel.IGroup? = null
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
-    private var mChatMessageListFragment: ChatMessageListFragment? = null
     private var mPullMessageTimer: Timer? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
 
@@ -140,6 +138,11 @@ class ChatSessionActivity(
                 }
             }
         }
+        chat_message_edit.setOnTouchListener { _, _ ->
+            chat_message_rv.scrollToBottom()
+            return@setOnTouchListener false
+        }
+
         chat_message_send.setOnClickListener {
             val content = chat_message_edit.text.toString().trim()
             if (TextUtils.isEmpty(content)) {
@@ -230,10 +233,12 @@ class ChatSessionActivity(
                         mTitle.text = group.name
                     }
 
-                    mChatMessageListFragment = ChatMessageListFragment(it, mMessageService!!, mOnListItemClickListener)
-                    supportFragmentManager.beginTransaction()
-                            .add(R.id.chat_message_frg, mChatMessageListFragment!!, "ChatMessageListFragment")
-                            .commit()
+                    chat_message_rv.initView(it, mMessageService!!, mOnListItemClickListener,
+                            4, this, object : OnTListener<Int> {
+                        override fun back(t: Int) {
+                            ToastUtils.showToast(mContext, "$t")
+                        }
+                    })
 
                     pullNewMessage(it)
                 }
@@ -553,7 +558,7 @@ class ChatSessionActivity(
     /**检测是否有正在发送的消息，友情提示，防止退出后消息未发送*/
     private fun checkHaveSending(): Boolean {
         var haveSending = false
-        mChatMessageListFragment?.getMessageList()?.forEach {
+        chat_message_rv.getMessageList().forEach {
             if (it.sendStatus == EnumChatSendStatus.SENDING) {
                 haveSending = true
             }

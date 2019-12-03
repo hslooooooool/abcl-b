@@ -7,7 +7,7 @@
 	android:padding="10dp">
 	
 	<ImageView
-		android:id="@+id/item_message_user_avatar"
+		android:id="@id/item_message_user_avatar"
 		android:layout_width="50dp"
 		android:layout_height="0dp"
 		android:contentDescription="@string/app_name"
@@ -18,7 +18,7 @@
 		tools:background="@color/gray" />
 	
 	<TextView
-		android:id="@+id/item_message_user_name"
+		android:id="@id/item_message_user_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:paddingTop="3dp"
@@ -30,7 +30,7 @@
 		tools:text="用户姓名" />
 	
 	<LinearLayout
-		android:id="@+id/item_message_content"
+		android:id="@id/item_message_content"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical|end"
@@ -50,7 +50,7 @@
 			android:padding="5dp">
 			
 			<ProgressBar
-				android:id="@+id/item_message_progress"
+				android:id="@id/item_message_progress"
 				android:layout_width="25dp"
 				android:layout_height="25dp"
 				android:layout_centerInParent="true"
@@ -76,7 +76,7 @@
 	</LinearLayout>
 	
 	<TextView
-		android:id="@+id/item_message_read_state"
+		android:id="@id/item_message_read_state"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:padding="@dimen/item_message_padding"

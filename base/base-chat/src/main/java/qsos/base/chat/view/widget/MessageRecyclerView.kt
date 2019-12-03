@@ -1,21 +1,19 @@
-package qsos.base.chat.view.fragment
+package qsos.base.chat.view.widget
 
 import android.annotation.SuppressLint
-import android.os.Bundle
+import android.app.Activity
+import android.content.Context
 import android.text.TextUtils
-import android.view.View
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import android.util.AttributeSet
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.fragment_chat_message.*
-import qsos.base.chat.R
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.RecycleViewUtils
 import qsos.base.chat.view.adapter.ChatMessageAdapter
-import qsos.lib.base.base.fragment.BaseFragment
+import qsos.base.chat.view.fragment.IChatFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
@@ -25,30 +23,21 @@ import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
 
 /**
- * @author : 华清松
- * 聊天列表页，提供:
- * - 消息多类型展示
- * - 新消息追加上屏与新消息数量展示
- * - 历史消息追加上屏
- * - 消息状态发送状态、读取状态更新
- * @param mSession 消息会话数据
- * @param mMessageService 消息服务，发送、撤销消息实现
- * @param mOnListItemClickListener 消息列表项点击监听
- * @param mNewMessageNumLimit 新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
+ * @author 华清松
+ * 聊天列表
  */
-@SuppressLint("CheckResult", "SetTextI18n")
-class ChatMessageListFragment(
-        private val mSession: IMessageService.Session,
-        private val mMessageService: IMessageService,
-        private var mOnListItemClickListener: OnListItemClickListener? = null,
-        private var mNewMessageNumLimit: Int = 4,
-        override val layoutId: Int = R.layout.fragment_chat_message,
-        override val reload: Boolean = false
-) : BaseFragment(), IChatFragment {
+@SuppressLint("CheckResult")
+class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
+
+    private lateinit var mSession: IMessageService.Session
+    private lateinit var mMessageService: IMessageService
+    private var mOnListItemClickListener: OnListItemClickListener? = null
+    private var mNewMessageNumLimit: Int = 4
+    private lateinit var mOwner: LifecycleOwner
+    private var mReadNumListener: OnTListener<Int>? = null
 
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
-
     private var mActive: Boolean = true
     private var mNewMessageNum = 0
     private var mMessageScrolling = false
@@ -62,56 +51,72 @@ class ChatMessageListFragment(
     /**文件消息上传/发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageUpdateCache: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
 
-    override fun initData(savedInstanceState: Bundle?) {
+    constructor(context: Context) : super(context) {}
+
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {}
+
+    /**加载页面*/
+    fun initView(
+            mSession: IMessageService.Session,
+            mMessageService: IMessageService,
+            mOnListItemClickListener: OnListItemClickListener? = null,
+            mNewMessageNumLimit: Int = 4,
+            mOwner: LifecycleOwner,
+            mReadNumListener: OnTListener<Int>? = null
+    ) {
+        this.mSession = mSession
+        this.mMessageService = mMessageService
+        this.mOnListItemClickListener = mOnListItemClickListener
+        this.mNewMessageNumLimit = mNewMessageNumLimit
+        this.mOwner = mOwner
+        this.mReadNumListener = mReadNumListener
+
+        this.mOwner.lifecycle.addObserver(this)
+
         mMessageUpdateCache.value = HashMap()
-    }
-
-    override fun initView(view: View) {
-
         mMessageAdapter = ChatMessageAdapter(mSession, arrayListOf(), mOnListItemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
             }
         })
-        mLinearLayoutManager = LinearLayoutManager(mContext)
+        mLinearLayoutManager = LinearLayoutManager(context)
         mLinearLayoutManager!!.stackFromEnd = false
         mLinearLayoutManager!!.reverseLayout = false
-        chat_message_list.layoutManager = mLinearLayoutManager
-        chat_message_list.adapter = mMessageAdapter
-        chat_message_list.itemAnimator = null
-        chat_message_list.setOnTouchListener { _, _ ->
-            BaseUtils.hideKeyboard(activity!!)
+        layoutManager = mLinearLayoutManager
+        adapter = mMessageAdapter
+        itemAnimator = null
+
+        setOnTouchListener { _, _ ->
+            BaseUtils.hideKeyboard(activity = context as Activity)
             return@setOnTouchListener false
         }
-        chat_message_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                if (newState == SCROLL_STATE_DRAGGING) {
                     mMessageScrolling = true
                 }
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (newState == SCROLL_STATE_IDLE) {
                     mMessageScrolling = false
                 }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (RecycleViewUtils.isSlideToBottom(chat_message_list)) {
-                    chat_message_new_message_num.visibility = View.GONE
+                if (RecycleViewUtils.isSlideToBottom(this@MessageRecyclerView)) {
                     mNewMessageNum = 0
+                    this@MessageRecyclerView.mReadNumListener?.back(mNewMessageNum)
                 }
             }
         })
 
-        chat_message_new_message_num.setOnClickListener {
-            scrollToBottom()
-        }
-
-        mMessageList.observe(this, Observer {
+        mMessageList.observe(mOwner, Observer {
             refreshMessage(it)
         })
 
-        mMessageUpdateCache.observe(this, Observer {
+        mMessageUpdateCache.observe(mOwner, Observer {
             mActive = true
             it.map { v ->
                 notifyMessage(v.key, v.value)
@@ -158,26 +163,22 @@ class ChatMessageListFragment(
                     }
                 }
 
-        getData()
-    }
-
-    override fun getData() {
         mMessageService.getMessageListBySessionId(mSession, mMessageList)
     }
 
-    override fun onResume() {
-        super.onResume()
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onResume() {
         mActive = true
     }
 
-    override fun onPause() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onPause() {
         mActive = false
-        super.onPause()
     }
 
-    override fun onDestroy() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
         mMessageService.clear()
-        super.onDestroy()
     }
 
     override fun refreshMessage(data: ArrayList<IMessageService.Message>) {
@@ -189,7 +190,7 @@ class ChatMessageListFragment(
             mMessageList.value?.clear()
             mMessageList.value?.addAll(data)
         } else {
-            ToastUtils.showToast(mContext, "暂无消息")
+            ToastUtils.showToast(context, "暂无消息")
         }
     }
 
@@ -201,7 +202,7 @@ class ChatMessageListFragment(
         mMessageService.sendMessage(
                 message = msg,
                 failed = { error, result ->
-                    ToastUtils.showToast(mContext, error)
+                    ToastUtils.showToast(context, error)
                     notifyMessage(result.messageId, result)
                 },
                 success = { oldMessageId, message ->
@@ -241,6 +242,7 @@ class ChatMessageListFragment(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun addNewMessage(message: IMessageService.Message, toBottom: Boolean) {
         if (mMessageAdapter?.data == null) {
             return
@@ -273,8 +275,7 @@ class ChatMessageListFragment(
             }
             else -> {
                 mNewMessageNum++
-                chat_message_new_message_num.visibility = View.VISIBLE
-                chat_message_new_message_num.text = "有 $mNewMessageNum 条新消息"
+                this.mReadNumListener?.back(mNewMessageNum)
             }
         }
         mMessageList.value?.add(message)
@@ -294,12 +295,12 @@ class ChatMessageListFragment(
 
     /**消息列表滚动到底部*/
     fun scrollToBottom() {
-        chat_message_list.stopScroll()
+        this.stopScroll()
         if (getMessageList().isNotEmpty()) {
             mLinearLayoutManager?.scrollToPosition(getMessageList().size - 1)
         }
-        chat_message_new_message_num.visibility = View.GONE
         mNewMessageNum = 0
+        this.mReadNumListener?.back(mNewMessageNum)
     }
 
 }
