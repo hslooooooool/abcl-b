@@ -1,4 +1,4 @@
-package qsos.base.chat.view.fragment
+package qsos.base.chat.view
 
 import qsos.base.chat.service.IMessageService
 
@@ -6,7 +6,7 @@ import qsos.base.chat.service.IMessageService
  * @author : 华清松
  * 聊天消息列表页功能接口
  */
-interface IChatFragment {
+interface IMessageListUI {
 
     /**发送消息，自动滑到底部
      * @param msg 消息数据

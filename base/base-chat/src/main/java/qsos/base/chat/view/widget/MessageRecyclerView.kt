@@ -12,8 +12,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.service.IMessageService
 import qsos.base.chat.utils.RecycleViewUtils
+import qsos.base.chat.view.IMessageListUI
 import qsos.base.chat.view.adapter.ChatMessageAdapter
-import qsos.base.chat.view.fragment.IChatFragment
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
@@ -24,10 +24,14 @@ import qsos.lib.base.utils.rx.RxBus
 
 /**
  * @author 华清松
- * 聊天列表
+ * 聊天列表页，提供:
+ * - 消息多类型展示
+ * - 新消息追加上屏与新消息数量展示
+ * - 历史消息追加上屏
+ * - 消息状态发送状态、读取状态更新
  */
 @SuppressLint("CheckResult")
-class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
+class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
     private lateinit var mSession: IMessageService.Session
     private lateinit var mMessageService: IMessageService
@@ -57,26 +61,37 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
 
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {}
 
-    /**加载页面*/
+    /**
+     * @author 华清松
+     * 聊天列表页，提供:
+     * - 消息多类型展示
+     * - 新消息追加上屏与新消息数量展示
+     * - 历史消息追加上屏
+     * - 消息状态发送状态、读取状态更新
+     * @param session 消息会话数据
+     * @param messageService 消息服务，发送、撤销消息实现
+     * @param itemClickListener 消息列表项点击监听
+     * @param newMessageNumLimit 新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
+     */
     fun initView(
-            mSession: IMessageService.Session,
-            mMessageService: IMessageService,
-            mOnListItemClickListener: OnListItemClickListener? = null,
-            mNewMessageNumLimit: Int = 4,
-            mOwner: LifecycleOwner,
-            mReadNumListener: OnTListener<Int>? = null
+            session: IMessageService.Session,
+            messageService: IMessageService,
+            itemClickListener: OnListItemClickListener? = null,
+            newMessageNumLimit: Int = 4,
+            lifecycleOwner: LifecycleOwner,
+            readNumListener: OnTListener<Int>? = null
     ) {
-        this.mSession = mSession
-        this.mMessageService = mMessageService
-        this.mOnListItemClickListener = mOnListItemClickListener
-        this.mNewMessageNumLimit = mNewMessageNumLimit
-        this.mOwner = mOwner
-        this.mReadNumListener = mReadNumListener
+        this.mSession = session
+        this.mMessageService = messageService
+        this.mOnListItemClickListener = itemClickListener
+        this.mNewMessageNumLimit = newMessageNumLimit
+        this.mOwner = lifecycleOwner
+        this.mReadNumListener = readNumListener
 
         this.mOwner.lifecycle.addObserver(this)
 
         mMessageUpdateCache.value = HashMap()
-        mMessageAdapter = ChatMessageAdapter(mSession, arrayListOf(), mOnListItemClickListener, object : OnTListener<Int> {
+        mMessageAdapter = ChatMessageAdapter(session, arrayListOf(), itemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
             }
@@ -112,11 +127,11 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
             }
         })
 
-        mMessageList.observe(mOwner, Observer {
+        mMessageList.observe(lifecycleOwner, Observer {
             refreshMessage(it)
         })
 
-        mMessageUpdateCache.observe(mOwner, Observer {
+        mMessageUpdateCache.observe(lifecycleOwner, Observer {
             mActive = true
             it.map { v ->
                 notifyMessage(v.key, v.value)
@@ -129,7 +144,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
         RxBus.toFlow(IMessageService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (it.session.sessionId == mSession.sessionId) {
+                    if (it.session.sessionId == session.sessionId) {
                         when (it.eventType) {
                             IMessageService.EventType.UPDATE_SHOWED -> {
                                 it.message.forEach { message ->
@@ -163,7 +178,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IChatFragment {
                     }
                 }
 
-        mMessageService.getMessageListBySessionId(mSession, mMessageList)
+        messageService.getMessageListBySessionId(session, mMessageList)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)

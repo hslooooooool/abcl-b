@@ -233,12 +233,15 @@ class ChatSessionActivity(
                         mTitle.text = group.name
                     }
 
-                    chat_message_rv.initView(it, mMessageService!!, mOnListItemClickListener,
-                            4, this, object : OnTListener<Int> {
-                        override fun back(t: Int) {
-                            ToastUtils.showToast(mContext, "$t")
-                        }
-                    })
+                    chat_message_rv.initView(
+                            session = it, messageService = mMessageService!!,
+                            itemClickListener = mOnListItemClickListener,
+                            newMessageNumLimit = 4, lifecycleOwner = this,
+                            readNumListener = object : OnTListener<Int> {
+                                override fun back(t: Int) {
+                                    ToastUtils.showToast(mContext, "$t")
+                                }
+                            })
 
                     pullNewMessage(it)
                 }
