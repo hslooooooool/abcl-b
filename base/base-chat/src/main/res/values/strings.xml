@@ -10,4 +10,10 @@
 	<string name="chat_cancel_message_notice">你撤销了一条消息</string>
 	<string name="chat_cancel_message_reedit">重新编辑</string>
 	<string name="chat_add_user_into_group">点击用户可添加入群，如果当前群为单聊，将创建群聊进行聊天</string>
+	<string name="chat_send">发送</string>
+	<string name="chat_input_album">相册</string>
+	<string name="chat_input_voice">语音</string>
+	<string name="chat_input_camera">拍照</string>
+	<string name="chat_input_video">录像</string>
+	<string name="chat_input_folder">文件</string>
 </resources>

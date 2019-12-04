@@ -3,7 +3,6 @@ package qsos.base.chat.view.holder
 import android.view.View
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import kotlinx.android.synthetic.main.item_message_link.view.*
-import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessageLink
 import qsos.base.chat.service.IMessageService
 import qsos.lib.base.callback.OnListItemClickListener

@@ -3,7 +3,6 @@ package qsos.base.chat.view.holder
 import android.view.View
 import kotlinx.android.synthetic.main.item_message_card.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
-import qsos.base.chat.data.entity.ChatSession
 import qsos.base.chat.data.entity.MChatMessageCard
 import qsos.base.chat.service.IMessageService
 import qsos.core.lib.utils.image.ImageLoaderUtils

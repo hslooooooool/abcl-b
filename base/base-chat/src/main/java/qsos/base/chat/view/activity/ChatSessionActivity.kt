@@ -5,10 +5,13 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Point
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -142,7 +145,17 @@ class ChatSessionActivity(
             chat_message_rv.scrollToBottom()
             return@setOnTouchListener false
         }
+        chat_message_edit.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
 
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                changeSendStyle(s?.length ?: 0)
+            }
+        })
         chat_message_send.setOnClickListener {
             val content = chat_message_edit.text.toString().trim()
             if (TextUtils.isEmpty(content)) {
@@ -156,10 +169,10 @@ class ChatSessionActivity(
                 chat_message_edit.setText("")
             }
         }
-        chat_message_audio.setOnClickListener {
+        chat_message_voice.setOnClickListener {
             takeAudio()
         }
-        chat_message_phone.setOnClickListener {
+        chat_message_camera.setOnClickListener {
             takePhoto()
         }
         chat_message_album.setOnClickListener {
@@ -292,7 +305,6 @@ class ChatSessionActivity(
     override fun takeAudio() {
         clearEditFocus()
         BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
-            @SuppressLint("CheckResult")
             override fun bindView(dialog: AbsBottomDialog) {
                 AudioUtils.record(dialog).observeOn(AndroidSchedulers.mainThread()).subscribe({
                     val file = File(it.audioPath)
@@ -659,5 +671,14 @@ class ChatSessionActivity(
     private fun clearEditFocus() {
         chat_message_edit.clearFocus()
         BaseUtils.hideKeyboard(this)
+    }
+
+    /**根据输入字数，修改发送按钮样式*/
+    private fun changeSendStyle(inputNum: Int = 0) {
+        if (inputNum > 0) {
+            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        } else {
+            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.gray))
+        }
     }
 }
