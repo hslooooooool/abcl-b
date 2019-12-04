@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+	
+	<style name="ChatItemLeftViewStyle">
+		<item name="android:background">@drawable/bg_chat_item_left</item>
+	</style>
+	
+	<style name="ChatItemRightViewStyle">
+		<item name="android:background">@drawable/bg_chat_item_right</item>
+	</style>
 </resources>

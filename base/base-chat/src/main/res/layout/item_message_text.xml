@@ -10,7 +10,10 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
-		android:padding="@dimen/item_message_padding"
+		android:paddingStart="@dimen/item_message_padding_se"
+		android:paddingTop="@dimen/item_message_padding"
+		android:paddingEnd="@dimen/item_message_padding_se"
+		android:paddingBottom="@dimen/item_message_padding"
 		android:textColor="@color/black"
 		android:textSize="@dimen/item_message_text_size"
 		tools:text="文本消息内容" />
