@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -306,20 +307,33 @@ class ChatSessionActivity(
         clearEditFocus()
         BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
             override fun bindView(dialog: AbsBottomDialog) {
-                AudioUtils.record(dialog).observeOn(AndroidSchedulers.mainThread()).subscribe({
-                    val file = File(it.audioPath)
-                    if (file.exists()) {
-                        val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
-                        fileEntity.adjoin = it.recordTime + 0L
-                        sendFileMessage(EnumChatMessageType.AUDIO, arrayListOf(
-                                fileEntity
-                        ))
-                    } else {
-                        ToastUtils.showToast(mContext, "文件不存在")
-                    }
-                }, {
-                    it.printStackTrace()
-                })
+                AudioUtils.record(
+                        dialog.findViewById<ImageView>(R.id.audio_action),
+                        dialog.findViewById(R.id.audio_state),
+                        object : OnTListener<Int> {
+                            override fun back(t: Int) {
+                                if (t < 0) {
+                                    dialog.dismiss()
+                                }
+                            }
+                        }
+                ).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        {
+                            val file = File(it.audioPath)
+                            if (file.exists()) {
+                                val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
+                                fileEntity.adjoin = it.recordTime + 0L
+                                sendFileMessage(EnumChatMessageType.AUDIO, arrayListOf(
+                                        fileEntity
+                                ))
+                            } else {
+                                ToastUtils.showToast(mContext, "文件不存在")
+                            }
+                        },
+                        {
+                            it.printStackTrace()
+                        }
+                )
             }
         })
     }

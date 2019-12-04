@@ -2,13 +2,12 @@ package qsos.base.chat.utils
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
-import android.widget.ImageView
+import android.view.View
 import android.widget.TextView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import qsos.base.chat.R
 import qsos.core.file.audio.*
-import qsos.core.lib.utils.dialog.AbsBottomDialog
+import qsos.lib.base.callback.OnTListener
 import kotlin.math.abs
 
 /**
@@ -29,7 +28,9 @@ object AudioUtils {
      * @param config 录音配置，限制最小最大录制时长，设置录音格式，支持 AMR 与 WAV 格式
      * */
     fun record(
-            dialog: AbsBottomDialog,
+            touchView: View,
+            stateView: TextView,
+            closeListener: OnTListener<Int>,
             config: AudioRecordConfig = AudioRecordConfig.Builder()
                     .setLimitMinTime(1)
                     .setLimitMaxTime(10)
@@ -38,8 +39,7 @@ object AudioUtils {
     ): Observable<AudioRecordData> {
         fileObservable = PublishSubject.create()
         mAudioRecordController = AudioRecordController(config)
-        val stateView = dialog.findViewById<TextView>(R.id.audio_state)
-        dialog.findViewById<ImageView>(R.id.audio_action).setOnTouchListener { _, motionEvent ->
+        touchView.setOnTouchListener { _, motionEvent ->
             when (motionEvent.action) {
                 /**按下手指*/
                 MotionEvent.ACTION_DOWN -> {
@@ -67,29 +67,28 @@ object AudioUtils {
             when (it.recordState) {
                 AudioRecordState.PREPARE, AudioRecordState.RECORDING, AudioRecordState.CANCEL_REFUSE -> {
                     stateView.text = "聆听中...\t\t时长:\t\t${it.recordTime} 秒"
+                    closeListener.back(0)
                 }
                 AudioRecordState.CANCEL_WANT -> {
                     stateView.text = "松开可取消录音...\t\t时长:\t\t${it.recordTime} 秒"
+                    closeListener.back(1)
                 }
                 AudioRecordState.CANCEL -> {
-                    stateView.text = it.recordState.value
                     fileObservable?.onComplete()
                     fileObservable = null
-                    if (dialog.isVisible) dialog.dismiss()
+                    closeListener.back(-1)
                 }
                 AudioRecordState.ERROR -> {
-                    stateView.text = it.recordState.value
                     fileObservable?.onError(Throwable(it.recordState.value))
                     fileObservable?.onComplete()
                     fileObservable = null
-                    if (dialog.isVisible) dialog.dismiss()
+                    closeListener.back(-2)
                 }
                 AudioRecordState.FINISH -> {
-                    stateView.text = it.recordState.value + "\t\t时长:${it.recordTime} 秒"
                     fileObservable?.onNext(it)
                     fileObservable?.onComplete()
                     fileObservable = null
-                    if (dialog.isVisible) dialog.dismiss()
+                    closeListener.back(-3)
                 }
             }
         }
