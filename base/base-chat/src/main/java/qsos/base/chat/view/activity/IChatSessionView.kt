@@ -14,7 +14,7 @@ import qsos.lib.netservice.file.HttpFileEntity
 interface IChatSessionView {
 
     /**获取语音*/
-    fun takeAudio()
+    fun takeVoice()
 
     /**获取拍照*/
     fun takePhoto()

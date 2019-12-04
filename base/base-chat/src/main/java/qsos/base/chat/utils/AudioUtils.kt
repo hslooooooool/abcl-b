@@ -9,14 +9,17 @@ import io.reactivex.subjects.PublishSubject
 import qsos.base.chat.R
 import qsos.core.file.audio.*
 import qsos.core.lib.utils.dialog.AbsBottomDialog
+import kotlin.math.abs
 
 /**
  * @author : 华清松
  * 录音工具
  */
-@SuppressLint("SetTextI18n")
+@SuppressLint("SetTextI18n", "CheckResult")
 object AudioUtils {
     private var fileObservable: PublishSubject<AudioRecordData>? = null
+    /**录音按键左右移动距离*/
+    private var moveX = 0F
     /**录音按键上下移动距离*/
     private var moveY = 0F
     private lateinit var mAudioRecordController: AudioRecordController
@@ -29,7 +32,7 @@ object AudioUtils {
             dialog: AbsBottomDialog,
             config: AudioRecordConfig = AudioRecordConfig.Builder()
                     .setLimitMinTime(1)
-                    .setLimitMaxTime(30)
+                    .setLimitMaxTime(10)
                     .setAudioFormat(AudioType.AMR)
                     .build()
     ): Observable<AudioRecordData> {
@@ -40,6 +43,7 @@ object AudioUtils {
             when (motionEvent.action) {
                 /**按下手指*/
                 MotionEvent.ACTION_DOWN -> {
+                    moveX = motionEvent.x
                     moveY = motionEvent.y
                     /**开始录音*/
                     mAudioRecordController.start()
@@ -50,7 +54,7 @@ object AudioUtils {
                 }
                 /**移动手指*/
                 MotionEvent.ACTION_MOVE -> {
-                    if ((moveY - motionEvent.y) > 200) {
+                    if (abs(moveX - motionEvent.x) > 100 || abs(moveY - motionEvent.y) > 100) {
                         mAudioRecordController.cancelWant()
                     } else {
                         mAudioRecordController.cancelRefuse()
@@ -61,38 +65,33 @@ object AudioUtils {
         }
         mAudioRecordController.mAudioPublisher.subscribe {
             when (it.recordState) {
-                AudioRecordState.PREPARE -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
-                }
-                AudioRecordState.RECORDING -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
+                AudioRecordState.PREPARE, AudioRecordState.RECORDING, AudioRecordState.CANCEL_REFUSE -> {
+                    stateView.text = "聆听中...\t\t时长:\t\t${it.recordTime} 秒"
                 }
                 AudioRecordState.CANCEL_WANT -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
-                }
-                AudioRecordState.CANCEL_REFUSE -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
+                    stateView.text = "松开可取消录音...\t\t时长:\t\t${it.recordTime} 秒"
                 }
                 AudioRecordState.CANCEL -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
+                    stateView.text = it.recordState.value
                     fileObservable?.onComplete()
+                    fileObservable = null
                     if (dialog.isVisible) dialog.dismiss()
                 }
                 AudioRecordState.ERROR -> {
-                    stateView.text = it.recordState.value + "\t\t时长:\t\t${it.recordTime} 秒"
-                    fileObservable?.onError(Throwable("录音错误"))
+                    stateView.text = it.recordState.value
+                    fileObservable?.onError(Throwable(it.recordState.value))
                     fileObservable?.onComplete()
+                    fileObservable = null
                     if (dialog.isVisible) dialog.dismiss()
                 }
                 AudioRecordState.FINISH -> {
                     stateView.text = it.recordState.value + "\t\t时长:${it.recordTime} 秒"
                     fileObservable?.onNext(it)
                     fileObservable?.onComplete()
+                    fileObservable = null
                     if (dialog.isVisible) dialog.dismiss()
                 }
             }
-        }.takeUnless {
-            !dialog.isVisible
         }
         return fileObservable!!
     }

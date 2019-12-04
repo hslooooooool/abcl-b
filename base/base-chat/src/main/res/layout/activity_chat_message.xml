@@ -54,109 +54,134 @@
 			tools:text="有10条新消息"
 			tools:visibility="visible" />
 		
-		<LinearLayout
+		<RelativeLayout
 			android:id="@+id/chat_message_input"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/gray_low"
-			android:gravity="bottom"
-			android:orientation="horizontal"
-			android:paddingTop="10dp"
 			app:layout_constraintBottom_toTopOf="@id/chat_message_other">
 			
-			<androidx.appcompat.widget.AppCompatEditText
-				android:id="@+id/chat_message_edit"
-				android:layout_width="0dp"
+			<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginStart="10dp"
-				android:layout_marginEnd="5dp"
-				android:layout_weight="1"
-				android:background="@color/white"
-				android:contentDescription="@string/chat_input"
-				android:inputType="textMultiLine"
-				android:maxLength="100"
-				android:maxLines="10"
-				android:minHeight="36dp"
-				android:padding="5dp"
-				android:scrollbars="vertical"
-				android:textCursorDrawable="@null"
-				android:textSize="@dimen/item_message_text_size_small" />
-			
-			<Button
-				android:id="@+id/chat_message_send"
-				style="?android:attr/borderlessButtonStyle"
-				android:layout_width="48dp"
-				android:layout_height="36dp"
-				android:layout_marginEnd="10dp"
-				android:background="@color/gray"
-				android:gravity="center"
-				android:padding="5dp"
-				android:text="@string/chat_send"
-				android:textColor="@color/white"
-				android:textSize="@dimen/item_message_text_size_smaller"
-				android:textStyle="bold" />
-		</LinearLayout>
+				android:background="@color/gray_low"
+				android:gravity="bottom"
+				android:orientation="horizontal"
+				android:paddingTop="10dp">
+				
+				<androidx.appcompat.widget.AppCompatEditText
+					android:id="@+id/chat_message_edit"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="10dp"
+					android:layout_marginEnd="5dp"
+					android:layout_weight="1"
+					android:background="@color/white"
+					android:contentDescription="@string/chat_input"
+					android:inputType="textMultiLine"
+					android:maxLength="100"
+					android:maxLines="10"
+					android:minHeight="36dp"
+					android:padding="5dp"
+					android:scrollbars="vertical"
+					android:textCursorDrawable="@null"
+					android:textSize="@dimen/item_message_text_size_small" />
+				
+				<Button
+					android:id="@+id/chat_message_send"
+					style="?android:attr/borderlessButtonStyle"
+					android:layout_width="48dp"
+					android:layout_height="36dp"
+					android:layout_marginEnd="10dp"
+					android:background="@color/gray"
+					android:gravity="center"
+					android:padding="5dp"
+					android:text="@string/chat_send"
+					android:textColor="@color/white"
+					android:textSize="@dimen/item_message_text_size_smaller"
+					android:textStyle="bold" />
+			</LinearLayout>
+		
+		</RelativeLayout>
 		
 		<LinearLayout
 			android:id="@+id/chat_message_other"
 			android:layout_width="match_parent"
-			android:layout_height="42dp"
-			android:background="@color/gray_low"
-			android:orientation="horizontal"
-			android:padding="5dp"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
 			app:layout_constraintBottom_toBottomOf="parent">
 			
-			<ImageButton
-				android:id="@+id/chat_message_album"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:background="@null"
-				android:contentDescription="@string/chat_input_album"
-				android:scaleType="centerInside"
-				app:srcCompat="@drawable/selector_input_pic" />
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="42dp"
+				android:background="@color/gray_low"
+				android:orientation="horizontal"
+				android:padding="5dp">
+				
+				<ImageButton
+					android:id="@+id/chat_message_album"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="@null"
+					android:contentDescription="@string/chat_input_album"
+					android:scaleType="centerInside"
+					app:srcCompat="@drawable/selector_input_pic" />
+				
+				<ImageButton
+					android:id="@+id/chat_message_camera"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="@null"
+					android:contentDescription="@string/chat_input_camera"
+					android:scaleType="centerInside"
+					app:srcCompat="@drawable/selector_input_camera" />
+				
+				<ImageButton
+					android:id="@+id/chat_message_voice"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="@null"
+					android:contentDescription="@string/chat_input_voice"
+					android:scaleType="centerInside"
+					app:srcCompat="@drawable/selector_input_voice" />
+				
+				<ImageButton
+					android:id="@+id/chat_message_video"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="@null"
+					android:contentDescription="@string/chat_input_video"
+					android:scaleType="centerInside"
+					app:srcCompat="@drawable/selector_input_video" />
+				
+				<ImageButton
+					android:id="@+id/chat_message_file"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:background="@null"
+					android:contentDescription="@string/chat_input_folder"
+					android:scaleType="centerInside"
+					app:srcCompat="@drawable/selector_input_folder" />
 			
-			<ImageButton
-				android:id="@+id/chat_message_camera"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:background="@null"
-				android:contentDescription="@string/chat_input_camera"
-				android:scaleType="centerInside"
-				app:srcCompat="@drawable/selector_input_camera" />
+			</LinearLayout>
 			
-			<ImageButton
-				android:id="@+id/chat_message_voice"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:background="@null"
-				android:contentDescription="@string/chat_input_voice"
-				android:scaleType="centerInside"
-				app:srcCompat="@drawable/selector_input_voice" />
-			
-			<ImageButton
-				android:id="@+id/chat_message_video"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:background="@null"
-				android:contentDescription="@string/chat_input_video"
-				android:scaleType="centerInside"
-				app:srcCompat="@drawable/selector_input_video" />
-			
-			<ImageButton
-				android:id="@+id/chat_message_file"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:background="@null"
-				android:contentDescription="@string/chat_input_folder"
-				android:scaleType="centerInside"
-				app:srcCompat="@drawable/selector_input_folder" />
-		
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="@color/white_low">
+				
+				<include
+					android:id="@+id/chat_message_input_voice"
+					layout="@layout/input_voice"
+					android:visibility="gone"
+					tools:visibility="gone" />
+			</RelativeLayout>
 		</LinearLayout>
+	
 	</androidx.constraintlayout.widget.ConstraintLayout>
 	
 	<!--右边抽屉，用户列表-->

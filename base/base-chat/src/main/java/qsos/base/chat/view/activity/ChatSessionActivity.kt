@@ -169,14 +169,14 @@ class ChatSessionActivity(
                 chat_message_edit.setText("")
             }
         }
-        chat_message_voice.setOnClickListener {
-            takeAudio()
-        }
         chat_message_camera.setOnClickListener {
             takePhoto()
         }
         chat_message_album.setOnClickListener {
             takeAlbum()
+        }
+        chat_message_voice.setOnClickListener {
+            takeVoice()
         }
         chat_message_video.setOnClickListener {
             takeVideo()
@@ -302,7 +302,7 @@ class ChatSessionActivity(
         }
     }
 
-    override fun takeAudio() {
+    override fun takeVoice() {
         clearEditFocus()
         BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
             override fun bindView(dialog: AbsBottomDialog) {
@@ -596,6 +596,7 @@ class ChatSessionActivity(
         finish()
     }
 
+    /**列表项点击监听*/
     private val mOnListItemClickListener = object : OnListItemClickListener {
         override fun onItemClick(view: View, position: Int, obj: Any?) {
             preOnItemClick(view, position, obj)
