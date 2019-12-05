@@ -23,7 +23,7 @@ class ItemChatMessageFileViewHolder(session: IMessageService.Session, view: View
             data.getRealContent<MChatMessageFile>()?.let {
                 ImageLoaderUtils.display(itemView.context, item_message_file_avatar, it.url)
                 item_message_file_name.text = it.name
-                item_message_file_length.text = "${it.length} kb"
+                item_message_file_length.text = "${it.length/1024} kb"
                 item_message_file_avatar.setOnClickListener { _ ->
                     PlayerConfigHelper.previewDocument(
                             context = itemView.context,
