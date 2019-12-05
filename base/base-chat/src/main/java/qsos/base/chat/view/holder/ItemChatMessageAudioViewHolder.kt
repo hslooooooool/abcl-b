@@ -2,7 +2,7 @@ package qsos.base.chat.view.holder
 
 import android.annotation.SuppressLint
 import android.view.View
-import kotlinx.android.synthetic.main.item_message_audio.view.*
+import kotlinx.android.synthetic.main.item_message_voice.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.MChatMessageAudio
 import qsos.base.chat.service.IMessageService

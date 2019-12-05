@@ -41,7 +41,7 @@ abstract class ItemChatMessageBaseViewHolder(
 
     override fun setData(data: IMessageService.Message, position: Int) {
         getContentView(data, position).apply {
-            ImageLoaderUtils.display(
+            ImageLoaderUtils.displayRounded(
                     context,
                     this.findViewById(R.id.item_message_user_avatar),
                     data.sendUserAvatar

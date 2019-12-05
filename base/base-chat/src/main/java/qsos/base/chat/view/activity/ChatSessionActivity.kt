@@ -27,7 +27,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat_message.*
 import kotlinx.android.synthetic.main.item_chat_friend.view.*
-import kotlinx.android.synthetic.main.item_message_audio.view.*
+import kotlinx.android.synthetic.main.item_message_voice.view.*
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.*
@@ -546,6 +546,7 @@ class ChatSessionActivity(
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
                         message.sendStatus = EnumChatSendStatus.SUCCESS
                         message.content.put("url", file.url)
+                        message.content.put("avatar", file.avatar)
 
                         RxBus.send(IMessageService.MessageEvent(
                                 session = mMessageSession.value!!,
@@ -661,7 +662,7 @@ class ChatSessionActivity(
     /**列表项长按*/
     private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
-            R.id.item_message_content -> {
+            R.id.item_message_text -> {
                 if (obj != null && obj is IMessageService.Message) {
                     val point = IntArray(2)
                     view.getLocationOnScreen(point)

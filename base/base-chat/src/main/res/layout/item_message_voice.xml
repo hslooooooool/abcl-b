@@ -5,7 +5,6 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:layout_gravity="center"
-	android:background="@color/colorPrimary"
 	android:gravity="center_vertical"
 	android:orientation="horizontal">
 	
@@ -25,7 +24,7 @@
 		android:minWidth="@dimen/item_message_min_width"
 		android:minHeight="@dimen/item_message_min_height"
 		android:padding="@dimen/item_message_padding"
-		android:textColor="@color/white"
+		android:textColor="@color/chat_text"
 		android:textSize="@dimen/item_message_text_size"
 		tools:ignore="SmallSp"
 		tools:text="5`" />

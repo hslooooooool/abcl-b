@@ -3,9 +3,9 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/base_title_bar_ll"
+	style="@style/TitleBarStyle"
 	android:layout_width="match_parent"
-	android:layout_height="50dp"
-	android:background="@color/gray_low">
+	android:layout_height="50dp">
 	
 	<TextView
 		android:id="@+id/base_title_bar_title"
@@ -39,7 +39,6 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="5dp"
-			android:background="@color/white"
 			android:gravity="center"
 			android:padding="5dp"
 			android:text="@string/base_more"

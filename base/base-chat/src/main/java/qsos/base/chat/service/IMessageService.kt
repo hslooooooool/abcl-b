@@ -85,7 +85,7 @@ interface IMessageService {
         var sendStatus: EnumChatSendStatus?
         /**当前用户消息读取状态*/
         var readStatus: Boolean?
-        /**消息读取人数,单聊时1即为已读，群聊时代表读取人数*/
+        /**消息读取人数,单聊时2即为已读，群聊时代表读取人数*/
         var readNum: Int
 
         /**消息更新发送状态*/

@@ -20,7 +20,7 @@ class ItemChatMessageImageViewHolder(session: IMessageService.Session, view: Vie
         contentView.apply {
             item_message_view_image.visibility = View.VISIBLE
             data.getRealContent<MChatMessageImage>()?.let {
-                ImageLoaderUtils.display(itemView.context, item_message_image, it.url)
+                ImageLoaderUtils.displayRounded(itemView.context, item_message_image, it.url)
                 item_message_image.setOnClickListener { _ ->
                     val char = "min-"
                     val url = it.url.replace(char, "")

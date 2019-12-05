@@ -97,7 +97,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
             }
         })
         mLinearLayoutManager = LinearLayoutManager(context)
-        mLinearLayoutManager!!.stackFromEnd = false
+        mLinearLayoutManager!!.stackFromEnd = true
         mLinearLayoutManager!!.reverseLayout = false
         layoutManager = mLinearLayoutManager
         adapter = mMessageAdapter
@@ -201,7 +201,6 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
             mMessageAdapter?.data?.clear()
             mMessageAdapter?.data?.addAll(data)
             mMessageAdapter?.notifyDataSetChanged()
-            scrollToBottom()
             mMessageList.value?.clear()
             mMessageList.value?.addAll(data)
         } else {
@@ -310,7 +309,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
     override fun scrollToBottom() {
         this.stopScroll()
         if (getMessageList().isNotEmpty()) {
-            mLinearLayoutManager?.scrollToPosition(getMessageList().size - 1)
+            mLinearLayoutManager?.scrollToPositionWithOffset(getMessageList().size - 1, 0)
         }
         mNewMessageNum = 0
         this.mReadNumListener?.back(mNewMessageNum)

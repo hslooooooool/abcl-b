@@ -15,6 +15,10 @@ class ItemChatMessageTextViewHolder(session: IMessageService.Session, view: View
     override fun setContent(contentView: View, data: IMessageService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_text.visibility = View.VISIBLE
+            item_message_text.setOnLongClickListener {
+                itemListener?.onItemLongClick(it, position, data)
+                true
+            }
             data.getRealContent<MChatMessageText>()?.let {
                 item_message_text.text = it.content
             }

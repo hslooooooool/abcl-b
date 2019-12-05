@@ -5,16 +5,17 @@
 	android:layout_height="wrap_content"
 	android:layout_gravity="center">
 	
-	<TextView
-		android:id="@+id/item_message_text"
+	<androidx.appcompat.widget.AppCompatTextView
+		android:id="@id/item_message_text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
+		android:includeFontPadding="false"
+		android:maxWidth="220dp"
 		android:paddingStart="@dimen/item_message_padding_se"
 		android:paddingTop="@dimen/item_message_padding"
 		android:paddingEnd="@dimen/item_message_padding_se"
 		android:paddingBottom="@dimen/item_message_padding"
-		android:textColor="@color/black"
+		android:textColor="@color/chat_text"
 		android:textSize="@dimen/item_message_text_size"
 		tools:text="文本消息内容" />
 </RelativeLayout>

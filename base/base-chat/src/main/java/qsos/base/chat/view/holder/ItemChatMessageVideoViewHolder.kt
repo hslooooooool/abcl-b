@@ -21,7 +21,7 @@ class ItemChatMessageVideoViewHolder(session: IMessageService.Session, view: Vie
             item_message_view_video.visibility = View.VISIBLE
             val content = data.getRealContent<MChatMessageVideo>()
             content?.let {
-                ImageLoaderUtils.display(itemView.context, item_message_video_avatar, content.avatar)
+                ImageLoaderUtils.displayRounded(itemView.context, item_message_video_avatar, content.avatar)
 
                 item_message_video_avatar.setOnClickListener {
                     itemListener?.onItemClick(it, position, data)

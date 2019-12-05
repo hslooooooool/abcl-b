@@ -17,4 +17,5 @@
 	<string name="chat_input_video">录像</string>
 	<string name="chat_input_folder">文件</string>
 	<string name="chat_input_listen">聆听中...</string>
+	<string name="chat_item_image">聊天图片</string>
 </resources>

@@ -8,4 +8,8 @@
 	<style name="ChatItemRightViewStyle">
 		<item name="android:background">@drawable/bg_chat_item_right</item>
 	</style>
+	
+	<style name="TitleBarStyle">
+		<item name="android:background">@color/colorPrimary</item>
+	</style>
 </resources>

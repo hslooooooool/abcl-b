@@ -40,7 +40,7 @@
 			android:ellipsize="end"
 			android:padding="@dimen/item_message_padding"
 			android:singleLine="true"
-			android:textColor="@color/colorAccent"
+			android:textColor="@color/chat_text"
 			android:textSize="@dimen/item_message_text_size"
 			tools:text="测试文件" />
 		

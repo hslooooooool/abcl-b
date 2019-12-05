@@ -34,5 +34,8 @@
 	<item name="item_message_view_card" type="id" />
 	<!--位置内容布局-->
 	<item name="item_message_view_location" type="id" />
-
+	
+	<!--消息文本控件-->
+	<item name="item_message_text" type="id" />
+	
 </resources>

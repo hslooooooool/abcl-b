@@ -27,7 +27,8 @@
 			<qsos.base.chat.view.widget.MessageRecyclerView
 				android:id="@+id/chat_message_rv"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
+				android:layout_height="match_parent"
+				android:background="#EDEDED" />
 		
 		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 		

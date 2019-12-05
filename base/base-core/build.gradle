@@ -5,10 +5,7 @@ apply from: '../../push.gradle'
 
 dependencies {
 
-    api('com.github.hslooooooool:abcl-c:1.9.2') {
-        // 排除表单组件
-        exclude group: 'com.github.hslooooooool.abcl-c', module: 'core-form'
-    }
+    api('com.github.hslooooooool:abcl-c:1.9.3')
 
     api 'androidx.navigation:navigation-fragment-ktx:2.1.0'
     api 'androidx.navigation:navigation-ui-ktx:2.1.0'

@@ -27,7 +27,7 @@
 	
 	<include
 		android:id="@id/item_message_view_audio"
-		layout="@layout/item_message_audio"
+		layout="@layout/item_message_voice"
 		android:visibility="gone"
 		tools:visibility="visible" />
 	

@@ -23,7 +23,7 @@
 		android:layout_height="wrap_content"
 		android:paddingTop="3dp"
 		android:paddingBottom="3dp"
-		android:textColor="@color/black_light"
+		android:textColor="@color/gray"
 		android:textSize="@dimen/item_message_text_size_smaller"
 		app:layout_constraintStart_toEndOf="@id/item_message_user_avatar"
 		app:layout_constraintTop_toTopOf="@id/item_message_user_avatar"
@@ -46,7 +46,9 @@
 		<FrameLayout
 			style="@style/ChatItemLeftViewStyle"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
 			
 			<include
 				layout="@layout/item_message_items"
