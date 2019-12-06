@@ -10,7 +10,6 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -23,8 +22,6 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_chat_message.*
 import kotlinx.android.synthetic.main.item_chat_friend.view.*
 import kotlinx.android.synthetic.main.item_message_voice.view.*
@@ -33,14 +30,6 @@ import qsos.base.chat.data.entity.*
 import qsos.base.chat.data.model.*
 import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
-import qsos.base.chat.utils.AudioUtils
-import qsos.core.file.RxImageConverters
-import qsos.core.file.RxImagePicker
-import qsos.core.file.Sources
-import qsos.core.lib.utils.dialog.AbsBottomDialog
-import qsos.core.lib.utils.dialog.BottomDialog
-import qsos.core.lib.utils.dialog.BottomDialogUtils
-import qsos.core.lib.utils.file.FileUtils
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.audio.AudioPlayerHelper
@@ -58,7 +47,6 @@ import qsos.lib.base.utils.rx.RxBus
 import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
-import java.io.File
 import java.util.*
 import kotlin.concurrent.timerTask
 
@@ -174,19 +162,19 @@ class ChatSessionActivity(
             }
         }
         chat_message_camera.setOnClickListener {
-            takePhoto()
+            takeFile(0)
         }
         chat_message_album.setOnClickListener {
-            takeAlbum()
-        }
-        chat_message_voice.setOnClickListener {
-            takeVoice()
+            takeFile(1)
         }
         chat_message_video.setOnClickListener {
-            takeVideo()
+            takeFile(2)
+        }
+        chat_message_voice.setOnClickListener {
+            takeFile(3)
         }
         chat_message_file.setOnClickListener {
-            takeFile()
+            takeFile(4)
         }
 
         base_title_bar.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
@@ -252,7 +240,15 @@ class ChatSessionActivity(
 
                     chat_message_rv.initView(
                             session = it, messageService = mMessageService!!,
-                            itemClickListener = mOnListItemClickListener,
+                            itemClickListener = object : OnListItemClickListener {
+                                override fun onItemClick(view: View, position: Int, obj: Any?) {
+                                    preOnItemClick(view, obj)
+                                }
+
+                                override fun onItemLongClick(view: View, position: Int, obj: Any?) {
+                                    preOnItemLongClick(view, obj)
+                                }
+                            },
                             newMessageNumLimit = 4, lifecycleOwner = this,
                             readNumListener = object : OnTListener<Int> {
                                 override fun back(t: Int) {
@@ -306,120 +302,10 @@ class ChatSessionActivity(
         }
     }
 
-    override fun takeVoice() {
+    override fun takeFile(fileType: Int) {
         clearEditFocus()
-        BottomDialogUtils.showCustomerView(mContext, R.layout.audio_dialog, object : BottomDialog.ViewListener {
-            override fun bindView(dialog: AbsBottomDialog) {
-                AudioUtils.record(
-                        dialog.findViewById<ImageView>(R.id.audio_action),
-                        dialog.findViewById(R.id.audio_state),
-                        object : OnTListener<Int> {
-                            override fun back(t: Int) {
-                                if (t < 0) {
-                                    dialog.dismiss()
-                                }
-                            }
-                        }
-                ).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                        {
-                            val file = File(it.audioPath)
-                            if (file.exists()) {
-                                val fileEntity = HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
-                                fileEntity.adjoin = it.recordTime + 0L
-                                sendFileMessage(EnumChatMessageType.AUDIO, arrayListOf(
-                                        fileEntity
-                                ))
-                            } else {
-                                ToastUtils.showToast(mContext, "文件不存在")
-                            }
-                        },
-                        {
-                            it.printStackTrace()
-                        }
-                )
-            }
-        })
-    }
-
-    override fun takePhoto() {
-        clearEditFocus()
-        RxImagePicker.with(supportFragmentManager).takeImage(type = Sources.DEVICE)
-                .flatMap {
-                    RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createImageFile())
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                    file.adjoin = it.length()
-                    sendFileMessage(EnumChatMessageType.IMAGE, arrayListOf(file))
-                }
-    }
-
-    override fun takeAlbum() {
-        clearEditFocus()
-        RxImagePicker.with(supportFragmentManager)
-                .takeFiles(arrayOf("image/*")).flatMap {
-                    val files = arrayListOf<File>()
-                    it.forEachIndexed { index, uri ->
-                        if (index < 10) {
-                            RxImageConverters.uriToFile(mContext, uri, null)?.let { f ->
-                                files.add(f)
-                            }
-                        } else {
-                            ToastUtils.showToast(mContext, "一次最多可上传9张")
-                        }
-                    }
-                    Observable.just(files)
-                }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-                    FileUtils.zipFileByLuBan(mContext, it, object : OnTListener<List<File>> {
-                        override fun back(t: List<File>) {
-                            val files = arrayListOf<HttpFileEntity>()
-                            t.forEach { f ->
-                                val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
-                                file.adjoin = f.length()
-                                files.add(file)
-                            }
-                            sendFileMessage(EnumChatMessageType.IMAGE, files)
-                        }
-                    })
-                }
-    }
-
-    override fun takeVideo() {
-        clearEditFocus()
-        RxImagePicker.with(supportFragmentManager).takeVideo().flatMap {
-            RxImageConverters.uriToFileObservable(mContext, it, FileUtils.createVideoFile())
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-            file.adjoin = it.length()
-            sendFileMessage(EnumChatMessageType.VIDEO, arrayListOf(file))
-        }
-    }
-
-    override fun takeFile() {
-        clearEditFocus()
-        RxImagePicker.with(supportFragmentManager).takeFiles(
-                arrayOf("application/vnd.ms-powerpoint", "application/pdf", "application/msword")
-        ).flatMap {
-            val files = arrayListOf<File>()
-            it.forEachIndexed { index, uri ->
-                if (index < 2) {
-                    RxImageConverters.uriToFile(mContext, uri, FileUtils.createFileByUri(mContext, uri))?.let { f ->
-                        files.add(f)
-                    }
-                } else {
-                    ToastUtils.showToast(mContext, "一次最多可上传1个文件")
-                }
-            }
-            Observable.just(files)
-        }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val files = arrayListOf<HttpFileEntity>()
-            it.forEach { f ->
-                val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
-                file.adjoin = f.length()
-                files.add(file)
-            }
-            sendFileMessage(EnumChatMessageType.FILE, files)
+        mModel.sendFileMessage(mContext, supportFragmentManager, fileType) { type, files ->
+            sendFileMessage(type, files)
         }
     }
 
@@ -453,7 +339,6 @@ class ChatSessionActivity(
                                     }
                                 }))
                             }
-
                         }
                     }
             )
@@ -618,17 +503,6 @@ class ChatSessionActivity(
         finish()
     }
 
-    /**列表项点击监听*/
-    private val mOnListItemClickListener = object : OnListItemClickListener {
-        override fun onItemClick(view: View, position: Int, obj: Any?) {
-            preOnItemClick(view, obj)
-        }
-
-        override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-            preOnItemLongClick(view, obj)
-        }
-    }
-
     /**列表项点击*/
     private fun preOnItemClick(view: View, obj: Any?) {
         when (view.id) {
@@ -647,31 +521,16 @@ class ChatSessionActivity(
             }
             R.id.item_message_state -> {
                 if (obj is IMessageService.Message) {
-                    var needUpdate = false
-                    var file: File? = null
-                    when (obj.content.getContentType()) {
-                        EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType,
-                        EnumChatMessageType.AUDIO.contentType, EnumChatMessageType.FILE.contentType -> {
-                            val url = obj.content.fields["url"] as String
-                            file = File(url)
-                            needUpdate = file.exists()
+                    mModel.resendMessage(obj) {
+                        if (it == null) {
+                            RxBus.send(IMessageService.MessageEvent(
+                                    session = mMessageSession.value!!,
+                                    message = arrayListOf(obj),
+                                    eventType = IMessageService.EventType.SEND_SHOWED
+                            ))
+                        } else {
+                            uploadFile(arrayListOf(it))
                         }
-                        EnumChatMessageType.TEXT.contentType, EnumChatMessageType.LINK.contentType,
-                        EnumChatMessageType.CARD.contentType, EnumChatMessageType.LOCATION.contentType -> {
-                            needUpdate = false
-                        }
-                    }
-                    if (needUpdate) {
-                        val mHttpFileEntity = HttpFileEntity(url = null, path = file!!.absolutePath, filename = file.name)
-                        mHttpFileEntity.adjoin = obj
-
-                        uploadFile(arrayListOf(mHttpFileEntity))
-                    } else {
-                        RxBus.send(IMessageService.MessageEvent(
-                                session = mMessageSession.value!!,
-                                message = arrayListOf(obj),
-                                eventType = IMessageService.EventType.SEND_SHOWED
-                        ))
                     }
                 }
             }
@@ -683,7 +542,10 @@ class ChatSessionActivity(
                 }
             }
             R.id.item_message_cancel_reedit -> {
-                if (obj != null && obj is IMessageService.Message && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType) {
+                if (
+                        obj != null && obj is IMessageService.Message
+                        && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType
+                ) {
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
                         RxBus.send(IMessageService.MessageEvent(
@@ -713,8 +575,9 @@ class ChatSessionActivity(
                                 chat_message_edit.setText("回复(${obj.sendUserName})：")
                             }
                             R.id.menu_message_copy -> {
-                                val mClipData = ClipData.newPlainText(applicationInfo.nonLocalizedLabel,
-                                        obj.content.getContent())
+                                val mClipData = ClipData.newPlainText(
+                                        applicationInfo.nonLocalizedLabel, obj.content.getContent()
+                                )
                                 (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip = mClipData
                             }
                             else -> {

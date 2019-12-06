@@ -13,20 +13,10 @@ import qsos.lib.netservice.file.HttpFileEntity
  */
 interface IChatSessionView {
 
-    /**获取语音*/
-    fun takeVoice()
-
-    /**获取拍照*/
-    fun takePhoto()
-
-    /**获取相册*/
-    fun takeAlbum()
-
-    /**获取视频*/
-    fun takeVideo()
-
-    /**获取文件*/
-    fun takeFile()
+    /**获取文件
+     * @param fileType 0 拍照 1 相册 2 视频 3 语音 4 文件
+     * */
+    fun takeFile(fileType: Int)
 
     /**语音播放*/
     fun playAudio(view: View, data: MChatMessageAudio)
