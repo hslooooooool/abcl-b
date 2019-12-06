@@ -18,4 +18,8 @@
 	<string name="chat_input_folder">文件</string>
 	<string name="chat_input_listen">聆听中...</string>
 	<string name="chat_item_image">聊天图片</string>
+	<string name="chat_citations">引用</string>
+	<string name="chat_cancel">撤销</string>
+	<string name="chat_reply">回复</string>
+	<string name="chat_copy">复制</string>
 </resources>

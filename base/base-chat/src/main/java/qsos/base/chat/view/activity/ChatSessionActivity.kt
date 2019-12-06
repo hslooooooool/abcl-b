@@ -3,7 +3,8 @@ package qsos.base.chat.view.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.graphics.Point
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils
@@ -21,7 +22,6 @@ import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.google.gson.Gson
-import com.noober.menu.FloatMenu
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -92,7 +92,10 @@ class ChatSessionActivity(
     private var mPullMessageTimer: Timer? = null
     private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
 
+    private lateinit var mModel: IChatSessionModel
+
     override fun initData(savedInstanceState: Bundle?) {
+        mModel = ChatSessionModel(this)
         mChatSessionModel = DefChatSessionModelIml()
         mChatMessageModel = DefChatMessageModelIml()
         mMessageService = DefMessageService()
@@ -625,6 +628,19 @@ class ChatSessionActivity(
     /**列表项点击*/
     private fun preOnItemClick(view: View, position: Int, obj: Any?) {
         when (view.id) {
+            R.id.item_message_text -> {
+                if (obj != null && obj is IMessageService.Message) {
+                    mModel.clickTextMessage(view, obj) {
+                        when (it) {
+                            R.id.menu_message_citations -> {
+                                chat_message_edit.append(obj.content.getContent())
+                            }
+                            else -> {
+                            }
+                        }
+                    }
+                }
+            }
             R.id.item_message_state -> {
                 if (obj is IMessageService.Message) {
                     // TODO 判断消息类型，如果是文本，直接发送，如果是文件，判断上传是否成功，否-重新上传再发送
@@ -664,20 +680,23 @@ class ChatSessionActivity(
         when (view.id) {
             R.id.item_message_text -> {
                 if (obj != null && obj is IMessageService.Message) {
-                    val point = IntArray(2)
-                    view.getLocationOnScreen(point)
-                    val floatMenu = FloatMenu(this)
-                    floatMenu.items("撤销", "其它")
-                    floatMenu.setOnItemClickListener { _, index ->
-                        when (index) {
-                            0 -> {
+                    mModel.longClickTextMessage(view, obj) {
+                        when (it) {
+                            R.id.menu_message_cancel -> {
                                 deleteMessage(obj)
+                            }
+                            R.id.menu_message_reply -> {
+                                chat_message_edit.setText("回复(${obj.sendUserName})：")
+                            }
+                            R.id.menu_message_copy -> {
+                                val mClipData = ClipData.newPlainText(applicationInfo.nonLocalizedLabel,
+                                        obj.content.getContent())
+                                (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip = mClipData
                             }
                             else -> {
                             }
                         }
                     }
-                    floatMenu.show(Point(point[0], point[1]))
                 }
             }
         }

@@ -48,4 +48,9 @@ data class ChatContent(
     fun getContentDesc(): String {
         return this.fields["contentDesc"]?.toString() ?: ""
     }
+
+    /**获取文本内容，仅文本消息有效*/
+    fun getContent(): String {
+        return this.fields["content"]?.toString() ?: ""
+    }
 }

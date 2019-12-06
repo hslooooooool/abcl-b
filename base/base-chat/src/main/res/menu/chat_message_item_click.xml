@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<group android:id="@+id/menu_message_1">
+		<item
+			android:id="@id/menu_message_citations"
+			android:title="@string/chat_citations" />
+	</group>
+	
+	<group android:id="@+id/menu_message_2">
+		<item
+			android:id="@id/menu_message_cancel"
+			android:title="@string/chat_cancel" />
+		<item
+			android:id="@id/menu_message_reply"
+			android:title="@string/chat_reply" />
+		<item
+			android:id="@id/menu_message_copy"
+			android:title="@string/chat_copy" />
+	</group>
+</menu>

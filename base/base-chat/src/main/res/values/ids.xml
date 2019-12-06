@@ -38,4 +38,13 @@
 	<!--消息文本控件-->
 	<item name="item_message_text" type="id" />
 	
+	<!--消息列表项菜单-->
+	<!--引用-->
+	<item name="menu_message_citations" type="id" />
+	<!--撤销-->
+	<item name="menu_message_cancel" type="id" />
+	<!--回复-->
+	<item name="menu_message_reply" type="id" />
+	<!--复制-->
+	<item name="menu_message_copy" type="id" />
 </resources>
