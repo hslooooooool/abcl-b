@@ -362,7 +362,7 @@ class ChatSessionActivity(
                     val files = arrayListOf<File>()
                     it.forEachIndexed { index, uri ->
                         if (index < 10) {
-                            RxImageConverters.uriToFile(mContext, uri, FileUtils.createImageFile())?.let { f ->
+                            RxImageConverters.uriToFile(mContext, uri, null)?.let { f ->
                                 files.add(f)
                             }
                         } else {
@@ -371,13 +371,17 @@ class ChatSessionActivity(
                     }
                     Observable.just(files)
                 }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-                    val files = arrayListOf<HttpFileEntity>()
-                    it.forEach { f ->
-                        val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
-                        file.adjoin = f.length()
-                        files.add(file)
-                    }
-                    sendFileMessage(EnumChatMessageType.IMAGE, files)
+                    FileUtils.zipFileByLuBan(mContext, it, object : OnTListener<List<File>> {
+                        override fun back(t: List<File>) {
+                            val files = arrayListOf<HttpFileEntity>()
+                            t.forEach { f ->
+                                val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
+                                file.adjoin = f.length()
+                                files.add(file)
+                            }
+                            sendFileMessage(EnumChatMessageType.IMAGE, files)
+                        }
+                    })
                 }
     }
 
@@ -643,12 +647,32 @@ class ChatSessionActivity(
             }
             R.id.item_message_state -> {
                 if (obj is IMessageService.Message) {
-                    // TODO 判断消息类型，如果是文本，直接发送，如果是文件，判断上传是否成功，否-重新上传再发送
-                    RxBus.send(IMessageService.MessageEvent(
-                            session = mMessageSession.value!!,
-                            message = arrayListOf(obj),
-                            eventType = IMessageService.EventType.SEND_SHOWED
-                    ))
+                    var needUpdate = false
+                    var file: File? = null
+                    when (obj.content.getContentType()) {
+                        EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType,
+                        EnumChatMessageType.AUDIO.contentType, EnumChatMessageType.FILE.contentType -> {
+                            val url = obj.content.fields["url"] as String
+                            file = File(url)
+                            needUpdate = file.exists()
+                        }
+                        EnumChatMessageType.TEXT.contentType, EnumChatMessageType.LINK.contentType,
+                        EnumChatMessageType.CARD.contentType, EnumChatMessageType.LOCATION.contentType -> {
+                            needUpdate = false
+                        }
+                    }
+                    if (needUpdate) {
+                        val mHttpFileEntity = HttpFileEntity(url = null, path = file!!.absolutePath, filename = file.name)
+                        mHttpFileEntity.adjoin = obj
+
+                        uploadFile(arrayListOf(mHttpFileEntity))
+                    } else {
+                        RxBus.send(IMessageService.MessageEvent(
+                                session = mMessageSession.value!!,
+                                message = arrayListOf(obj),
+                                eventType = IMessageService.EventType.SEND_SHOWED
+                        ))
+                    }
                 }
             }
             R.id.item_message_view_audio -> {
