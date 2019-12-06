@@ -107,27 +107,7 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
                         }
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
-                            val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                            file.adjoin = it.length()
-                            back.invoke(EnumChatMessageType.IMAGE, arrayListOf(file))
-                        }
-            }
-            1 -> {
-                RxImagePicker.with(fm).takeFiles(arrayOf("image/*")).flatMap {
-                    val files = arrayListOf<File>()
-                    it.forEachIndexed { index, uri ->
-                        if (index < 10) {
-                            RxImageConverters.uriToFile(context, uri, null)?.let { f ->
-                                files.add(f)
-                            }
-                        } else {
-                            ToastUtils.showToast(context, "一次最多可上传9张")
-                        }
-                    }
-                    Observable.just(files)
-                }.observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            FileUtils.zipFileByLuBan(context, it, object : OnTListener<List<File>> {
+                            FileUtils.zipFileByLuBan(context, arrayListOf(it), object : OnTListener<List<File>> {
                                 override fun back(t: List<File>) {
                                     val files = arrayListOf<HttpFileEntity>()
                                     t.forEach { f ->
@@ -140,14 +120,50 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
                             })
                         }
             }
+            1 -> {
+                RxImagePicker.with(fm).takeFiles(arrayOf("image/*")).flatMap {
+                    val files = arrayListOf<File>()
+                    it.forEachIndexed { index, uri ->
+                        if (index < 10) {
+                            RxImageConverters.uriToFile(context, uri, null)?.let { f ->
+                                files.add(f)
+                            }
+                        }
+                    }
+                    Observable.just(files)
+                }.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            FileUtils.zipFileByLuBan(context, it, object : OnTListener<List<File>> {
+                                override fun back(t: List<File>) {
+                                    val files = arrayListOf<HttpFileEntity>()
+                                    t.forEach { f ->
+                                        val file = HttpFileEntity(url = null, path = f.absolutePath, filename = f.name)
+                                        file.adjoin = f.length()
+                                        if (f.length() <= 5 * 1000 * 1000) {
+                                            files.add(file)
+                                        } else {
+                                            ToastUtils.showToast(context, "文件【${f.name}】大小超过限制，不允许上传")
+                                        }
+                                    }
+                                    back.invoke(EnumChatMessageType.IMAGE, files)
+                                }
+                            })
+                        }
+            }
             2 -> {
                 RxImagePicker.with(fm).takeVideo()
                         .flatMap {
                             RxImageConverters.uriToFileObservable(context, it, FileUtils.createVideoFile())
                         }.observeOn(AndroidSchedulers.mainThread()).subscribe {
-                            val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
-                            file.adjoin = it.length()
-                            back.invoke(EnumChatMessageType.VIDEO, arrayListOf(file))
+                            val files = arrayListOf<HttpFileEntity>()
+                            if (it.length() <= 5 * 1000 * 1000) {
+                                val file = HttpFileEntity(url = null, path = it.absolutePath, filename = it.name)
+                                file.adjoin = it.length()
+                                files.add(file)
+                            } else {
+                                ToastUtils.showToast(context, "文件【${it.name}】大小超过限制，不允许上传")
+                            }
+                            back.invoke(EnumChatMessageType.VIDEO, files)
                         }
             }
             3 -> {
@@ -190,7 +206,11 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
                     it.forEachIndexed { index, uri ->
                         if (index < 2) {
                             RxImageConverters.uriToFile(context, uri, null)?.let { f ->
-                                files.add(f)
+                                if (f.length() <= 5 * 1000 * 1000) {
+                                    files.add(f)
+                                } else {
+                                    ToastUtils.showToast(context, "文件【${f.name}】大小超过限制，不允许上传")
+                                }
                             }
                         } else {
                             ToastUtils.showToast(context, "一次最多可上传1个文件")

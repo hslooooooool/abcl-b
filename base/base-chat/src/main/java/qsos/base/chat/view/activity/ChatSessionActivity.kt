@@ -154,10 +154,8 @@ class ChatSessionActivity(
                 chat_message_edit.hint = "请输入内容"
                 BaseUtils.hideKeyboard(this)
             } else {
-
                 sendMessage(ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
                         .put("content", content), send = true, bottom = true)
-
                 chat_message_edit.setText("")
             }
         }
@@ -177,12 +175,14 @@ class ChatSessionActivity(
             takeFile(4)
         }
 
-        base_title_bar.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
-        base_title_bar.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
-            ARouter.getInstance().build("/CHAT/MAIN")
-                    .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
-                    .navigation()
-            finish()
+        base_title_bar.apply {
+            this.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
+            this.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
+                ARouter.getInstance().build("/CHAT/MAIN")
+                        .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
+                        .navigation()
+                finish()
+            }
         }
 
         /**当前所有用户列表，用于添加用户入群*/

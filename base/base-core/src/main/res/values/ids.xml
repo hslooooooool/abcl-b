@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--通用标题栏布局-->
+	<item name="base_title_bar_ll" type="id" />
+	<!--通用标题栏-标题-->
+	<item name="base_title_bar_title" type="id" />
+	<!--通用标题栏-左边按钮-->
+	<item name="base_title_bar_icon_left" type="id" />
+	<!--通用标题栏-右边按钮组-->
+	<item name="base_title_bar_menu" type="id" />
+	<!--通用标题栏-右边按钮组内-更多按钮-->
+	<item name="base_title_bar_menu_more" type="id" />
+</resources>
