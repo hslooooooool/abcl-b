@@ -617,16 +617,16 @@ class ChatSessionActivity(
     /**列表项点击监听*/
     private val mOnListItemClickListener = object : OnListItemClickListener {
         override fun onItemClick(view: View, position: Int, obj: Any?) {
-            preOnItemClick(view, position, obj)
+            preOnItemClick(view, obj)
         }
 
         override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-            preOnItemLongClick(view, position, obj)
+            preOnItemLongClick(view, obj)
         }
     }
 
     /**列表项点击*/
-    private fun preOnItemClick(view: View, position: Int, obj: Any?) {
+    private fun preOnItemClick(view: View, obj: Any?) {
         when (view.id) {
             R.id.item_message_text -> {
                 if (obj != null && obj is IMessageService.Message) {
@@ -676,7 +676,7 @@ class ChatSessionActivity(
     }
 
     /**列表项长按*/
-    private fun preOnItemLongClick(view: View, position: Int, obj: Any?) {
+    private fun preOnItemLongClick(view: View, obj: Any?) {
         when (view.id) {
             R.id.item_message_text -> {
                 if (obj != null && obj is IMessageService.Message) {
