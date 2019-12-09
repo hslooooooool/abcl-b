@@ -1,9 +1,7 @@
 package qsos.base.chat.view.activity
 
-import android.view.View
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.data.entity.MChatMessageAudio
 import qsos.base.chat.service.IMessageService
 import qsos.lib.netservice.file.HttpFileEntity
 
@@ -12,17 +10,22 @@ import qsos.lib.netservice.file.HttpFileEntity
  * 消息会话操作
  */
 interface IChatSessionView {
+    /**回到主页*/
+    fun goToHome()
+
+    /**检测是否有正在发送的消息，友情提示，防止退出后消息未发送*/
+    fun checkHaveSending(): Boolean
+
+    /**清除输入框焦点并关闭键盘*/
+    fun clearEditFocus()
+
+    /**根据输入字数，修改发送按钮样式*/
+    fun changeSendStyle(inputNum: Int = 0)
 
     /**获取文件
      * @param fileType 0 拍照 1 相册 2 视频 3 语音 4 文件
      * */
     fun takeFile(fileType: Int)
-
-    /**语音播放*/
-    fun playAudio(view: View, data: MChatMessageAudio)
-
-    /**停止所有语音播放*/
-    fun stopAudioPlay()
 
     /**文件上传，采用递归，依次上传
      * @param files 总计需要上传的文件

@@ -11,7 +11,6 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.MutableLiveData
@@ -31,9 +30,6 @@ import qsos.base.chat.data.model.*
 import qsos.base.chat.service.DefMessageService
 import qsos.base.chat.service.IMessageService
 import qsos.core.lib.utils.image.ImageLoaderUtils
-import qsos.core.player.PlayerConfigHelper
-import qsos.core.player.audio.AudioPlayerHelper
-import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.adapter.BaseNormalAdapter
@@ -78,7 +74,6 @@ class ChatSessionActivity(
     private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mPullMessageTimer: Timer? = null
-    private val mPlayList: HashMap<String, AudioPlayerHelper?> = HashMap()
 
     private lateinit var mModel: IChatSessionModel
 
@@ -90,6 +85,8 @@ class ChatSessionActivity(
         mChatUserModel = DefChatUserModelIml()
         mChatGroupModel = DefChatGroupModelIml()
         mFileModel = FileRepository(mChatMessageModel!!.mJob)
+
+        lifecycle.addObserver(mModel)
     }
 
     override fun initView() {
@@ -268,11 +265,6 @@ class ChatSessionActivity(
         )
     }
 
-    override fun onPause() {
-        stopAudioPlay()
-        super.onPause()
-    }
-
     override fun onDestroy() {
         mChatSessionModel?.clear()
         mChatMessageModel?.clear()
@@ -299,60 +291,6 @@ class ChatSessionActivity(
                 dialog.dismiss()
             }
             build.create().show()
-        }
-    }
-
-    override fun takeFile(fileType: Int) {
-        clearEditFocus()
-        mModel.sendFileMessage(mContext, supportFragmentManager, fileType) { type, files ->
-            sendFileMessage(type, files)
-        }
-    }
-
-    override fun playAudio(view: View, data: MChatMessageAudio) {
-        var mAudioPlayerHelper: AudioPlayerHelper? = mPlayList[data.url]
-        if (mAudioPlayerHelper == null) {
-            /**停止其它播放*/
-            stopAudioPlay()
-            mAudioPlayerHelper = PlayerConfigHelper.previewAudio(
-                    context = mContext, position = 0,
-                    list = arrayListOf(
-                            PreAudioEntity(
-                                    name = data.name,
-                                    desc = data.name,
-                                    path = data.url
-                            )
-                    ),
-                    onPlayerListener = object : OnTListener<AudioPlayerHelper.State> {
-                        override fun back(t: AudioPlayerHelper.State) {
-                            view.apply {
-                                this.item_message_audio_state.setImageDrawable(AppCompatResources.getDrawable(mContext, when (t) {
-                                    AudioPlayerHelper.State.STOP -> {
-                                        R.drawable.icon_play
-                                    }
-                                    AudioPlayerHelper.State.ERROR -> {
-                                        ToastUtils.showToast(mContext, "播放错误")
-                                        R.drawable.icon_play
-                                    }
-                                    else -> {
-                                        R.drawable.icon_pause
-                                    }
-                                }))
-                            }
-                        }
-                    }
-            )
-            mPlayList[data.url] = mAudioPlayerHelper
-        } else {
-            /**停止当前音频播放*/
-            mPlayList.remove(data.url)
-            mAudioPlayerHelper.stop()
-        }
-    }
-
-    override fun stopAudioPlay() {
-        mPlayList.values.forEach {
-            it?.stop()
         }
     }
 
@@ -389,6 +327,13 @@ class ChatSessionActivity(
         ))
 
         return message
+    }
+
+    override fun takeFile(fileType: Int) {
+        clearEditFocus()
+        mModel.sendFileMessage(mContext, supportFragmentManager, fileType) { type, files ->
+            sendFileMessage(type, files)
+        }
     }
 
     override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
@@ -484,8 +429,7 @@ class ChatSessionActivity(
         }, 2000L, 500L)
     }
 
-    /**检测是否有正在发送的消息，友情提示，防止退出后消息未发送*/
-    private fun checkHaveSending(): Boolean {
+    override fun checkHaveSending(): Boolean {
         var haveSending = false
         chat_message_rv.getMessageList().forEach {
             if (it.sendStatus == EnumChatSendStatus.SENDING) {
@@ -495,12 +439,24 @@ class ChatSessionActivity(
         return haveSending
     }
 
-    /**跳转到首页*/
-    private fun goToHome() {
+    override fun goToHome() {
         ARouter.getInstance().build("/CHAT/MAIN")
                 .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                 .navigation()
         finish()
+    }
+
+    override fun clearEditFocus() {
+        chat_message_edit.clearFocus()
+        BaseUtils.hideKeyboard(this)
+    }
+
+    override fun changeSendStyle(inputNum: Int) {
+        if (inputNum > 0) {
+            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        } else {
+            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.gray))
+        }
     }
 
     /**列表项点击*/
@@ -537,7 +493,7 @@ class ChatSessionActivity(
             R.id.item_message_view_audio -> {
                 if (obj is IMessageService.Message) {
                     obj.getRealContent<MChatMessageAudio>()?.let {
-                        playAudio(view, it)
+                        mModel.playAudio(view, view.item_message_audio_state, it)
                     }
                 }
             }
@@ -589,18 +545,4 @@ class ChatSessionActivity(
         }
     }
 
-    /**清除输入框焦点并关闭键盘*/
-    private fun clearEditFocus() {
-        chat_message_edit.clearFocus()
-        BaseUtils.hideKeyboard(this)
-    }
-
-    /**根据输入字数，修改发送按钮样式*/
-    private fun changeSendStyle(inputNum: Int = 0) {
-        if (inputNum > 0) {
-            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
-        } else {
-            chat_message_send.setBackgroundColor(ContextCompat.getColor(this, R.color.gray))
-        }
-    }
 }

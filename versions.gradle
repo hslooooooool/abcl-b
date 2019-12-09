@@ -97,7 +97,7 @@ glide.compiler = "com.github.bumptech.glide:compiler:4.9.0"
 deps.glide = glide
 
 deps.dexmaker = "com.linkedin.dexmaker:dexmaker-mockito:2.2.0"
-deps.constraint_layout = "androidx.constraintlayout:constraintlayout:2.0.0-beta1"
+deps.constraint_layout = "androidx.constraintlayout:constraintlayout:2.0.0-beta2"
 deps.timber = "com.jakewharton.timber:timber:4.7.1"
 deps.okhttp3_mock = "com.squareup.okhttp3:mockwebserver:3.8.1"
 
