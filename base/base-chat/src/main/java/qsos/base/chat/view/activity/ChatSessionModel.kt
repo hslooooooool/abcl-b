@@ -14,6 +14,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.MChatMessageAudio
+import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.service.IMessageListService
 import qsos.base.chat.utils.AudioUtils
 import qsos.core.file.RxImageConverters
@@ -71,13 +72,13 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
         inflater.inflate(R.menu.chat_message_item_click, popup.menu)
         popup.menu.removeGroup(R.id.menu_message_1)
         when {
-            message.sendUserId == ChatMainActivity.mLoginUser.value?.userId -> {
+            message.sendUserId == IChatModel.mLoginUser.value?.userId -> {
                 popup.menu.removeItem(R.id.menu_message_reply)
                 if (message.readNum >= 2) {
                     popup.menu.removeItem(R.id.menu_message_cancel)
                 }
             }
-            message.sendUserId != ChatMainActivity.mLoginUser.value?.userId -> {
+            message.sendUserId != IChatModel.mLoginUser.value?.userId -> {
                 popup.menu.removeItem(R.id.menu_message_cancel)
             }
         }

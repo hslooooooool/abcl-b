@@ -12,7 +12,7 @@ import qsos.lib.base.utils.ActivityManager
  * 闪屏界面
  */
 class SplashActivity(
-        override val layoutId: Int = R.layout.app_activity_splash,
+        override val layoutId: Int = R.layout.activity_splash,
         override val reload: Boolean = false
 ) : BaseActivity() {
 

@@ -1,5 +1,6 @@
 package qsos.base.chat.data.model
 
+import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.data.entity.*
 import qsos.lib.netservice.data.BaseHttpLiveData
 import kotlin.coroutines.CoroutineContext
@@ -9,6 +10,10 @@ import kotlin.coroutines.CoroutineContext
  * 聊天接口定义
  */
 interface IChatModel {
+
+    companion object {
+        val mLoginUser: MutableLiveData<ChatUser> = MutableLiveData()
+    }
 
     interface IUser {
 

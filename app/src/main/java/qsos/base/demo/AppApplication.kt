@@ -4,11 +4,6 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import com.scwang.smartrefresh.layout.SmartRefreshLayout
-import com.scwang.smartrefresh.layout.api.RefreshFooter
-import com.scwang.smartrefresh.layout.api.RefreshHeader
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter
-import com.scwang.smartrefresh.layout.header.ClassicsHeader
 import qsos.base.demo.config.PlayerConfig
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
@@ -26,19 +21,6 @@ open class AppApplication(
         override var debugARouter: Boolean = true,
         override var debugTimber: Boolean = true
 ) : BaseApplication(), LifecycleOwner {
-
-    init {
-        // 设置全局的Header构建器
-        SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, layout ->
-            layout.setPrimaryColorsId(android.R.color.white, android.R.color.black)
-            return@setDefaultRefreshHeaderCreator ClassicsHeader(context) as RefreshHeader
-        }
-        // 设置全局的Footer构建器
-        SmartRefreshLayout.setDefaultRefreshFooterCreator { context, layout ->
-            layout.setPrimaryColorsId(android.R.color.white, android.R.color.black)
-            return@setDefaultRefreshFooterCreator ClassicsFooter(context) as RefreshFooter
-        }
-    }
 
     override fun getLifecycle(): Lifecycle {
         return LifecycleRegistry(this)

@@ -97,7 +97,7 @@ class LoginFragment(
                                     BaseConfig.userId = user.userId
                                     mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
                                             .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
-                                    ARouter.getInstance().build("/CHAT/MAIN").navigation()
+                                    ARouter.getInstance().build("/APP/MAIN").navigation()
                                     (context as Activity?)?.finish()
                                 }
                             }

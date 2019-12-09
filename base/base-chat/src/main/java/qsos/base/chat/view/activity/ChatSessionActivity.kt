@@ -175,7 +175,7 @@ class ChatSessionActivity(
         base_title_bar.apply {
             this.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
             this.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
-                ARouter.getInstance().build("/CHAT/MAIN")
+                ARouter.getInstance().build("/APP/MAIN")
                         .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                         .navigation()
                 finish()
@@ -311,7 +311,7 @@ class ChatSessionActivity(
 
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageListService.Message {
         val message = ChatMessageBo(
-                user = ChatMainActivity.mLoginUser.value!!,
+                user = IChatModel.mLoginUser.value!!,
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
                         sessionId = mSessionId!!,
@@ -343,7 +343,7 @@ class ChatSessionActivity(
                     .put("url", file.path)
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
-                    user = ChatMainActivity.mLoginUser.value!!,
+                    user = IChatModel.mLoginUser.value!!,
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
                             sessionId = mSessionId!!,
@@ -440,7 +440,7 @@ class ChatSessionActivity(
     }
 
     override fun goToHome() {
-        ARouter.getInstance().build("/CHAT/MAIN")
+        ARouter.getInstance().build("/APP/MAIN")
                 .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                 .navigation()
         finish()

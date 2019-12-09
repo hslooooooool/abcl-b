@@ -2,6 +2,8 @@
 	package="qsos.base.user">
 	
 	<application>
-		<activity android:name=".view.activity.LoginActivity" />
+		<activity
+			android:name=".view.activity.LoginActivity"
+			android:launchMode="singleTop" />
 	</application>
 </manifest>

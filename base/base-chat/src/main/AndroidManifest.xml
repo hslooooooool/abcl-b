@@ -1,10 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="qsos.base.chat">
 	<application>
-		<!--聊天群界面-->
-		<activity
-			android:name="qsos.base.chat.view.activity.ChatMainActivity"
-			android:launchMode="singleTask" />
 		<!--聊天会话页面-->
 		<activity android:name="qsos.base.chat.view.activity.ChatSessionActivity" />
 		<!--聊天用户页面-->

@@ -1,21 +1,20 @@
-package qsos.base.chat.view.activity
+package qsos.base.demo
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_chat_main.*
-import kotlinx.android.synthetic.main.tab_chat.view.*
-import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatUser
+import kotlinx.android.synthetic.main.activity_main.*
 import qsos.base.chat.data.model.DefChatUserModelIml
 import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatGroupListFragment
 import qsos.base.core.config.BaseConfig
+import qsos.base.user.view.fragment.UserMainFragment
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
 import qsos.lib.base.utils.ToastUtils
@@ -24,49 +23,49 @@ import qsos.lib.base.utils.ToastUtils
  * @author : 华清松
  * 聊天群列表页面
  */
-@Route(group = "CHAT", path = "/CHAT/MAIN")
-class ChatMainActivity(
-        override val layoutId: Int = R.layout.activity_chat_main,
+@Route(group = "APP", path = "/APP/MAIN")
+class AppMainActivity(
+        override val layoutId: Int = R.layout.activity_main,
         override val reload: Boolean = false
 ) : BaseActivity() {
-
-    companion object {
-        val mLoginUser: MutableLiveData<ChatUser> = MutableLiveData()
-    }
 
     private val fragments = arrayListOf<Fragment>()
     private var mFragmentAdapter: BaseFragmentAdapter? = null
 
     private var mGroupListTab: View? = null
     private var mFriendListTab: View? = null
+    private var mUserCenterTab: View? = null
 
     private var mChatUserModel: IChatModel.IUser? = null
 
     override fun initData(savedInstanceState: Bundle?) {
         val fragment1 = ChatGroupListFragment()
         val fragment2 = ChatFriendListFragment()
+        val fragment3 = UserMainFragment()
         fragments.clear()
         fragments.add(fragment1)
         fragments.add(fragment2)
+        fragments.add(fragment3)
         mFragmentAdapter = BaseFragmentAdapter(supportFragmentManager, fragments)
 
         mGroupListTab = getTabItem("群列表", R.color.red)
         mFriendListTab = getTabItem("通讯录", R.color.orange)
+        mUserCenterTab = getTabItem("我的", R.color.yellow)
 
         mChatUserModel = DefChatUserModelIml()
-
     }
 
     override fun initView() {
 
-        chat_group_vp.adapter = mFragmentAdapter
-        chat_group_vp.offscreenPageLimit = fragments.size
+        main_vp.adapter = mFragmentAdapter
+        main_vp.offscreenPageLimit = fragments.size
 
-        chat_group_tab.addTab(chat_group_tab.newTab().setCustomView(mGroupListTab))
-        chat_group_tab.addTab(chat_group_tab.newTab().setCustomView(mFriendListTab))
+        main_tab.addTab(main_tab.newTab().setCustomView(mGroupListTab))
+        main_tab.addTab(main_tab.newTab().setCustomView(mFriendListTab))
+        main_tab.addTab(main_tab.newTab().setCustomView(mUserCenterTab))
 
-        chat_group_vp.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(chat_group_tab))
-        chat_group_tab.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(chat_group_vp))
+        main_vp.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(main_tab))
+        main_tab.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(main_vp))
 
         mChatUserModel?.getUserById(
                 userId = BaseConfig.userId,
@@ -74,7 +73,7 @@ class ChatMainActivity(
                     ToastUtils.showToast(this, it)
                 },
                 success = {
-                    mLoginUser.postValue(it)
+                    IChatModel.mLoginUser.postValue(it)
                 }
         )
     }
@@ -83,8 +82,9 @@ class ChatMainActivity(
 
     private fun getTabItem(name: String, iconID: Int?): View {
         val tabItemView = LayoutInflater.from(mContext).inflate(R.layout.tab_chat, null)
-        tabItemView.tab_chat_name.text = name
-        tabItemView.tab_chat_icon.setImageResource(iconID ?: R.color.orange)
+        tabItemView.findViewById<TextView>(R.id.tab_chat_name).text = name
+        tabItemView.findViewById<ImageView>(R.id.tab_chat_icon).setImageResource(iconID
+                ?: R.color.orange)
         return tabItemView
     }
 

@@ -52,6 +52,10 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+		<!--主界面-->
+		<activity
+			android:name="qsos.base.demo.AppMainActivity"
+			android:launchMode="singleTask" />
 	</application>
 
 </manifest>

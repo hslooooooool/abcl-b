@@ -9,7 +9,6 @@ import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.service.IMessageListService
-import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
@@ -111,7 +110,7 @@ class DefChatMessageModelIml(
                             oldSession.nowLastMessageTimeline = it.last().timeline
                             /**排除登录用户发送的消息并按时序正序排列*/
                             val messageList = it.filterNot { msg ->
-                                msg.user.userId == ChatMainActivity.mLoginUser.value?.userId
+                                msg.user.userId == IChatModel.mLoginUser.value?.userId
                             }.sortedBy { msg ->
                                 msg.timeline
                             }
