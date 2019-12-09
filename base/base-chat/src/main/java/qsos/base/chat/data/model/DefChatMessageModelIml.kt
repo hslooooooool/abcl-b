@@ -8,7 +8,7 @@ import qsos.base.chat.data.ApiChatMessage
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.base.chat.view.activity.ChatMainActivity
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
@@ -61,7 +61,7 @@ class DefChatMessageModelIml(
                                                 ?: -1L
                                         val thisTime = DateUtils.strToDate(messageBo.createTime)?.time
                                                 ?: -1L
-                                        if (thisTime > lastTime && (thisTime - lastTime) >= IMessageService.showTimeLimit) {
+                                        if (thisTime > lastTime && (thisTime - lastTime) >= IMessageListService.showTimeLimit) {
                                             mLastTime = messageBo.createTime
                                         } else {
                                             messageBo.createTime = ""

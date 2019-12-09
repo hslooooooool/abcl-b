@@ -14,7 +14,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import qsos.base.chat.R
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.base.chat.utils.AudioUtils
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
@@ -48,7 +48,7 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
     }
 
     override fun clickTextMessage(
-            view: View, message: IMessageService.Message,
+            view: View, message: IMessageListService.Message,
             back: (action: Int) -> Unit
     ) {
         val popup = PopupMenu(activity, view)
@@ -63,7 +63,7 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
     }
 
     override fun longClickTextMessage(
-            view: View, message: IMessageService.Message,
+            view: View, message: IMessageListService.Message,
             back: (action: Int) -> Unit
     ) {
         val popup = PopupMenu(activity, view)
@@ -88,7 +88,7 @@ class ChatSessionModel(private val activity: Activity) : IChatSessionModel {
         popup.show()
     }
 
-    override fun resendMessage(message: IMessageService.Message, back: (file: HttpFileEntity?) -> Unit) {
+    override fun resendMessage(message: IMessageListService.Message, back: (file: HttpFileEntity?) -> Unit) {
         var needUpdate = false
         var file: File? = null
         when (message.content.getContentType()) {

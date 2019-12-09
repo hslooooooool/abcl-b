@@ -2,7 +2,7 @@ package qsos.base.chat.view.activity
 
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.lib.netservice.file.HttpFileEntity
 
 /**
@@ -33,14 +33,14 @@ interface IChatSessionView {
     fun uploadFile(files: ArrayList<HttpFileEntity>)
 
     /**删除（撤销）消息*/
-    fun deleteMessage(message: IMessageService.Message)
+    fun deleteMessage(message: IMessageListService.Message)
 
     /**发送文件消息*/
     fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>)
 
     /**发送消息*/
-    fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageService.Message
+    fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageListService.Message
 
     /**轮序拉取新消息*/
-    fun pullNewMessage(session: IMessageService.Session)
+    fun pullNewMessage(session: IMessageListService.Session)
 }

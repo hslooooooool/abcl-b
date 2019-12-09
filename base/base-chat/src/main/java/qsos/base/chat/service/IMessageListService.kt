@@ -3,15 +3,15 @@ package qsos.base.chat.service
 import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.service.IMessageService.EventType.*
-import qsos.base.chat.view.IMessageListUI
+import qsos.base.chat.service.IMessageListService.EventType.*
+import qsos.base.chat.view.IMessageListView
 import qsos.lib.base.utils.rx.RxBus
 
 /**
  * @author : 华清松
  * 消息服务配置接口
  */
-interface IMessageService {
+interface IMessageListService {
 
     companion object {
         /**消息时间显示间隔，低于此值间的消息不显示时间*/
@@ -145,7 +145,7 @@ interface IMessageService {
     )
 
     /**更新当前展示消息*/
-    fun updateShowMessage(messageListUI: IMessageListUI)
+    fun updateShowMessage(messageListView: IMessageListView)
 
     /**释放资源*/
     fun clear()

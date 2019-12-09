@@ -3,7 +3,7 @@ package qsos.base.chat
 import android.view.View
 import com.google.gson.reflect.TypeToken
 import qsos.base.chat.data.entity.*
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.base.chat.view.IMessageViewConfig
 import qsos.base.chat.view.holder.*
 import java.lang.reflect.Type
@@ -21,7 +21,7 @@ object ChatMessageViewConfig : IMessageViewConfig {
         this.mChatMessageConfig = config
     }
 
-    override fun getHolder(session: IMessageService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
+    override fun getHolder(session: IMessageListService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return mChatMessageConfig?.getHolder(session, view, viewType)
                 ?: getDefHolder(session, view, viewType)
     }
@@ -31,7 +31,7 @@ object ChatMessageViewConfig : IMessageViewConfig {
                 ?: getDefContentType(contentType)
     }
 
-    private fun getDefHolder(session: IMessageService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
+    private fun getDefHolder(session: IMessageListService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return when (viewType) {
             EnumChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(session, view)
             EnumChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(session, view)

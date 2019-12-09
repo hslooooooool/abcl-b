@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.R
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import qsos.lib.base.callback.OnListItemClickListener
@@ -17,33 +17,33 @@ import qsos.lib.base.utils.LogUtil
  */
 class ChatMessageAdapter(
         /**会话数据*/
-        val session: IMessageService.Session,
+        val session: IMessageListService.Session,
         /**消息列表数据*/
-        list: ArrayList<IMessageService.Message>,
+        list: ArrayList<IMessageListService.Message>,
         /**消息列表项点击监听*/
         private val onItemClickListener: OnListItemClickListener? = null,
         /**消息列表项显示监听，返回消息列表项视图位置=adapterPosition*/
         private val onItemShowedListener: OnTListener<Int>? = null
-) : BaseAdapter<IMessageService.Message>(list) {
+) : BaseAdapter<IMessageListService.Message>(list) {
 
     @SuppressLint("UseSparseArrays")
     val mStateLiveDataMap = HashMap<Int, BaseHolder<*>>()
 
-    override fun onViewAttachedToWindow(holder: BaseHolder<IMessageService.Message>) {
+    override fun onViewAttachedToWindow(holder: BaseHolder<IMessageListService.Message>) {
         super.onViewAttachedToWindow(holder)
         val position = holder.adapterPosition
         onItemShowedListener?.back(position)
         LogUtil.d("聊天列表", "${session.sessionId}显示了消息位$position")
     }
 
-    override fun onBindViewHolder(holder: BaseHolder<IMessageService.Message>, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(holder: BaseHolder<IMessageListService.Message>, position: Int, payloads: MutableList<Any>) {
         super.onBindViewHolder(holder, position, payloads)
         mStateLiveDataMap[data[position].messageId] = holder
     }
 
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
-    override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageService.Message> {
+    override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageListService.Message> {
         return ChatMessageViewConfig.getHolder(session, view, viewType)
                 .setOnListItemClickListener(onItemClickListener)
     }

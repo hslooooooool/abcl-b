@@ -2,7 +2,7 @@ package qsos.base.chat.data.entity
 
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageViewConfig
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.lib.base.utils.LogUtil
 
 /**
@@ -16,7 +16,7 @@ data class ChatMessageBo(
         var user: ChatUser,
         override var createTime: String,
         var message: ChatMessage
-) : IMessageService.Message {
+) : IMessageListService.Message {
 
     override var messageId: Int = -1
         get() {

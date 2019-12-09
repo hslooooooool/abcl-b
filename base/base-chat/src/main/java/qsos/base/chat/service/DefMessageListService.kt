@@ -11,7 +11,7 @@ import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.ChatMessageReadStatusBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.view.IMessageListUI
+import qsos.base.chat.view.IMessageListView
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
@@ -27,15 +27,15 @@ import kotlin.coroutines.CoroutineContext
  * @author : 华清松
  * 消息服务配置
  */
-class DefMessageService(
+class DefMessageListService(
         private val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override var mUpdateShowMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
-) : IMessageService {
+        override var mUpdateShowMessageList: MutableLiveData<List<IMessageListService.Message>> = MutableLiveData()
+) : IMessageListService {
     private var mUpdateShowMessageTimer: Timer = Timer()
 
     override fun getMessageListBySessionId(
-            session: IMessageService.Session,
-            messageList: MutableLiveData<ArrayList<IMessageService.Message>>
+            session: IMessageListService.Session,
+            messageList: MutableLiveData<ArrayList<IMessageListService.Message>>
     ) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(session.sessionId) { oldSession ->
             oldSession?.let {
@@ -60,7 +60,7 @@ class DefMessageService(
                                             ?: -1L
                                     val thisTime = DateUtils.strToDate(messageBo.createTime)?.time
                                             ?: -1L
-                                    if (thisTime > lastTime && (thisTime - lastTime) >= IMessageService.showTimeLimit) {
+                                    if (thisTime > lastTime && (thisTime - lastTime) >= IMessageListService.showTimeLimit) {
                                         mLastTime = messageBo.createTime
                                     } else {
                                         messageBo.createTime = ""
@@ -68,7 +68,7 @@ class DefMessageService(
                                 }
                             }
 
-                            val array = arrayListOf<IMessageService.Message>()
+                            val array = arrayListOf<IMessageListService.Message>()
                             array.addAll(list)
                             /**更新当前会话消息时序记录*/
                             if (array.isEmpty()) {
@@ -94,9 +94,9 @@ class DefMessageService(
     }
 
     override fun sendMessage(
-            message: IMessageService.Message,
-            failed: (msg: String, message: IMessageService.Message) -> Unit,
-            success: (oldMessageId: Int, message: IMessageService.Message) -> Unit
+            message: IMessageListService.Message,
+            failed: (msg: String, message: IMessageListService.Message) -> Unit,
+            success: (oldMessageId: Int, message: IMessageListService.Message) -> Unit
     ) {
         val oldMessageId = message.messageId
         if (oldMessageId == -1) {
@@ -129,7 +129,7 @@ class DefMessageService(
         }
     }
 
-    override fun readMessage(message: IMessageService.Message, failed: (msg: String, message: IMessageService.Message) -> Unit, success: (message: IMessageService.Message) -> Unit) {
+    override fun readMessage(message: IMessageListService.Message, failed: (msg: String, message: IMessageListService.Message) -> Unit, success: (message: IMessageListService.Message) -> Unit) {
         if (message.readStatus == false) {
             CoroutineScope(mJob).retrofitByDef<ChatMessageReadStatusBo> {
                 api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId)
@@ -150,9 +150,9 @@ class DefMessageService(
     }
 
     override fun revokeMessage(
-            message: IMessageService.Message,
-            failed: (msg: String, message: IMessageService.Message) -> Unit,
-            success: (message: IMessageService.Message) -> Unit
+            message: IMessageListService.Message,
+            failed: (msg: String, message: IMessageListService.Message) -> Unit,
+            success: (message: IMessageListService.Message) -> Unit
     ) {
         CoroutineScope(mJob).retrofitByDef<Boolean> {
             api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(messageId = message.messageId)
@@ -170,9 +170,9 @@ class DefMessageService(
         }
     }
 
-    override fun updateShowMessage(messageListUI: IMessageListUI) {
+    override fun updateShowMessage(messageListView: IMessageListView) {
         mUpdateShowMessageTimer.schedule(timerTask {
-            messageListUI.getShowMessageList().also {
+            messageListView.getShowMessageList().also {
                 if (it.isNotEmpty()) {
                     val messageIdList = arrayListOf<Int>()
                     it.forEach { msg ->

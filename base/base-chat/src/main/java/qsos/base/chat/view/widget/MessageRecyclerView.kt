@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 import qsos.base.chat.utils.RecycleViewUtils
-import qsos.base.chat.view.IMessageListUI
+import qsos.base.chat.view.IMessageListView
 import qsos.base.chat.view.adapter.ChatMessageAdapter
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
@@ -34,11 +34,11 @@ import kotlin.collections.HashMap
  * - 消息状态发送状态、读取状态更新
  */
 @SuppressLint("CheckResult", "SetTextI18n")
-class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
+class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
 
     private lateinit var mOwner: LifecycleOwner
-    private lateinit var mMessageService: IMessageService
-    private lateinit var mSession: IMessageService.Session
+    private lateinit var mMessageListService: IMessageListService
+    private lateinit var mSession: IMessageListService.Session
 
     private var mReadNumListener: OnTListener<Int>? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
@@ -50,15 +50,15 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
     private var mMessageScrolling = false
     private var mNewMessageNumLimit: Int = 4
 
-    private val mMessageList: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
+    private val mMessageList: MutableLiveData<ArrayList<IMessageListService.Message>> = MutableLiveData()
 
     /**获取现有消息列表*/
-    fun getMessageList(): ArrayList<IMessageService.Message> {
+    fun getMessageList(): ArrayList<IMessageListService.Message> {
         return mMessageAdapter?.data ?: arrayListOf()
     }
 
     /**文件消息上传/发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
-    private val mMessageUpdateCache: MutableLiveData<HashMap<Int, IMessageService.Message>> = MutableLiveData()
+    private val mMessageListUpdateCache: MutableLiveData<HashMap<Int, IMessageListService.Message>> = MutableLiveData()
 
     constructor(context: Context) : super(context) {}
 
@@ -74,20 +74,20 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
      * - 历史消息追加上屏
      * - 消息状态发送状态、读取状态更新
      * @param session 消息会话数据
-     * @param messageService 消息服务，发送、撤销消息实现
+     * @param messageListService 消息服务，发送、撤销消息实现
      * @param itemClickListener 消息列表项点击监听
      * @param newMessageNumLimit 新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
      */
     fun initView(
-            session: IMessageService.Session,
-            messageService: IMessageService,
+            session: IMessageListService.Session,
+            messageListService: IMessageListService,
             itemClickListener: OnListItemClickListener? = null,
             newMessageNumLimit: Int = 4,
             lifecycleOwner: LifecycleOwner,
             readNumListener: OnTListener<Int>? = null
     ) {
         this.mSession = session
-        this.mMessageService = messageService
+        this.mMessageListService = messageListService
         this.mOnListItemClickListener = itemClickListener
         this.mNewMessageNumLimit = newMessageNumLimit
         this.mOwner = lifecycleOwner
@@ -95,7 +95,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
         this.mOwner.lifecycle.addObserver(this)
 
-        mMessageUpdateCache.value = HashMap()
+        mMessageListUpdateCache.value = HashMap()
         mMessageAdapter = ChatMessageAdapter(session, arrayListOf(), itemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
@@ -136,51 +136,51 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
             refreshMessage(it)
         })
 
-        mMessageUpdateCache.observe(lifecycleOwner, Observer {
+        mMessageListUpdateCache.observe(lifecycleOwner, Observer {
             mActive = true
             it.map { v ->
                 notifyMessage(v.key, v.value)
             }
-            mMessageUpdateCache.value?.clear()
+            mMessageListUpdateCache.value?.clear()
             LogUtil.d("聊天列表页", "页面显示，更新缓存数据")
         })
 
-        mMessageService.mUpdateShowMessageList.observe(lifecycleOwner, Observer {
+        mMessageListService.mUpdateShowMessageList.observe(lifecycleOwner, Observer {
             it.forEach { msg ->
                 notifyMessage(msg.messageId, msg)
             }
         })
 
         /**接收消息发送事件*/
-        RxBus.toFlow(IMessageService.MessageEvent::class.java)
+        RxBus.toFlow(IMessageListService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if (it.session.sessionId == session.sessionId) {
                         when (it.eventType) {
-                            IMessageService.EventType.UPDATE_SHOWED -> {
+                            IMessageListService.EventType.UPDATE_SHOWED -> {
                                 it.message.forEach { message ->
                                     notifyMessage(message.messageId, message)
                                 }
                             }
-                            IMessageService.EventType.SEND -> {
+                            IMessageListService.EventType.SEND -> {
                                 it.message.forEach { message ->
                                     sendMessage(message, true)
                                 }
                             }
-                            IMessageService.EventType.SHOW -> {
+                            IMessageListService.EventType.SHOW -> {
                                 it.message.forEach { message ->
                                     addNewMessage(message, true)
                                 }
                             }
-                            IMessageService.EventType.SEND_SHOWED -> {
+                            IMessageListService.EventType.SEND_SHOWED -> {
                                 it.message.forEach { message ->
                                     sendMessage(message, false)
                                 }
                             }
-                            IMessageService.EventType.SHOW_MORE -> {
+                            IMessageListService.EventType.SHOW_MORE -> {
                                 notifyOldMessage(it.message)
                             }
-                            IMessageService.EventType.SHOW_NEW -> {
+                            IMessageListService.EventType.SHOW_NEW -> {
                                 it.message.forEach { message ->
                                     addNewMessage(message, false)
                                 }
@@ -189,8 +189,8 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
                     }
                 }
 
-        messageService.getMessageListBySessionId(session, mMessageList)
-        messageService.updateShowMessage(this)
+        messageListService.getMessageListBySessionId(session, mMessageList)
+        messageListService.updateShowMessage(this)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -205,10 +205,10 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy() {
-        mMessageService.clear()
+        mMessageListService.clear()
     }
 
-    override fun refreshMessage(data: ArrayList<IMessageService.Message>) {
+    override fun refreshMessage(data: ArrayList<IMessageListService.Message>) {
         if (data.isNotEmpty()) {
             mMessageAdapter?.data?.clear()
             mMessageAdapter?.data?.addAll(data)
@@ -220,12 +220,12 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         }
     }
 
-    override fun sendMessage(msg: IMessageService.Message, new: Boolean) {
+    override fun sendMessage(msg: IMessageListService.Message, new: Boolean) {
         msg.sendStatus = EnumChatSendStatus.SENDING
         if (new) {
             addNewMessage(msg, true)
         }
-        mMessageService.sendMessage(
+        mMessageListService.sendMessage(
                 message = msg,
                 failed = { error, result ->
                     ToastUtils.showToast(context, error)
@@ -237,7 +237,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         )
     }
 
-    override fun notifyMessage(oldMessageId: Int, message: IMessageService.Message) {
+    override fun notifyMessage(oldMessageId: Int, message: IMessageListService.Message) {
         mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.let {
             mMessageAdapter?.mStateLiveDataMap!![message.messageId] = it
             val position: Int = it.adapterPosition
@@ -252,14 +252,14 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
                 mMessageAdapter?.notifyItemChanged(position)
             } else {
                 LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
-                val list = mMessageUpdateCache.value
+                val list = mMessageListUpdateCache.value
                 list?.put(message.messageId, message)
-                mMessageUpdateCache.postValue(list)
+                mMessageListUpdateCache.postValue(list)
             }
         }
     }
 
-    override fun notifyFileMessage(message: IMessageService.Message) {
+    override fun notifyFileMessage(message: IMessageListService.Message) {
         if (message.sendStatus == EnumChatSendStatus.SUCCESS) {
             sendMessage(message, false)
         } else {
@@ -267,7 +267,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         }
     }
 
-    override fun notifyOldMessage(messageList: List<IMessageService.Message>) {
+    override fun notifyOldMessage(messageList: List<IMessageListService.Message>) {
         if (messageList.isNotEmpty()) {
             mMessageAdapter?.data?.addAll(0, messageList)
             mMessageAdapter?.notifyItemRangeInserted(0, messageList.size)
@@ -275,7 +275,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         }
     }
 
-    override fun addNewMessage(message: IMessageService.Message, toBottom: Boolean) {
+    override fun addNewMessage(message: IMessageListService.Message, toBottom: Boolean) {
         if (mMessageAdapter?.data == null) {
             return
         }
@@ -292,7 +292,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
                 ?: -1L
         val thisTime = DateUtils.strToDate(message.createTime)?.time
                 ?: -1L
-        if (thisTime <= mLastTime || (thisTime - mLastTime) < IMessageService.showTimeLimit) {
+        if (thisTime <= mLastTime || (thisTime - mLastTime) < IMessageListService.showTimeLimit) {
             message.createTime = ""
         }
 
@@ -315,7 +315,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
     override fun readMessage(adapterPosition: Int) {
         val data = getMessageList()[adapterPosition]
-        mMessageService.readMessage(data, failed = { msg, _ ->
+        mMessageListService.readMessage(data, failed = { msg, _ ->
             LogUtil.e("聊天列表页", msg)
         }, success = { message ->
             notifyMessage(message.messageId, message)
@@ -332,13 +332,13 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         this.mReadNumListener?.back(mNewMessageNum)
     }
 
-    override fun getShowMessageList(): List<IMessageService.Message> {
+    override fun getShowMessageList(): List<IMessageListService.Message> {
         val first = mLinearLayoutManager?.findFirstVisibleItemPosition() ?: -1
         val last = mLinearLayoutManager?.findLastVisibleItemPosition() ?: -1
         val messages = getMessageList()
         val size = messages.size
 
-        val list = arrayListOf<IMessageService.Message>()
+        val list = arrayListOf<IMessageListService.Message>()
         if (first != -1 && last != -1 && first < size && last < size) {
             for (i in first..last) {
                 list.add(messages[i])

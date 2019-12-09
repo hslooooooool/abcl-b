@@ -1,6 +1,6 @@
 package qsos.base.chat.data.entity
 
-import qsos.base.chat.service.IMessageService
+import qsos.base.chat.service.IMessageListService
 
 /**
  * @author : 华清松
@@ -14,7 +14,7 @@ import qsos.base.chat.service.IMessageService
 data class ChatSession(
         override var sessionId: Int,
         var type: ChatType
-) : IMessageService.Session {
+) : IMessageListService.Session {
     override var sessionName: String
         get() = ""
         set(value) {}
