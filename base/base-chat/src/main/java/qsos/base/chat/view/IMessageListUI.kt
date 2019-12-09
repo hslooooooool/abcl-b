@@ -36,4 +36,8 @@ interface IMessageListUI {
 
     /**消息列表滚动到底部*/
     fun scrollToBottom()
+
+    /**当前页面显示的消息列表*/
+    fun getShowMessageList(): List<IMessageService.Message>
+
 }

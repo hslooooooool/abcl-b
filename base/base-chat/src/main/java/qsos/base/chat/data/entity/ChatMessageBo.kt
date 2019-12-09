@@ -69,10 +69,13 @@ data class ChatMessageBo(
 
     override var readNum: Int = 1
 
-    override fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus) {
+    override fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus,
+                                 readNum: Int, readState: Boolean?) {
         this.message.messageId = messageId
         this.message.timeline = timeline
         this.sendStatus = sendStatus
+        this.readNum = readNum
+        this.readStatus = readStatus
     }
 
     override fun <T> getRealContent(): T? {

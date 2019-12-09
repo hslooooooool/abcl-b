@@ -6,6 +6,7 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.AttributeSet
 import androidx.lifecycle.*
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,6 +22,8 @@ import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
+import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * @author 华清松
@@ -33,18 +36,20 @@ import qsos.lib.base.utils.rx.RxBus
 @SuppressLint("CheckResult", "SetTextI18n")
 class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
-    private lateinit var mSession: IMessageService.Session
-    private lateinit var mMessageService: IMessageService
-    private var mOnListItemClickListener: OnListItemClickListener? = null
-    private var mNewMessageNumLimit: Int = 4
     private lateinit var mOwner: LifecycleOwner
-    private var mReadNumListener: OnTListener<Int>? = null
+    private lateinit var mMessageService: IMessageService
+    private lateinit var mSession: IMessageService.Session
 
+    private var mReadNumListener: OnTListener<Int>? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
     private var mLinearLayoutManager: LinearLayoutManager? = null
-    private var mActive: Boolean = true
+    private var mOnListItemClickListener: OnListItemClickListener? = null
+
     private var mNewMessageNum = 0
+    private var mActive: Boolean = true
     private var mMessageScrolling = false
+    private var mNewMessageNumLimit: Int = 4
+
     private val mMessageList: MutableLiveData<ArrayList<IMessageService.Message>> = MutableLiveData()
 
     /**获取现有消息列表*/
@@ -140,6 +145,12 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
             LogUtil.d("聊天列表页", "页面显示，更新缓存数据")
         })
 
+        mMessageService.mUpdateShowMessageList.observe(lifecycleOwner, Observer {
+            it.forEach { msg ->
+                notifyMessage(msg.messageId, msg)
+            }
+        })
+
         /**接收消息发送事件*/
         RxBus.toFlow(IMessageService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -179,6 +190,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
                 }
 
         messageService.getMessageListBySessionId(session, mMessageList)
+        messageService.updateShowMessage(this)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -226,17 +238,24 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
     }
 
     override fun notifyMessage(oldMessageId: Int, message: IMessageService.Message) {
-        val position: Int? = mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.adapterPosition
-        if (mActive) {
-            position?.let {
-                mMessageAdapter?.data!![it].updateSendState(message.messageId, message.timeline, message.sendStatus!!)
-                mMessageAdapter?.notifyItemChanged(it)
+        mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.let {
+            mMessageAdapter?.mStateLiveDataMap!![message.messageId] = it
+            val position: Int = it.adapterPosition
+            if (mMessageAdapter?.data == null || position == NO_POSITION || position > mMessageAdapter!!.data.size) {
+                return
             }
-        } else {
-            LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
-            val list = mMessageUpdateCache.value
-            list?.put(oldMessageId, message)
-            mMessageUpdateCache.postValue(list)
+            if (mActive) {
+                mMessageAdapter?.data!![position].updateSendState(
+                        message.messageId, message.timeline, message.sendStatus!!,
+                        message.readNum, message.readStatus
+                )
+                mMessageAdapter?.notifyItemChanged(position)
+            } else {
+                LogUtil.d("聊天列表页", "页面隐藏，缓存数据")
+                val list = mMessageUpdateCache.value
+                list?.put(message.messageId, message)
+                mMessageUpdateCache.postValue(list)
+            }
         }
     }
 
@@ -296,13 +315,11 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
 
     override fun readMessage(adapterPosition: Int) {
         val data = getMessageList()[adapterPosition]
-        if (data.readStatus == false) {
-            mMessageService.readMessage(data, failed = { msg, _ ->
-                LogUtil.e("聊天列表页", msg)
-            }, success = { message ->
-                notifyMessage(message.messageId, message)
-            })
-        }
+        mMessageService.readMessage(data, failed = { msg, _ ->
+            LogUtil.e("聊天列表页", msg)
+        }, success = { message ->
+            notifyMessage(message.messageId, message)
+        })
         LogUtil.d("聊天列表页", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
     }
 
@@ -315,4 +332,18 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListUI {
         this.mReadNumListener?.back(mNewMessageNum)
     }
 
+    override fun getShowMessageList(): List<IMessageService.Message> {
+        val first = mLinearLayoutManager?.findFirstVisibleItemPosition() ?: -1
+        val last = mLinearLayoutManager?.findLastVisibleItemPosition() ?: -1
+        val messages = getMessageList()
+        val size = messages.size
+
+        val list = arrayListOf<IMessageService.Message>()
+        if (first != -1 && last != -1 && first < size && last < size) {
+            for (i in first..last) {
+                list.add(messages[i])
+            }
+        }
+        return list
+    }
 }

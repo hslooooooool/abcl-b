@@ -11,13 +11,16 @@ import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.ChatMessageBo
 import qsos.base.chat.data.entity.ChatMessageReadStatusBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.view.IMessageListUI
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
 import qsos.lib.netservice.expand.retrofitWithSuccess
+import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 import java.util.*
+import kotlin.concurrent.timerTask
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -25,9 +28,10 @@ import kotlin.coroutines.CoroutineContext
  * 消息服务配置
  */
 class DefMessageService(
-        private val mJob: CoroutineContext = Dispatchers.Main + Job()
+        private val mJob: CoroutineContext = Dispatchers.Main + Job(),
+        override var mUpdateShowMessageList: MutableLiveData<List<IMessageService.Message>> = MutableLiveData()
 ) : IMessageService {
-    private var mPullMessageTimer: Timer? = null
+    private var mUpdateShowMessageTimer: Timer = Timer()
 
     override fun getMessageListBySessionId(
             session: IMessageService.Session,
@@ -126,18 +130,20 @@ class DefMessageService(
     }
 
     override fun readMessage(message: IMessageService.Message, failed: (msg: String, message: IMessageService.Message) -> Unit, success: (message: IMessageService.Message) -> Unit) {
-        CoroutineScope(mJob).retrofitByDef<ChatMessageReadStatusBo> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId)
-            onFailed { _, msg, error ->
-                failed.invoke(msg ?: "更新已读失败${error?.message}", message)
-            }
-            onSuccess {
-                if (it?.readStatus == true) {
-                    message.readStatus = it.readStatus
-                    message.readNum = it.readNum
-                    success.invoke(message)
-                } else {
-                    failed.invoke("更新已读失败", message)
+        if (message.readStatus == false) {
+            CoroutineScope(mJob).retrofitByDef<ChatMessageReadStatusBo> {
+                api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId)
+                onFailed { _, msg, error ->
+                    failed.invoke(msg ?: "更新已读失败${error?.message}", message)
+                }
+                onSuccess {
+                    if (it?.readStatus == true) {
+                        message.readStatus = it.readStatus
+                        message.readNum = it.readNum
+                        success.invoke(message)
+                    } else {
+                        failed.invoke("更新已读失败", message)
+                    }
                 }
             }
         }
@@ -164,8 +170,29 @@ class DefMessageService(
         }
     }
 
+    override fun updateShowMessage(messageListUI: IMessageListUI) {
+        mUpdateShowMessageTimer.schedule(timerTask {
+            messageListUI.getShowMessageList().also {
+                if (it.isNotEmpty()) {
+                    val messageIdList = arrayListOf<Int>()
+                    it.forEach { msg ->
+                        messageIdList.add(msg.messageId)
+                    }
+                    CoroutineScope(mJob).retrofitWithSuccessByDef<List<ChatMessageBo>> {
+                        api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListByIds(messageIds = messageIdList)
+                        onSuccess { list ->
+                            list?.let {
+                                mUpdateShowMessageList.postValue(list)
+                            }
+                        }
+                    }
+                }
+            }
+        }, 2000L, 2000L)
+    }
+
     override fun clear() {
-        mPullMessageTimer?.cancel()
         mJob.cancel()
+        mUpdateShowMessageTimer.cancel()
     }
 }

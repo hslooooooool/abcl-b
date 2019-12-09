@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.service.IMessageService.EventType.*
+import qsos.base.chat.view.IMessageListUI
 import qsos.lib.base.utils.rx.RxBus
 
 /**
@@ -89,11 +90,16 @@ interface IMessageService {
         var readNum: Int
 
         /**消息更新发送状态*/
-        fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus)
+        fun updateSendState(
+                messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus,
+                readNum: Int = 1, readState: Boolean? = false
+        )
 
         /**消息转换后实体*/
         fun <T> getRealContent(): T?
     }
+
+    var mUpdateShowMessageList: MutableLiveData<List<Message>>
 
     /**获取消息列表（进入会话页第一次请求）
      * @param session 会话实体
@@ -137,6 +143,9 @@ interface IMessageService {
             failed: (msg: String, message: Message) -> Unit,
             success: (message: Message) -> Unit
     )
+
+    /**更新当前展示消息*/
+    fun updateShowMessage(messageListUI: IMessageListUI)
 
     /**释放资源*/
     fun clear()
