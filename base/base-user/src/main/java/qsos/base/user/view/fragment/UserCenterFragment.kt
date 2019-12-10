@@ -30,6 +30,18 @@ class UserCenterFragment(
 
     private val mUserInfoModel: IUserInfoModel = UserInfoModel(mJob)
 
+    override fun initData(savedInstanceState: Bundle?) {
+    }
+
+    override fun initView(view: View) {
+        user_center_login_out.setOnClickListener {
+            ARouter.getInstance().build("/USER/LOGIN").navigation()
+        }
+        user_center_change.setOnClickListener {
+            goToUserInfo(it)
+        }
+    }
+
     override fun getData() {
         mUserInfoModel.getUserInfoByDB(BaseConfig.userId) {
             it?.let {
@@ -45,19 +57,7 @@ class UserCenterFragment(
         }
     }
 
-    override fun initData(savedInstanceState: Bundle?) {
-    }
-
-    override fun initView(view: View) {
-        user_center_login_out.setOnClickListener {
-            ARouter.getInstance().build("/USER/LOGIN").navigation()
-        }
-        user_center_change.setOnClickListener {
-            goToUserInfo(it)
-        }
-    }
-
-    fun goToUserInfo(view: View) {
+    private fun goToUserInfo(view: View) {
         view.isEnabled = false
 
         mUserInfoModel.getUserInfoByForm {
