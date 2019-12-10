@@ -46,8 +46,7 @@ abstract class LoginUserDatabase : RoomDatabase() {
         fun getLoginUserByUserId(userId: Int, result: (user: DBLoginUser?) -> Unit) {
             CoroutineScope(mJob).launch {
                 val user = withContext(Dispatchers.IO) {
-                    getInstance(BaseApplication.appContext).loginUserDao
-                            .getLoginUserByUserId(userId)
+                    getInstance(BaseApplication.appContext).loginUserDao.getLoginUserByUserId(userId)
                 }
                 result.invoke(user)
             }
@@ -56,10 +55,27 @@ abstract class LoginUserDatabase : RoomDatabase() {
         fun insert(user: DBLoginUser, result: (id: Long?) -> Unit) {
             CoroutineScope(mJob).launch {
                 val id = withContext(Dispatchers.IO) {
-                    getInstance(BaseApplication.appContext).loginUserDao
-                            .insert(user)
+                    getInstance(BaseApplication.appContext).loginUserDao.delete(user.userId)
+                    getInstance(BaseApplication.appContext).loginUserDao.insert(user)
                 }
                 result.invoke(id)
+            }
+        }
+
+        fun update(
+                userId: Int, userName: String, avatar: String?, birth: String?, sexuality: Int = -1,
+                back: (result: Int) -> Unit
+        ) {
+            CoroutineScope(mJob).launch {
+                val result = withContext(Dispatchers.IO) {
+                    val user = getInstance(BaseApplication.appContext).loginUserDao.getLoginUserByUserId(userId)
+                    user!!.userName = userName
+                    user.avatar = avatar
+                    user.birth = birth
+                    user.sexuality = sexuality
+                    getInstance(BaseApplication.appContext).loginUserDao.updateUserInfoByUserId(user)
+                }
+                back.invoke(result)
             }
         }
 

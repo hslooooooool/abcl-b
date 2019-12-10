@@ -11,5 +11,5 @@ data class LoginUser(
         var password: String,
         var avatar: String? = null,
         var birth: String? = null,
-        var sexuality: Int? = null
+        var sexuality: Int = -1
 )

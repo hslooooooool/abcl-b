@@ -9,13 +9,13 @@ import kotlinx.android.synthetic.main.fragment_user_center.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import qsos.base.core.config.BaseConfig
-import qsos.base.user.FormHelper
 import qsos.base.user.R
 import qsos.base.user.data.model.IUserInfoModel
 import qsos.base.user.data.model.UserInfoModel
 import qsos.core.form.FormPath
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.fragment.BaseFragment
+import qsos.lib.base.utils.ToastUtils
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -33,11 +33,14 @@ class UserCenterFragment(
     override fun getData() {
         mUserInfoModel.getUserInfoByDB(BaseConfig.userId) {
             it?.let {
-                ImageLoaderUtils.displayRounded(mContext, it.avatar, user_center_avatar, 50)
+                ImageLoaderUtils.display(mContext, user_center_avatar, it.avatar)
                 user_center_name.text = it.userName
-                user_center_desc.text = if (it.sexuality == 1) "${it.birth
-                        ?: ""} 男" else "${it.birth
-                        ?: ""} 女"
+                user_center_desc.text =
+                        if (it.sexuality == 1) {
+                            "${it.birth ?: ""} 男"
+                        } else {
+                            "${it.birth ?: ""} 女"
+                        }
             }
         }
     }
@@ -71,11 +74,14 @@ class UserCenterFragment(
         super.onActivityResult(requestCode, resultCode, data)
         when {
             requestCode == FormPath.FORM_REQUEST_CODE && resultCode == Activity.RESULT_OK -> {
-                data?.getLongExtra(FormPath.FORM_ID, -1L)?.let {
-                    if (it != -1L) {
-                        mUserInfoModel.getForm(it) { form ->
-                            if (form != null) {
-                                FormHelper.Getter.getUserInfo(form)
+                data?.getLongExtra(FormPath.FORM_ID, -1L)?.let { id ->
+                    if (id != -1L) {
+                        mUserInfoModel.updateMineInfo(id) { result ->
+                            if (result) {
+                                ToastUtils.showToast(mContext, "更新成功")
+                                getData()
+                            } else {
+                                ToastUtils.showToast(mContext, "更新失败")
                             }
                         }
                     }

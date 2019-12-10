@@ -29,11 +29,11 @@ data class DBLoginUser(
         @ColumnInfo(name = "birth")
         var birth: String? = null,
         @ColumnInfo(name = "sexuality")
-        var sexuality: Int? = null
+        var sexuality: Int = -1
 ) {
     companion object {
         fun create(): DBLoginUser {
-            return DBLoginUser(null, -1, "", "", "", "", "", null)
+            return DBLoginUser(null, -1, "", "", "", "", "", -1)
         }
     }
 }
