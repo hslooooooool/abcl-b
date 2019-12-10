@@ -5,6 +5,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.alibaba.android.arouter.facade.annotation.Route
 import qsos.base.user.R
 import qsos.lib.base.base.activity.BaseActivity
+import qsos.lib.base.utils.ActivityManager
 
 /**
  * @author : 华清松
@@ -25,7 +26,7 @@ class LoginActivity(
     }
 
     override fun initView() {
-
+        ActivityManager.finishAllButNotMe(this)
     }
 
     override fun onSupportNavigateUp(): Boolean {
