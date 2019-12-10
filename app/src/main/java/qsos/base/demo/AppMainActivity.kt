@@ -1,5 +1,6 @@
 package qsos.base.demo
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import qsos.base.chat.data.model.IChatModel
 import qsos.base.chat.view.fragment.ChatFriendListFragment
 import qsos.base.chat.view.fragment.ChatGroupListFragment
 import qsos.base.core.config.BaseConfig
-import qsos.base.user.view.fragment.UserMainFragment
+import qsos.base.user.view.fragment.UserCenterFragment
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
 import qsos.lib.base.utils.ToastUtils
@@ -39,9 +40,11 @@ class AppMainActivity(
     private var mChatUserModel: IChatModel.IUser? = null
 
     override fun initData(savedInstanceState: Bundle?) {
+        mChatUserModel = DefChatUserModelIml()
+
         val fragment1 = ChatGroupListFragment()
         val fragment2 = ChatFriendListFragment()
-        val fragment3 = UserMainFragment()
+        val fragment3 = UserCenterFragment(mChatUserModel!!.mJob)
         fragments.clear()
         fragments.add(fragment1)
         fragments.add(fragment2)
@@ -52,7 +55,6 @@ class AppMainActivity(
         mFriendListTab = getTabItem("通讯录", R.color.orange)
         mUserCenterTab = getTabItem("我的", R.color.yellow)
 
-        mChatUserModel = DefChatUserModelIml()
     }
 
     override fun initView() {
@@ -89,8 +91,15 @@ class AppMainActivity(
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-
         mChatUserModel?.clear()
+        super.onDestroy()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val allFragments = supportFragmentManager.fragments
+        for (fragment in allFragments) {
+            fragment.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }

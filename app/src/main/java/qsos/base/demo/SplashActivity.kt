@@ -23,7 +23,7 @@ class SplashActivity(
         ActivityManager.finishAllButNotMe(this)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            ARouter.getInstance().build("/LOGIN/MAIN").navigation()
+            ARouter.getInstance().build("/USER/LOGIN").navigation()
             finish()
         }, 2000)
     }

@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.OnLifecycleEvent
+import kotlinx.coroutines.cancel
+import qsos.base.demo.config.FormConfig
 import qsos.base.demo.config.PlayerConfig
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
+import qsos.core.form.utils.FormConfigHelper
 import qsos.core.lib.config.CoreConfig
 import qsos.core.player.PlayerConfigHelper
 import qsos.lib.base.base.BaseApplication
@@ -34,7 +38,6 @@ open class AppApplication(
         /**BASE_URL配置*/
         CoreConfig.BASE_URL = "http://192.168.3.108:8085"
         CoreConfig.PROVIDER = "qsos.base.demo.provider"
-
         /**Timber 日志*/
         LogUtil.open(true, GlobalExceptionHelper.CrashReportingTree())
         /**全局异常捕获处理*/
@@ -43,6 +46,8 @@ open class AppApplication(
             dealGlobalException(it.exception)
         }
 
+        /**配置表单文件操作代理实现*/
+        FormConfigHelper.init(FormConfig)
         /**配置媒体预览操作代理实现，这里不初始化，则使用默认实现*/
         PlayerConfigHelper.init(PlayerConfig())
     }
@@ -50,5 +55,10 @@ open class AppApplication(
     /**TODO 统一处理异常，如重新登录、强制下线、异常反馈、网络检查*/
     private fun dealGlobalException(ex: GlobalException) {
 
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun stop() {
+        FormConfig.mJob.cancel()
     }
 }

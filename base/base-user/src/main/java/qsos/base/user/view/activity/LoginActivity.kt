@@ -10,7 +10,7 @@ import qsos.lib.base.base.activity.BaseActivity
  * @author : 华清松
  * 登录页面
  */
-@Route(group = "LOGIN", path = "/LOGIN/MAIN")
+@Route(group = "USER", path = "/USER/LOGIN")
 class LoginActivity(
         override val layoutId: Int = R.layout.activity_login,
         override val reload: Boolean = false
@@ -30,6 +30,6 @@ class LoginActivity(
 
     override fun onSupportNavigateUp(): Boolean {
         val fragment = supportFragmentManager.findFragmentById(R.id.login_fragment)!!
-        return NavHostFragment.findNavController(fragment).navigateUp();
+        return NavHostFragment.findNavController(fragment).navigateUp()
     }
 }
