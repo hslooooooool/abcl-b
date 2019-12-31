@@ -5,5 +5,5 @@ package qsos.base.core.config
  * 配置参数
  */
 object BaseConfig {
-    var userId: Int = -1
+    var userId: Long = -1L
 }

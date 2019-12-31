@@ -14,10 +14,9 @@ import androidx.room.PrimaryKey
         indices = [Index(value = ["user_id"], unique = true)]
 )
 data class DBLoginUser(
-        @PrimaryKey(autoGenerate = true)
-        var id: Long? = null,
+        @PrimaryKey
         @ColumnInfo(name = "user_id")
-        var userId: Int = -1,
+        var userId: Long = -1L,
         @ColumnInfo(name = "user_name")
         var userName: String,
         @ColumnInfo(name = "account")
@@ -25,15 +24,11 @@ data class DBLoginUser(
         @ColumnInfo(name = "password")
         var password: String,
         @ColumnInfo(name = "avatar")
-        var avatar: String? = null,
-        @ColumnInfo(name = "birth")
-        var birth: String? = null,
-        @ColumnInfo(name = "sexuality")
-        var sexuality: Int = -1
+        var avatar: String? = null
 ) {
     companion object {
         fun create(): DBLoginUser {
-            return DBLoginUser(null, -1, "", "", "", "", "", -1)
+            return DBLoginUser(-1, "", "", "", "")
         }
     }
 }

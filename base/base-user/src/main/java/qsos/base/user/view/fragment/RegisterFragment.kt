@@ -60,12 +60,10 @@ class RegisterFragment(
                                 LoginUserDatabase.DefLoginUserDao.insert(
                                         user = DBLoginUser(
                                                 userId = user.userId,
-                                                userName = user.userName,
-                                                account = user.account,
+                                                userName = user.name,
+                                                account = user.imAccount,
                                                 password = user.password,
-                                                avatar = user.avatar,
-                                                birth = user.birth,
-                                                sexuality = user.sexuality
+                                                avatar = user.avatar
                                         ),
                                         result = {
                                             if (it == null) {
@@ -75,7 +73,7 @@ class RegisterFragment(
                                                 ToastUtils.showToast(context, "注册成功")
                                                 BaseConfig.userId = user.userId
                                                 mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                                                        .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
+                                                        .edit().putLong("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
                                                 ARouter.getInstance().build("/APP/MAIN").navigation()
                                                 (context as Activity?)?.finish()
                                             }

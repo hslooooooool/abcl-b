@@ -25,7 +25,7 @@ class UserInfoModel(
 ) : IUserInfoModel {
     private val mFormRepository: FormRepository = FormRepository()
 
-    override fun getUserInfoByDB(userId: Int, back: (user: DBLoginUser?) -> Unit) {
+    override fun getUserInfoByDB(userId: Long, back: (user: DBLoginUser?) -> Unit) {
         LoginUserDatabase.DefLoginUserDao.getLoginUserByUserId(userId) {
             back.invoke(it)
         }
@@ -58,7 +58,7 @@ class UserInfoModel(
                         val user = it
                         CoroutineScope(mJob).retrofitByDef<Boolean> {
                             api = ApiEngine.createService(ApiLoginUser::class.java).updateUser(
-                                    userName = it.userName, avatar = it.avatar, birth = it.birth, sexuality = it.sexuality
+                                    userName = it.userName, avatar = it.avatar
                             )
                             onFailed { _, _, _ ->
                                 back.invoke(false)
@@ -66,8 +66,9 @@ class UserInfoModel(
                             onSuccess { result ->
                                 if (result == true) {
                                     LoginUserDatabase.DefLoginUserDao.update(
-                                            userId = BaseConfig.userId, userName = user.userName,
-                                            avatar = user.avatar, birth = user.birth, sexuality = user.sexuality
+                                            userId = BaseConfig.userId,
+                                            userName = user.userName,
+                                            avatar = user.avatar
                                     ) { length ->
                                         back.invoke(length == 1)
                                     }

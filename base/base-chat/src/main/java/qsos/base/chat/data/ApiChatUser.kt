@@ -23,24 +23,24 @@ interface ApiChatUser {
 
     @GET(value = "$GROUP/getUserById")
     fun getUserById(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
-            @Query(value = "userId") userId: Int
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
+            @Query(value = "userId") userId: Long
     ): Call<BaseResponse<ChatUser>>
 
     @GET(value = "$GROUP/getAllUser")
     fun getAllUser(
-            @Header(value = "userId") meId: Int = BaseConfig.userId
+            @Header(value = "userId") meId: Long = BaseConfig.userId
     ): Call<BaseResponse<List<ChatUser>>>
 
     @GET(value = "$GROUP/getUserListBySessionId")
     fun getUserListBySessionId(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
     ): Call<BaseResponse<List<ChatUser>>>
 
     @DELETE(value = "$GROUP/deleteUser")
     fun deleteUser(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int,
             @Query(value = "userId") userId: Int
     ): Call<BaseResponse<Boolean>>

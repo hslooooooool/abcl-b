@@ -29,7 +29,7 @@ class ChatUserActivity(
 
     @Autowired(name = "/CHAT/USER_ID")
     @JvmField
-    var mUserId: Int? = -1
+    var mUserId: Long? = -1L
 
     private var mChatSessionModel: IChatModel.ISession? = null
     private var mChatUserModel: IChatModel.IUser? = null

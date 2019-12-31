@@ -14,7 +14,7 @@ interface LoginUserDao {
      * @return 登录用户数据
      * */
     @Query("SELECT * FROM login_user where user_id=:userId")
-    fun getLoginUserByUserId(userId: Int): DBLoginUser?
+    fun getLoginUserByUserId(userId: Long): DBLoginUser?
 
     /**更新登录用户数据*/
     @Update
@@ -32,6 +32,6 @@ interface LoginUserDao {
      * @return 登录用户数据
      * */
     @Query("DELETE FROM login_user WHERE user_id=:userId")
-    fun delete(userId: Int): Int
+    fun delete(userId: Long): Int
 
 }

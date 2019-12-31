@@ -19,37 +19,37 @@ interface ApiChatSession {
 
     @POST(value = "$GROUP/createSession")
     fun createSession(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Body form: FormCreateSession
     ): Call<BaseResponse<ChatSession>>
 
     @GET(value = "$GROUP/getSessionById")
     fun getSessionById(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
     ): Call<BaseResponse<ChatSession>>
 
     @GET(value = "$GROUP/getSessionListByUserId")
     fun getSessionListByUserId(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "userId") userId: Int
     ): Call<BaseResponse<List<ChatSession>>>
 
     @POST(value = "$GROUP/addUserListToSession")
     fun addUserListToSession(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int,
-            @Query(value = "userIdList") userIdList: List<Int>
+            @Query(value = "userIdList") userIdList: List<Long>
     ): Call<BaseResponse<ChatSession>>
 
     @DELETE(value = "$GROUP/deleteSession")
     fun deleteSession(
-            @Header(value = "userId") meId: Int = BaseConfig.userId,
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "sessionId") sessionId: Int
     ): Call<BaseResponse<Boolean>>
 
     data class FormCreateSession(
-            val userIdList: List<Int>,
+            val userIdList: List<Long>,
             val message: ChatMessage? = null
     )
 }

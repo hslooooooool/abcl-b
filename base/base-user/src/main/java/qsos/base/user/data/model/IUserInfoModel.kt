@@ -12,7 +12,7 @@ interface IUserInfoModel {
     val mJob: CoroutineContext
 
     /**从数据库获取用户信息*/
-    fun getUserInfoByDB(userId: Int, back: (user: DBLoginUser?) -> Unit)
+    fun getUserInfoByDB(userId: Long, back: (user: DBLoginUser?) -> Unit)
 
     /**从表单数据库获取用户信息*/
     fun getUserInfoByForm(back: (form: FormEntity?) -> Unit)

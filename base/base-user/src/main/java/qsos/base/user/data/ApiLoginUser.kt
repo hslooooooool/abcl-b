@@ -16,7 +16,7 @@ import retrofit2.http.Query
 interface ApiLoginUser {
 
     companion object {
-        const val GROUP = "/user"
+        const val GROUP = "/api/app/user"
     }
 
     @GET("$GROUP/login")
@@ -33,10 +33,8 @@ interface ApiLoginUser {
 
     @POST("$GROUP/updateUser")
     fun updateUser(
-            @Header("userId") meId: Int = BaseConfig.userId,
+            @Header("userId") meId: Long = BaseConfig.userId,
             @Query("userName") userName: String,
-            @Query("avatar") avatar: String?,
-            @Query("birth") birth: String?,
-            @Query("sexuality") sexuality: Int = -1
+            @Query("avatar") avatar: String?
     ): Call<BaseResponse<Boolean>>
 }

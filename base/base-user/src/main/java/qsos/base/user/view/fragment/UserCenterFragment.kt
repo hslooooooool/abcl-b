@@ -47,12 +47,6 @@ class UserCenterFragment(
             it?.let {
                 ImageLoaderUtils.display(mContext, user_center_avatar, it.avatar)
                 user_center_name.text = it.userName
-                user_center_desc.text =
-                        if (it.sexuality == 1) {
-                            "${it.birth ?: ""} 男"
-                        } else {
-                            "${it.birth ?: ""} 女"
-                        }
             }
         }
     }

@@ -48,7 +48,7 @@ data class ChatMessageBo(
             message.timeline = value
         }
 
-    override val sendUserId: Int
+    override val sendUserId: Long
         get() = user.userId
 
     override val sendUserName: String

@@ -23,7 +23,7 @@ class ChatFriendAdapter(list: ArrayList<ChatUser>) : BaseAdapter<ChatUser>(list)
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {
         ARouter.getInstance().build("/CHAT/USER")
-                .withInt("/CHAT/USER_ID", data[position].userId)
+                .withLong("/CHAT/USER_ID", data[position].userId)
                 .navigation()
     }
 

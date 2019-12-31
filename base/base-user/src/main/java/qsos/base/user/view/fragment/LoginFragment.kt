@@ -27,7 +27,7 @@ class LoginFragment(
         override val reload: Boolean = false
 ) : BaseFragment() {
 
-    private var mLastLoginUserId: Int = -1
+    private var mLastLoginUserId: Long = -1L
 
     override fun getData() {
 
@@ -35,7 +35,7 @@ class LoginFragment(
 
     override fun initData(savedInstanceState: Bundle?) {
         mLastLoginUserId = activity!!.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                .getInt("LAST_LOGIN_USER_ID", BaseConfig.userId)
+                .getLong("LAST_LOGIN_USER_ID", BaseConfig.userId)
     }
 
     override fun initView(view: View) {
@@ -81,12 +81,10 @@ class LoginFragment(
                     LoginUserDatabase.DefLoginUserDao.insert(
                             user = DBLoginUser(
                                     userId = user.userId,
-                                    userName = user.userName,
-                                    account = user.account,
+                                    userName = user.name,
+                                    account = user.imAccount,
                                     password = user.password,
-                                    avatar = user.avatar,
-                                    birth = user.birth,
-                                    sexuality = user.sexuality
+                                    avatar = user.avatar
                             ),
                             result = {
                                 if (it == null) {
@@ -96,7 +94,7 @@ class LoginFragment(
                                     ToastUtils.showToast(context, "登录成功")
                                     BaseConfig.userId = user.userId
                                     mContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                                            .edit().putInt("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
+                                            .edit().putLong("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
                                     ARouter.getInstance().build("/APP/MAIN").navigation()
                                     (context as Activity?)?.finish()
                                 }

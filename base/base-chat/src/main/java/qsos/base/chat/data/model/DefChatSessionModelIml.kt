@@ -39,7 +39,7 @@ class DefChatSessionModelIml(
     }
 
     override fun createSession(
-            userIdList: List<Int>,
+            userIdList: List<Long>,
             message: ChatMessage?,
             failed: (msg: String) -> Unit,
             success: (session: ChatSession) -> Unit
@@ -61,12 +61,12 @@ class DefChatSessionModelIml(
         }
     }
 
-    override fun getSessionListByUserId(userId: Int): List<ChatSession> {
+    override fun getSessionListByUserId(userId: Long): List<ChatSession> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun addUserListToSession(
-            userIdList: List<Int>, sessionId: Int,
+            userIdList: List<Long>, sessionId: Int,
             failed: (msg: String) -> Unit,
             success: (session: ChatSession) -> Unit
     ) {

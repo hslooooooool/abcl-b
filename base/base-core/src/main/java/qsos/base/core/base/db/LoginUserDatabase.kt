@@ -43,7 +43,7 @@ abstract class LoginUserDatabase : RoomDatabase() {
 
     object DefLoginUserDao {
         private val mJob: CoroutineContext = Dispatchers.Main + Job()
-        fun getLoginUserByUserId(userId: Int, result: (user: DBLoginUser?) -> Unit) {
+        fun getLoginUserByUserId(userId: Long, result: (user: DBLoginUser?) -> Unit) {
             CoroutineScope(mJob).launch {
                 val user = withContext(Dispatchers.IO) {
                     getInstance(BaseApplication.appContext).loginUserDao.getLoginUserByUserId(userId)
@@ -63,7 +63,7 @@ abstract class LoginUserDatabase : RoomDatabase() {
         }
 
         fun update(
-                userId: Int, userName: String, avatar: String?, birth: String?, sexuality: Int = -1,
+                userId: Long, userName: String, avatar: String?,
                 back: (result: Int) -> Unit
         ) {
             CoroutineScope(mJob).launch {
@@ -71,8 +71,6 @@ abstract class LoginUserDatabase : RoomDatabase() {
                     val user = getInstance(BaseApplication.appContext).loginUserDao.getLoginUserByUserId(userId)
                     user!!.userName = userName
                     user.avatar = avatar
-                    user.birth = birth
-                    user.sexuality = sexuality
                     getInstance(BaseApplication.appContext).loginUserDao.updateUserInfoByUserId(user)
                 }
                 back.invoke(result)

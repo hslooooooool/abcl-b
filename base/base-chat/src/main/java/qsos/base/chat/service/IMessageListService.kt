@@ -73,7 +73,7 @@ interface IMessageListService {
         /**消息时序，由服务器统一设置*/
         var timeline: Int
         /**发送人ID*/
-        val sendUserId: Int
+        val sendUserId: Long
         /**发送人名称*/
         val sendUserName: String
         /**发送人头像*/

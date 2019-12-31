@@ -46,7 +46,7 @@ class DefChatUserModelIml(
     }
 
     override fun getUserById(
-            userId: Int,
+            userId: Long,
             failed: (msg: String) -> Unit,
             success: (user: ChatUser) -> Unit
     ) {
@@ -64,7 +64,7 @@ class DefChatUserModelIml(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteUser(sessionId: Int, userId: Int) {
+    override fun deleteUser(sessionId: Int, userId: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

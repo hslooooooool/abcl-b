@@ -36,7 +36,7 @@ interface IChatModel {
          * @return 用户数据
          * */
         fun getUserById(
-                userId: Int,
+                userId: Long,
                 failed: (msg: String) -> Unit,
                 success: (user: ChatUser) -> Unit
         )
@@ -51,7 +51,7 @@ interface IChatModel {
          * @param sessionId 会话ID
          * @param userId 需要移除的用户ID
          * */
-        fun deleteUser(sessionId: Int, userId: Int)
+        fun deleteUser(sessionId: Int, userId: Long)
 
     }
 
@@ -66,7 +66,7 @@ interface IChatModel {
          * @return 会话数据
          * */
         fun createSession(
-                userIdList: List<Int>,
+                userIdList: List<Long>,
                 message: ChatMessage? = null,
                 failed: (msg: String) -> Unit,
                 success: (session: ChatSession) -> Unit
@@ -86,7 +86,7 @@ interface IChatModel {
          * @param userId 用户ID
          * @return 用户订阅的会话
          * */
-        fun getSessionListByUserId(userId: Int): List<ChatSession>
+        fun getSessionListByUserId(userId: Long): List<ChatSession>
 
         /**往已有会话中增加用户
          * @param userIdList 被添加用户ID集合
@@ -94,7 +94,7 @@ interface IChatModel {
          * @return 加入的会话数据
          * */
         fun addUserListToSession(
-                userIdList: List<Int>, sessionId: Int,
+                userIdList: List<Long>, sessionId: Int,
                 failed: (msg: String) -> Unit,
                 success: (session: ChatSession) -> Unit
         )
