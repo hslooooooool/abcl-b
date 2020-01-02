@@ -31,7 +31,7 @@ class ChatUserActivity(
 
     @Autowired(name = "/CHAT/USER_ID")
     @JvmField
-    var mUserId: Long? = null
+    var mUserId: Long? = -1L
 
     private val mUser: MutableLiveData<ChatUser> = MutableLiveData()
 
