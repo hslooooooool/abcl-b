@@ -2,7 +2,7 @@ package qsos.base.chat.view
 
 import android.view.View
 import androidx.annotation.LayoutRes
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 import qsos.base.chat.view.holder.ItemChatMessageBaseViewHolder
 import java.lang.reflect.Type
 
@@ -13,7 +13,11 @@ import java.lang.reflect.Type
 interface IMessageViewConfig {
 
     /**判定消息内容布局*/
-    fun getHolder(session: IMessageListService.Session, view: View, @LayoutRes viewType: Int): ItemChatMessageBaseViewHolder
+    fun getHolder(
+            group: IMessageListService.Group,
+            view: View,
+            @LayoutRes viewType: Int
+    ): ItemChatMessageBaseViewHolder
 
     /**判定消息内容解析类型*/
     fun getContentType(contentType: Int): Type

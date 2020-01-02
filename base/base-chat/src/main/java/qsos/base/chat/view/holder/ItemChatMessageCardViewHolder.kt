@@ -4,7 +4,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_message_card.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.MChatMessageCard
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.callback.OnListItemClickListener
 
@@ -12,7 +12,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-名片布局
  */
-class ItemChatMessageCardViewHolder(session: IMessageListService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageCardViewHolder(group: IMessageListService.Group, view: View) : ItemChatMessageBaseViewHolder(group, view) {
 
     override fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {

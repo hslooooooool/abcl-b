@@ -7,7 +7,7 @@ package qsos.base.chat.data.entity
  */
 data class MChatMessageText(
         val content: String
-) : IChatMessageType {
+) : IMessageType {
     override var contentDesc: String = content
     override var contentType: Int = EnumChatMessageType.TEXT.contentType
 }

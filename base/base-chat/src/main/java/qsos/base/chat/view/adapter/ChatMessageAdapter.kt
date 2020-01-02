@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.R
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import qsos.lib.base.callback.OnListItemClickListener
@@ -17,7 +17,7 @@ import qsos.lib.base.utils.LogUtil
  */
 class ChatMessageAdapter(
         /**会话数据*/
-        val session: IMessageListService.Session,
+        val group: IMessageListService.Group,
         /**消息列表数据*/
         list: ArrayList<IMessageListService.Message>,
         /**消息列表项点击监听*/
@@ -33,7 +33,7 @@ class ChatMessageAdapter(
         super.onViewAttachedToWindow(holder)
         val position = holder.adapterPosition
         onItemShowedListener?.back(position)
-        LogUtil.d("聊天列表", "${session.sessionId}显示了消息位$position")
+        LogUtil.d("聊天列表", "${group.id}显示了消息位$position")
     }
 
     override fun onBindViewHolder(holder: BaseHolder<IMessageListService.Message>, position: Int, payloads: MutableList<Any>) {
@@ -44,7 +44,7 @@ class ChatMessageAdapter(
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
     override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageListService.Message> {
-        return ChatMessageViewConfig.getHolder(session, view, viewType)
+        return ChatMessageViewConfig.getHolder(group, view, viewType)
                 .setOnListItemClickListener(onItemClickListener)
     }
 

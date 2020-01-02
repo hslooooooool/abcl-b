@@ -1,6 +1,6 @@
 package qsos.base.chat.view
 
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 
 /**
  * @author : 华清松

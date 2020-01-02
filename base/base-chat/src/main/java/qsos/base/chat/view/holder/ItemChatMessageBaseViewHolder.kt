@@ -8,9 +8,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.data.entity.ChatType
+import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.entity.EnumChatType
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.service.IMessageListService
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -20,12 +20,12 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-基础布局
  *
- * @param session 消息会话数据
+ * @param group 消息会话数据
  * @param view 消息布局
  */
 @SuppressLint("SetTextI18n")
 abstract class ItemChatMessageBaseViewHolder(
-        private val session: IMessageListService.Session, view: View
+        private val group: IMessageListService.Group, view: View
 ) : BaseHolder<IMessageListService.Message>(view) {
 
     private var mItemListener: OnListItemClickListener? = null
@@ -81,10 +81,13 @@ abstract class ItemChatMessageBaseViewHolder(
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_left)
             contentView.findViewById<TextView>(R.id.item_message_read_state).visibility =
-                    if (session.sessionType == ChatType.SINGLE.key) {
-                        View.INVISIBLE
-                    } else {
-                        View.VISIBLE
+                    when (group.type) {
+                        EnumChatType.GROUP.key -> {
+                            View.VISIBLE
+                        }
+                        else -> {
+                            View.INVISIBLE
+                        }
                     }
         }
 
@@ -151,8 +154,8 @@ abstract class ItemChatMessageBaseViewHolder(
 
     /**更新消息读取状态*/
     private fun updateReadStatus(contentView: View, position: Int, data: IMessageListService.Message) {
-        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.sessionType) {
-            ChatType.SINGLE.key -> {
+        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (group.type) {
+            EnumChatType.SINGLE.key -> {
                 if (data.readNum < 2) "未读" else "已读"
             }
             else -> {

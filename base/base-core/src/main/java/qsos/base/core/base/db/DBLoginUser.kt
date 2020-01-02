@@ -17,18 +17,12 @@ data class DBLoginUser(
         @PrimaryKey
         @ColumnInfo(name = "user_id")
         var userId: Long = -1L,
-        @ColumnInfo(name = "user_name")
-        var userName: String,
+        @ColumnInfo(name = "name")
+        var name: String = "",
         @ColumnInfo(name = "account")
-        var account: String,
+        var account: String = "",
         @ColumnInfo(name = "password")
-        var password: String,
+        var password: String = "",
         @ColumnInfo(name = "avatar")
         var avatar: String? = null
-) {
-    companion object {
-        fun create(): DBLoginUser {
-            return DBLoginUser(-1, "", "", "", "")
-        }
-    }
-}
+)

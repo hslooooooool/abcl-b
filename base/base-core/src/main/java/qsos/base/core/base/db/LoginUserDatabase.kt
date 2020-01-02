@@ -69,7 +69,7 @@ abstract class LoginUserDatabase : RoomDatabase() {
             CoroutineScope(mJob).launch {
                 val result = withContext(Dispatchers.IO) {
                     val user = getInstance(BaseApplication.appContext).loginUserDao.getLoginUserByUserId(userId)
-                    user!!.userName = userName
+                    user!!.name = userName
                     user.avatar = avatar
                     getInstance(BaseApplication.appContext).loginUserDao.updateUserInfoByUserId(user)
                 }

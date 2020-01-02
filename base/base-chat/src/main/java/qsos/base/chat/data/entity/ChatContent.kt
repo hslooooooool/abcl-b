@@ -4,6 +4,7 @@ package qsos.base.chat.data.entity
  * @author : 华清松
  * 聊天消息内容
  * @param fields 内容map集合
+ *  FIXME 待取消此实体
  */
 data class ChatContent(
         val fields: HashMap<String, Any?> = HashMap()

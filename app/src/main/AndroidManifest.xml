@@ -31,34 +31,13 @@
 		android:networkSecurityConfig="@xml/app_network_security_config"
 		android:supportsRtl="true"
 		android:theme="@style/AppTheme"
+		tools:ignore="AllowBackup,GoogleAppIndexingWarning"
 		tools:replace="android:label,android:icon,android:theme">
-		<!--共享文件-->
-		<provider
-			android:name="qsos.core.lib.base.BaseFileProvider"
-			android:authorities="qsos.base.demo.provider"
-			android:exported="false"
-			android:grantUriPermissions="true">
-			<meta-data
-				android:name="android.support.FILE_PROVIDER_PATHS"
-				android:resource="@xml/file_paths" />
-		</provider>
-		
 		<!--启动页-->
 		<activity
 			android:name="qsos.base.demo.SplashActivity"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:screenOrientation="portrait">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<action android:name="android.intent.action.VIEW" />
-				
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
-		<!--主界面-->
-		<activity
-			android:name="qsos.base.demo.AppMainActivity"
-			android:launchMode="singleTask" />
+			android:screenOrientation="portrait" />
 	</application>
 
 </manifest>

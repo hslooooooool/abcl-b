@@ -1,0 +1,10 @@
+<resources>
+	<string name="app_name">app-chat</string>
+	<string name="login">登录</string>
+	<string name="register">注册</string>
+	<string name="hint_password">请输入密码</string>
+	<string name="hint_account">请输入账号</string>
+	<string name="user_center">个人中心</string>
+	<string name="user_login_out">退出登录</string>
+	<string name="user_change_info">修改信息</string>
+</resources>

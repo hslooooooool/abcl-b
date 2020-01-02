@@ -5,7 +5,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import kotlinx.android.synthetic.main.item_message_location.view.*
 import qsos.base.chat.data.entity.MChatMessageLocation
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.callback.OnListItemClickListener
 
@@ -13,7 +13,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-位置布局
  */
-class ItemChatMessageLocationViewHolder(session: IMessageListService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageLocationViewHolder(group: IMessageListService.Group, view: View) : ItemChatMessageBaseViewHolder(group, view) {
     @SuppressLint("SetTextI18n")
     override fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {

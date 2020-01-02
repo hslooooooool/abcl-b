@@ -2,6 +2,8 @@
 
 include ':app'
 
+include ':apps:app-chat'
+
 /*****************************************功能组件 CORE***************************************************/
 // 首页模块-智能推荐
 include ':base:base-home'
@@ -10,7 +12,6 @@ include ':base:base-experience'
 // 灵感模块-写作
 include ':base:base-idea'
 // 用户模块-登录注册于个人信息
-include ':base:base-user'
 // 聊天模块
 include ':base:base-chat'
 // 基础依赖集合

@@ -16,6 +16,8 @@
 	<item name="item_message_state" type="id" />
 	<!--已读状态-->
 	<item name="item_message_read_state" type="id" />
+	<!--文本重新编辑按钮-->
+	<item name="item_message_cancel_reedit" type="id" />
 	
 	<!--消息列表项内容布局-->
 	<!--文本内容布局-->

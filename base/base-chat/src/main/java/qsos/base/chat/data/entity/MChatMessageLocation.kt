@@ -13,7 +13,7 @@ data class MChatMessageLocation(
         val avatar: String,
         val lng: String,
         val lat: String
-) : IChatMessageType {
+) : IMessageType {
 
     fun getRealLng(): Double? {
         return try {

@@ -37,7 +37,7 @@
 			android:textSize="@dimen/item_message_text_size_smaller" />
 		
 		<TextView
-			android:id="@+id/item_message_cancel_reedit"
+			android:id="@id/item_message_cancel_reedit"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:gravity="center"

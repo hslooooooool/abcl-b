@@ -3,7 +3,7 @@ package qsos.base.chat
 import android.view.View
 import com.google.gson.reflect.TypeToken
 import qsos.base.chat.data.entity.*
-import qsos.base.chat.service.IMessageListService
+import qsos.base.chat.api.IMessageListService
 import qsos.base.chat.view.IMessageViewConfig
 import qsos.base.chat.view.holder.*
 import java.lang.reflect.Type
@@ -21,9 +21,9 @@ object ChatMessageViewConfig : IMessageViewConfig {
         this.mChatMessageConfig = config
     }
 
-    override fun getHolder(session: IMessageListService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
-        return mChatMessageConfig?.getHolder(session, view, viewType)
-                ?: getDefHolder(session, view, viewType)
+    override fun getHolder(group: IMessageListService.Group, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
+        return mChatMessageConfig?.getHolder(group, view, viewType)
+                ?: getDefHolder(group, view, viewType)
     }
 
     override fun getContentType(contentType: Int): Type {
@@ -31,18 +31,18 @@ object ChatMessageViewConfig : IMessageViewConfig {
                 ?: getDefContentType(contentType)
     }
 
-    private fun getDefHolder(session: IMessageListService.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
+    private fun getDefHolder(group: IMessageListService.Group, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return when (viewType) {
-            EnumChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(session, view)
-            EnumChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(session, view)
-            EnumChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(session, view)
-            EnumChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(session, view)
-            EnumChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(session, view)
-            EnumChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(session, view)
-            EnumChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(session, view)
-            EnumChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(session, view)
+            EnumChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(group, view)
+            EnumChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(group, view)
+            EnumChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(group, view)
+            EnumChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(group, view)
+            EnumChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(group, view)
+            EnumChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(group, view)
+            EnumChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(group, view)
+            EnumChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(group, view)
             else -> {
-                ItemChatMessageTextViewHolder(session, view)
+                ItemChatMessageTextViewHolder(group, view)
             }
         }
     }

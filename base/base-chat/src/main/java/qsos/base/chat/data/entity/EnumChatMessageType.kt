@@ -12,7 +12,7 @@ package qsos.base.chat.data.entity
  * @sample EnumChatMessageType.CARD
  * @sample EnumChatMessageType.LOCATION
  */
-enum class EnumChatMessageType(val key: String) : IChatMessageType {
+enum class EnumChatMessageType(val key: String) : IMessageType {
     TEXT("文本消息") {
         override var contentDesc: String = "文本消息"
         override var contentType: Int = this.ordinal
