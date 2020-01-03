@@ -41,14 +41,36 @@ interface ChatModel {
                 success: (user: ChatUser) -> Unit
         )
 
-        /**获取会话下的用户列表
-         * @param sessionId 会话ID
+        /**加好友
+         * @param userId 申请用户ID
+         * @param friendId 待加好友ID
+         * */
+        fun addFriend(
+                userId: Long,
+                friendId: Long,
+                failed: (msg: String) -> Unit,
+                success: (user: ChatFriend) -> Unit
+        )
+
+        /**判断好友关系
+         * @param userId 用户ID
+         * @param friendId 好友ID
+         * */
+        fun findFriend(
+                userId: Long,
+                friendId: Long,
+                failed: (msg: String) -> Unit,
+                success: (user: ChatFriend) -> Unit
+        )
+
+        /**获取群下的用户列表
+         * @param sessionId 群ID
          * @return 用户列表
          * */
         fun getUserListBySessionId(sessionId: Int): List<ChatUser>
 
-        /**将用户移除会话
-         * @param sessionId 会话ID
+        /**将用户移除群
+         * @param sessionId 群ID
          * @param userId 需要移除的用户ID
          * */
         fun deleteUser(sessionId: Int, userId: Long)
@@ -60,21 +82,35 @@ interface ChatModel {
         val mJob: CoroutineContext
         fun clear()
 
-        /**创建会话,可同时往会话发送一条消息,适用于发起单聊/群聊/分享等场景
+        /**创建群,可同时往群发送一条消息,适用于发起单聊/群聊/分享等场景
+         * @param creator 创建人聊天账号
          * @param accountList 用户聊天账号集合
          * @param message 发送的消息
-         * @return 会话数据
+         * @return 群数据
          * */
         fun createSession(
+                creator: String,
                 accountList: List<String>,
                 message: ChatMessage? = null,
                 failed: (msg: String) -> Unit,
                 success: (group: ChatGroup) -> Unit
         )
 
-        /**获取会话数据
-         * @param sessionId 会话ID
-         * @return 会话数据
+        /**获取单聊群信息
+         * @param creator 创建人聊天账号
+         * @param member 群成员，单人聊天账号
+         * @return 群数据
+         * */
+        fun findSingle(
+                creator: String,
+                member: String,
+                failed: (msg: String) -> Unit,
+                success: (group: ChatGroup) -> Unit
+        )
+
+        /**获取群数据
+         * @param sessionId 群ID
+         * @return 群数据
          * */
         fun getSessionById(
                 sessionId: Int,
@@ -82,16 +118,16 @@ interface ChatModel {
                 success: (group: ChatGroup) -> Unit
         )
 
-        /**获取用户订阅的会话
+        /**获取用户订阅的群
          * @param userId 用户ID
-         * @return 用户订阅的会话
+         * @return 用户订阅的群
          * */
         fun getSessionListByUserId(userId: Long): List<ChatGroup>
 
-        /**往已有会话中增加用户
+        /**往已有群中增加用户
          * @param userIdList 被添加用户ID集合
-         * @param sessionId 会话ID
-         * @return 加入的会话数据
+         * @param sessionId 群ID
+         * @return 加入的群数据
          * */
         fun addUserListToSession(
                 userIdList: List<Long>, sessionId: Int,
@@ -99,8 +135,8 @@ interface ChatModel {
                 success: (group: ChatGroup) -> Unit
         )
 
-        /**解散会话
-         * @param sessionId 会话ID
+        /**解散群
+         * @param sessionId 群ID
          * */
         fun deleteSession(sessionId: Int)
 
@@ -111,13 +147,13 @@ interface ChatModel {
         val mJob: CoroutineContext
         fun clear()
 
-        /**获取会话下的历史消息列表，即当前第一条消息时序前【20】条消息
-         * @param sessionId 会话ID
+        /**获取群下的历史消息列表，即当前第一条消息时序前【20】条消息
+         * @param sessionId 群ID
          * */
         fun getOldMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit)
 
-        /**获取会话下的新消息列表
-         * @param sessionId 会话ID
+        /**获取群下的新消息列表
+         * @param sessionId 群ID
          * */
         fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit)
 
@@ -151,8 +187,8 @@ interface ChatModel {
         /**获取当前用户所在的所有聊天群列表数据*/
         fun getGroupListWithMe()
 
-        /**获取会话对应的聊天群数据
-         * @param sessionId 会话ID
+        /**获取群对应的聊天群数据
+         * @param sessionId 群ID
          * @return 聊天群数据
          * */
         fun getGroupBySessionId(sessionId: Int): ChatGroupInfo

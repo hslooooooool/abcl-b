@@ -21,6 +21,24 @@ class ChatSessionModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job()
 ) : ChatModel.ISession {
 
+    override fun findSingle(
+            creator: String,
+            member: String,
+            failed: (msg: String) -> Unit,
+            success: (group: ChatGroup) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatGroup> {
+            api = ApiEngine.createService(ApiChatSession::class.java).findSingle(
+                    creator = creator, member = member
+            )
+            onSuccess {
+                it?.let {
+                    success.invoke(it)
+                } ?: failed.invoke("非好友")
+            }
+        }
+    }
+
     override fun getSessionById(
             sessionId: Int,
             failed: (msg: String) -> Unit,
@@ -39,6 +57,7 @@ class ChatSessionModelIml(
     }
 
     override fun createSession(
+            creator: String,
             accountList: List<String>,
             message: ChatMessage?,
             failed: (msg: String) -> Unit,
@@ -46,7 +65,7 @@ class ChatSessionModelIml(
     ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatGroup>> {
             api = ApiEngine.createService(ApiChatSession::class.java).createSession(
-                    name = "測試群", memberList = accountList
+                    name = "測試群", creator = creator, memberList = accountList
             )
             onFailed { _, msg, error ->
                 failed.invoke(msg ?: "创建失败${error.toString()}")

@@ -16,7 +16,7 @@ import retrofit2.http.Query
 interface ApiChatGroup {
 
     companion object {
-        const val GROUP = "/chat/group"
+        const val GROUP = "/api/im/group"
     }
 
     @GET(value = "$GROUP/getGroupById")
@@ -25,7 +25,7 @@ interface ApiChatGroup {
             @Query(value = "id") groupId: Int
     ): Call<BaseResponse<ChatGroupInfo>>
 
-    @GET(value = "$GROUP/getGroupWithMe")
+    @GET(value = "$GROUP/list")
     fun getGroupWithMe(
             @Header(value = "userId") meId: Long = BaseConfig.userId
     ): Call<BaseResponse<List<ChatGroupInfo>>>

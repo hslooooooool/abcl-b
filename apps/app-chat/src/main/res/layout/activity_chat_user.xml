@@ -48,6 +48,8 @@
 		android:text="发消息"
 		android:textColor="@color/white"
 		android:textSize="18sp"
-		app:layout_constraintBottom_toBottomOf="parent" />
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		tools:visibility="visible" />
 
 </LinearLayout>

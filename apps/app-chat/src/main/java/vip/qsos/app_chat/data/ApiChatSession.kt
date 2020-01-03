@@ -21,7 +21,15 @@ interface ApiChatSession {
     fun createSession(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query("name") name: String,
+            @Query("creator") creator: String,
             @Query("members") memberList: List<String>
+    ): Call<BaseResponse<ChatGroup>>
+
+    @GET(value = "$GROUP/info.single")
+    fun findSingle(
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
+            @Query("creator") creator: String,
+            @Query("member") member: String
     ): Call<BaseResponse<ChatGroup>>
 
     @POST(value = "$GROUP/create")

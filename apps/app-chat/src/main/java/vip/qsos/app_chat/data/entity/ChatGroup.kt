@@ -12,6 +12,8 @@ import qsos.base.chat.data.entity.EnumChatType
  * @param creator 创建者账号
  * @param member 群成员账号集合
  * @param chatType 群类型
+ * @param lastMessageId 最后一条消息ID
+ * @param lastMessageTimeline 最后一条消息时序
  *
  * @see ChatGroupInfo
  */
@@ -20,7 +22,9 @@ data class ChatGroup(
         override var name: String = "",
         var creator: String,
         var member: List<String>,
-        var chatType: EnumChatType
+        var chatType: EnumChatType,
+        var lastMessageId: Long? = null,
+        var lastMessageTimeline: Long? = null
 ) : IMessageListService.Group {
     override var type: Int = this.chatType.key
 }

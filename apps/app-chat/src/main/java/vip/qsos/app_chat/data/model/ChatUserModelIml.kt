@@ -10,6 +10,7 @@ import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import qsos.lib.netservice.expand.retrofitWithLiveDataByDef
 import vip.qsos.app_chat.data.ApiChatUser
+import vip.qsos.app_chat.data.entity.ChatFriend
 import vip.qsos.app_chat.data.entity.ChatUser
 import kotlin.coroutines.CoroutineContext
 
@@ -52,6 +53,40 @@ class ChatUserModelIml(
     ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatUser>> {
             api = ApiEngine.createService(ApiChatUser::class.java).getUserById(userId = userId)
+            onSuccess {
+                if (it?.data != null) {
+                    success.invoke(it.data!!)
+                }
+            }
+        }
+    }
+
+    override fun addFriend(
+            userId: Long, friendId: Long,
+            failed: (msg: String) -> Unit,
+            success: (user: ChatFriend) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatFriend>> {
+            api = ApiEngine.createService(ApiChatUser::class.java).addFriend(
+                    userId = userId, friendId = friendId
+            )
+            onSuccess {
+                if (it?.data != null) {
+                    success.invoke(it.data!!)
+                }
+            }
+        }
+    }
+
+    override fun findFriend(
+            userId: Long, friendId: Long,
+            failed: (msg: String) -> Unit,
+            success: (user: ChatFriend) -> Unit
+    ) {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatFriend>> {
+            api = ApiEngine.createService(ApiChatUser::class.java).findFriend(
+                    userId = userId, friendId = friendId
+            )
             onSuccess {
                 if (it?.data != null) {
                     success.invoke(it.data!!)

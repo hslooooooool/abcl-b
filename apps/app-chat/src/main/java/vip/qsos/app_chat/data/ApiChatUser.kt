@@ -1,10 +1,12 @@
 package vip.qsos.app_chat.data
 
-import vip.qsos.app_chat.data.entity.ChatUser
 import qsos.base.core.config.BaseConfig
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
 import retrofit2.http.*
+import vip.qsos.app_chat.data.entity.ChatFriend
+import vip.qsos.app_chat.data.entity.ChatGroup
+import vip.qsos.app_chat.data.entity.ChatUser
 
 /**
  * @author : 华清松
@@ -26,6 +28,20 @@ interface ApiChatUser {
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "userId") userId: Long
     ): Call<BaseResponse<ChatUser>>
+
+    @POST("$GROUP/friend.add")
+    fun addFriend(
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
+            @Query(value = "userId") userId: Long,
+            @Query(value = "friendId") friendId: Long
+    ): Call<BaseResponse<ChatFriend>>
+
+    @POST("$GROUP/friend")
+    fun findFriend(
+            @Header(value = "userId") meId: Long = BaseConfig.userId,
+            @Query(value = "userId") userId: Long,
+            @Query(value = "friendId") friendId: Long
+    ): Call<BaseResponse<ChatFriend>>
 
     @GET(value = "$GROUP/list")
     fun getAllUser(
