@@ -39,14 +39,14 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun getSessionById(
-            sessionId: Int,
+    override fun getGroupById(
+            groupId: Long,
             failed: (msg: String) -> Unit,
             success: (group: ChatGroup) -> Unit
     ) {
         CoroutineScope(mJob).retrofitWithSuccessByDef<ChatGroup> {
             api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(
-                    sessionId = sessionId
+                    groupId = groupId
             )
             onSuccess {
                 it?.let {
@@ -83,7 +83,7 @@ class ChatSessionModelIml(
     }
 
     override fun addUserListToSession(
-            userIdList: List<Long>, sessionId: Int,
+            userIdList: List<Long>, sessionId: Long,
             failed: (msg: String) -> Unit,
             success: (group: ChatGroup) -> Unit
     ) {
@@ -102,7 +102,7 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun deleteSession(sessionId: Int) {
+    override fun deleteSession(sessionId: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

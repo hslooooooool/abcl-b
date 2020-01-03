@@ -27,7 +27,7 @@ interface ApiChatMessage {
     @GET(value = "$GROUP/getMessageListBySessionIdAndTimeline")
     fun getMessageListBySessionIdAndTimeline(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Int,
+            @Query(value = "id") sessionId: Long,
             @Query(value = "timeline") timeline: Int = -1,
             @Query(value = "next") next: Boolean = true,
             @Query(value = "size") size: Int = 20
@@ -36,7 +36,7 @@ interface ApiChatMessage {
     @GET(value = "$GROUP/getMessageListBySessionId")
     fun getMessageListBySessionId(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Int
+            @Query(value = "id") sessionId: Long
     ): Call<BaseResponse<List<ChatMessageBo>>>
 
     @POST(value = "$GROUP/readMessage")

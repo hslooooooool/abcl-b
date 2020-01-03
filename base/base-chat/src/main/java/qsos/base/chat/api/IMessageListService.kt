@@ -57,7 +57,7 @@ interface IMessageListService {
     /**会话实体属性*/
     interface Group {
         /**群号*/
-        var id: Int
+        var id: Long
         /**群名称*/
         var name: String
         /**群类型*/
@@ -69,7 +69,7 @@ interface IMessageListService {
         /**消息ID*/
         var messageId: Int
         /**会话ID*/
-        var sessionId: Int
+        var sessionId: Long
         /**消息时序，由服务器统一设置*/
         var timeline: Int
         /**发送人ID*/

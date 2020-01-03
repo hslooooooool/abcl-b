@@ -29,7 +29,7 @@ data class ChatMessageBo(
             message.messageId = value
         }
 
-    override var sessionId: Int = -1
+    override var sessionId: Long = -1L
         get() {
             field = message.sessionId
             return field

@@ -23,9 +23,8 @@ import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_chat_message.*
 import kotlinx.android.synthetic.main.item_chat_friend.view.*
-import qsos.base.chat.data.entity.*
-import vip.qsos.app_chat.data.model.MessageListService
 import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.entity.*
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseAdapter
@@ -41,9 +40,9 @@ import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.entity.ChatGroup
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
-import vip.qsos.app_chat.data.entity.ChatGroup
 import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.model.*
 import java.util.*
@@ -60,21 +59,21 @@ class ChatSessionActivity(
         override val reload: Boolean = false
 ) : BaseActivity(), IChatSessionView {
 
-    @Autowired(name = "/CHAT/SESSION_ID")
+    @Autowired(name = "/CHAT/GROUP_ID")
     @JvmField
-    var mSessionId: Int? = -1
+    var mGroupId: Long? = -1L
 
     private lateinit var mTitle: TextView
     private lateinit var mMenu: TextView
 
-    private var mChatSessionModel: ChatModel.ISession? = null
-    private var mFileModel: IFileModel? = null
-    private var mChatMessageModel: ChatModel.IMessage? = null
-    private var mMessageListService: IMessageListService? = null
+    private lateinit var mChatSessionModel: ChatModel.ISession
+    private lateinit var mFileModel: IFileModel
+    private lateinit var mChatMessageModel: ChatModel.IMessage
+    private lateinit var mMessageListService: IMessageListService
     private val mMessageGroup: MutableLiveData<ChatGroup> = MutableLiveData()
-    private var mChatUserModel: ChatModel.IUser? = null
-    private var mChatGroupModel: ChatModel.IGroup? = null
-    private var mChatUserAdapter: BaseAdapter<ChatUser>? = null
+    private lateinit var mChatUserModel: ChatModel.IUser
+    private lateinit var mChatGroupModel: ChatModel.IGroup
+    private lateinit var mChatUserAdapter: BaseAdapter<ChatUser>
     private val mChatUserList = arrayListOf<ChatUser>()
     private var mPullMessageTimer: Timer? = null
 
@@ -87,13 +86,13 @@ class ChatSessionActivity(
         mMessageListService = MessageListService()
         mChatUserModel = ChatUserModelIml()
         mChatGroupModel = ChatGroupModelIml()
-        mFileModel = FileRepository(mChatMessageModel!!.mJob)
+        mFileModel = FileRepository(mChatMessageModel.mJob)
 
         lifecycle.addObserver(mModel)
     }
 
     override fun initView() {
-        if (mSessionId == null || mSessionId!! < 0) {
+        if (mGroupId == null || mGroupId!! < 0) {
             ToastUtils.showToastLong(this, "聊天不存在")
             finish()
             return
@@ -120,7 +119,7 @@ class ChatSessionActivity(
 
         chat_message_srl.setColorSchemeResources(R.color.colorPrimary, R.color.black, R.color.green)
         chat_message_srl.setOnRefreshListener {
-            mChatMessageModel?.getOldMessageBySessionId(mSessionId!!) {
+            mChatMessageModel.getOldMessageBySessionId(mGroupId!!) {
                 chat_message_srl.isRefreshing = false
                 if (it.isNotEmpty()) {
                     RxBus.send(IMessageListService.MessageEvent(
@@ -191,17 +190,17 @@ class ChatSessionActivity(
             holder.itemView.item_chat_friend_state.visibility = View.GONE
             holder.itemView.item_chat_friend_name.text = data.name
             holder.itemView.setOnClickListener {
-                mChatSessionModel?.addUserListToSession(arrayListOf(data.userId), mSessionId!!,
+                mChatSessionModel.addUserListToSession(arrayListOf(data.userId), mGroupId!!,
                         failed = {
                             ToastUtils.showToast(this, it)
                         },
                         success = {
-                            if (mSessionId == it.id) {
+                            if (mGroupId == it.id) {
                                 ToastUtils.showToast(this, "已添加")
                             } else {
                                 /**单聊变群聊，切换到新群聊天*/
                                 ARouter.getInstance().build("/CHAT/SESSION")
-                                        .withInt("/CHAT/SESSION_ID", it.id)
+                                        .withLong("/CHAT/GROUP_ID", it.id)
                                         .navigation()
                             }
                         }
@@ -212,34 +211,34 @@ class ChatSessionActivity(
         chat_message_friends.layoutManager = mLinearLayoutManager
         chat_message_friends.adapter = mChatUserAdapter
 
-        mChatUserModel?.mDataOfChatUserList?.observe(this, Observer {
+        mChatUserModel.mDataOfChatUserList.observe(this, Observer {
             mChatUserList.clear()
             it.data?.let { users ->
                 mChatUserList.addAll(users)
             }
-            mChatUserAdapter?.notifyDataSetChanged()
+            mChatUserAdapter.notifyDataSetChanged()
         })
 
         getData()
     }
 
     override fun getData() {
-        mChatUserModel?.getAllChatUser()
+        mChatUserModel.getAllChatUser()
 
-        mChatSessionModel?.getSessionById(
-                sessionId = mSessionId!!,
+        mChatSessionModel.getGroupById(
+                groupId = mGroupId!!,
                 failed = {
                     ToastUtils.showToast(this, it)
                 },
                 success = {
                     mMessageGroup.postValue(it)
-                    mChatGroupModel?.getGroupById(mSessionId!!) { group ->
+                    mChatGroupModel.getGroupById(mGroupId!!) { group ->
                         chat_message_group_info.text = Gson().toJson(group)
                         mTitle.text = group.name
                     }
 
                     chat_message_rv.initView(
-                            group = it, messageListService = mMessageListService!!,
+                            group = it, messageListService = mMessageListService,
                             itemClickListener = object : OnListItemClickListener {
                                 override fun onItemClick(view: View, position: Int, obj: Any?) {
                                     preOnItemClick(view, obj)
@@ -269,10 +268,10 @@ class ChatSessionActivity(
     }
 
     override fun onDestroy() {
-        mChatSessionModel?.clear()
-        mChatMessageModel?.clear()
-        mChatUserModel?.clear()
-        mChatGroupModel?.clear()
+        mChatSessionModel.clear()
+        mChatMessageModel.clear()
+        mChatUserModel.clear()
+        mChatGroupModel.clear()
         mPullMessageTimer?.cancel()
         super.onDestroy()
     }
@@ -298,7 +297,7 @@ class ChatSessionActivity(
     }
 
     override fun deleteMessage(message: IMessageListService.Message) {
-        mMessageListService?.revokeMessage(message,
+        mMessageListService.revokeMessage(message,
                 failed = { msg, _ ->
                     ToastUtils.showToast(mContext, msg)
                 },
@@ -317,7 +316,7 @@ class ChatSessionActivity(
                 user = ChatModel.mLoginUser.value!!,
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        sessionId = mSessionId!!,
+                        sessionId = mGroupId!!,
                         messageId = UUID.randomUUID().hashCode(),
                         content = content
                 )
@@ -349,7 +348,7 @@ class ChatSessionActivity(
                     user = ChatModel.mLoginUser.value!!,
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
-                            sessionId = mSessionId!!,
+                            sessionId = mGroupId!!,
                             messageId = UUID.randomUUID().hashCode(),
                             content = content
                     )
@@ -380,7 +379,7 @@ class ChatSessionActivity(
                     eventType = IMessageListService.EventType.UPDATE_SHOWED
             ))
 
-            mFileModel?.uploadFile(file, object : OnTListener<HttpFileEntity> {
+            mFileModel.uploadFile(file, object : OnTListener<HttpFileEntity> {
                 override fun back(t: HttpFileEntity) {
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
@@ -420,7 +419,7 @@ class ChatSessionActivity(
         mPullMessageTimer?.cancel()
         mPullMessageTimer = Timer()
         mPullMessageTimer!!.schedule(timerTask {
-            mChatMessageModel?.getNewMessageBySessionId(mSessionId!!) {
+            mChatMessageModel.getNewMessageBySessionId(mGroupId!!) {
                 if (it.isNotEmpty()) {
                     RxBus.send(IMessageListService.MessageEvent(
                             group = mMessageGroup.value!!,

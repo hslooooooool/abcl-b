@@ -95,11 +95,11 @@ class ChatUserModelIml(
         }
     }
 
-    override fun getUserListBySessionId(sessionId: Int): List<ChatUser> {
+    override fun getUserListBySessionId(sessionId: Long): List<ChatUser> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteUser(sessionId: Int, userId: Long) {
+    override fun deleteUser(sessionId: Long, userId: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

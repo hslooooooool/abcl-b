@@ -13,7 +13,7 @@ import qsos.base.chat.data.entity.ChatContent
  */
 data class ChatMessage(
         /**@see ChatGroup.id*/
-        var sessionId: Int = -1,
+        var sessionId: Long = -1,
         var messageId: Int = -1,
         var timeline: Int = -1,
         var cancelBack: Boolean = false,

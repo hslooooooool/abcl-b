@@ -26,7 +26,7 @@ class ChatMessageModelIml(
     /**是否正在获取新消息*/
     private var pullNewMessageIng = false
 
-    override fun getOldMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
+    override fun getOldMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(sessionId) { oldSession ->
             val nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline
             if (nowFirstMessageTimeline != null && nowFirstMessageTimeline < oldSession.nowLastMessageTimeline ?: -1) {
@@ -84,7 +84,7 @@ class ChatMessageModelIml(
         }
     }
 
-    override fun getNewMessageBySessionId(sessionId: Int, success: (messageList: List<ChatMessageBo>) -> Unit) {
+    override fun getNewMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit) {
         if (pullNewMessageIng) {
             return
         }

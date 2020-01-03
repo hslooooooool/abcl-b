@@ -19,10 +19,10 @@ interface ApiChatGroup {
         const val GROUP = "/api/im/group"
     }
 
-    @GET(value = "$GROUP/getGroupById")
+    @GET(value = "$GROUP/info.id")
     fun getGroupById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") groupId: Int
+            @Query(value = "groupId") groupId: Long
     ): Call<BaseResponse<ChatGroupInfo>>
 
     @GET(value = "$GROUP/list")

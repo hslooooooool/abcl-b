@@ -65,7 +65,7 @@ class ChatUserActivity(
                 addFriend()
             } else if (this.mChatFriend.value?.accept == true) {
                 ARouter.getInstance().build("/CHAT/SESSION")
-                        .withInt("/CHAT/SESSION_ID", mChatGroup.value!!.id)
+                        .withLong("/CHAT/GROUP_ID", mChatGroup.value!!.id)
                         .navigation()
             }
         }

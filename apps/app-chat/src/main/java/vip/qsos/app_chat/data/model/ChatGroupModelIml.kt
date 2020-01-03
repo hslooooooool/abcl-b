@@ -23,7 +23,7 @@ class ChatGroupModelIml(
         override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupInfo>> = BaseHttpLiveData()
 ) : ChatModel.IGroup {
 
-    override fun getGroupById(groupId: Int, success: (message: ChatGroupInfo) -> Unit) {
+    override fun getGroupById(groupId: Long, success: (message: ChatGroupInfo) -> Unit) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatGroupInfo>> {
             api = ApiEngine.createService(vip.qsos.app_chat.data.ApiChatGroup::class.java).getGroupById(groupId = groupId)
             onSuccess {
@@ -34,7 +34,7 @@ class ChatGroupModelIml(
         }
     }
 
-    override fun getGroupBySessionId(sessionId: Int): ChatGroupInfo {
+    override fun getGroupBySessionId(sessionId: Long): ChatGroupInfo {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

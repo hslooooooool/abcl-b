@@ -38,10 +38,10 @@ interface ApiChatSession {
             @Body form: FormCreateSession
     ): Call<BaseResponse<ChatGroup>>
 
-    @GET(value = "$GROUP/getSessionById")
+    @GET(value = "$GROUP/info.id")
     fun getSessionById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Int
+            @Query(value = "groupId") groupId: Long
     ): Call<BaseResponse<ChatGroup>>
 
     @GET(value = "$GROUP/getSessionListByUserId")
@@ -53,14 +53,14 @@ interface ApiChatSession {
     @POST(value = "$GROUP/addUserListToSession")
     fun addUserListToSession(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Int,
+            @Query(value = "id") sessionId: Long,
             @Query(value = "userIdList") userIdList: List<Long>
     ): Call<BaseResponse<ChatGroup>>
 
     @DELETE(value = "$GROUP/deleteSession")
     fun deleteSession(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Int
+            @Query(value = "id") sessionId: Long
     ): Call<BaseResponse<Boolean>>
 
     data class FormCreateSession(

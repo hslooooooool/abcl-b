@@ -9,19 +9,29 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
+import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.entity.ChatContent
+import qsos.lib.base.utils.DateUtils
+import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.entity.ChatMessage
+import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.model.ChatModel
 import vip.qsos.app_chat.view.activity.MessageActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
 import vip.qsos.im.lib.IMListenerManager
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.Message
 import vip.qsos.im.lib.model.ReplyBody
+import java.util.*
 
 /**
  * @author : 华清松
  * 消息接收广播服务
  */
 class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
+
+    data class Group(override var id: Long, override var name: String, override var type: Int) : IMessageListService.Group
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
@@ -33,6 +43,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             return
         }
         showNotify(context, message)
+        notifyView(message)
     }
 
     /**消息广播*/
@@ -68,6 +79,32 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
         notificationManager.notify(R.drawable.ic_launcher, notification)
+    }
+
+    /**TODO 更新消息界面*/
+    private fun notifyView(msg: Message) {
+        RxBus.send(IMessageListService.MessageEvent(
+                group = Group(
+                        id = 14L,
+                        name = "TEST",
+                        type = msg.action!!.toInt()
+                ),
+                message = arrayListOf(formatMessage(msg)),
+                eventType = IMessageListService.EventType.SHOW_NEW)
+        )
+    }
+
+    private fun formatMessage(msg: Message): IMessageListService.Message {
+        return ChatMessageBo(
+                user = ChatModel.mLoginUser.value!!,
+                createTime = DateUtils.format(date = Date()),
+                message = ChatMessage(
+                        sessionId = 14L,
+                        messageId = msg.id.toInt(),
+                        content = ChatContent().create(msg.action!!.toInt(), msg.content ?: "")
+                                .put("content", msg.content ?: "")
+                )
+        )
     }
 
     override fun onConnectionSuccess(hasAutoBind: Boolean) {

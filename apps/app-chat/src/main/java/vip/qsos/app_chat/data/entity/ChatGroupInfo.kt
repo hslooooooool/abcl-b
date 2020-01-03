@@ -13,7 +13,7 @@ package vip.qsos.app_chat.data.entity
  */
 data class ChatGroupInfo(
         /** @see ChatGroup.id */
-        val groupId: Int,
+        val groupId: Long,
         val name: String,
         val createTime: String,
         val avatar: String?,
