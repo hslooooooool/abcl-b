@@ -7,7 +7,7 @@ package qsos.base.chat.data.entity
  *  FIXME 待取消此实体
  */
 data class ChatContent(
-        val fields: HashMap<String, Any?> = HashMap()
+        var fields: HashMap<String, Any?> = HashMap()
 ) {
 
     fun create(type: Int, desc: String): ChatContent {
@@ -40,14 +40,25 @@ data class ChatContent(
 
     /**获取消息类型*/
     fun getContentType(): Int {
-        val type = (this.fields["contentType"] as Number?)?.toInt()
-        this.fields["contentType"] = type
+        var type: Int?
+        try {
+            type = (this.fields["contentType"] as Number?)?.toInt()
+            this.fields["contentType"] = type
+        } catch (e: Exception) {
+            type = -1
+        }
         return type ?: -1
     }
 
     /**获取消息摘要*/
     fun getContentDesc(): String {
-        return this.fields["contentDesc"]?.toString() ?: ""
+        var contentDesc: String = this.fields["contentDesc"]?.toString() ?: ""
+        val length = contentDesc.length
+        if (length > 20) {
+            contentDesc = contentDesc.substring(0, 20) + "..."
+        }
+        this.fields["contentDesc"] = contentDesc
+        return contentDesc
     }
 
     /**获取文本内容，仅文本消息有效*/

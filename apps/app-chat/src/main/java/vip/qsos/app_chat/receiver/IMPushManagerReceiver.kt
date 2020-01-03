@@ -10,12 +10,12 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
 import qsos.base.chat.api.IMessageListService
-import qsos.base.chat.data.entity.ChatContent
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.MessageBo
 import vip.qsos.app_chat.data.model.ChatModel
 import vip.qsos.app_chat.view.activity.MessageActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
@@ -42,13 +42,14 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             ARouter.getInstance().build("/CHAT/LOGIN").navigation()
             return
         }
-        showNotify(context, message)
-        notifyView(message)
+        val messageBo = MessageBo.decode(message)
+        showNotify(context, messageBo)
+        notifyView(messageBo)
     }
 
     /**消息广播*/
     @SuppressLint("TimberArgCount")
-    private fun showNotify(context: Context, msg: Message) {
+    private fun showNotify(context: Context, msg: MessageBo) {
         val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -62,7 +63,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             channel.enableLights(true)
             notificationManager.createNotificationChannel(channel)
         }
-        val title = "系统消息"
+        val title = msg.title ?: "新消息"
         val contentIntent = PendingIntent.getActivity(
                 context, 1, Intent(context, MessageActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -74,7 +75,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         builder.setSmallIcon(R.drawable.ic_launcher)
         builder.setTicker(title)
         builder.setContentTitle(title)
-        builder.setContentText(msg.content)
+        builder.setContentText(msg.content.getContentDesc())
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
         builder.setContentIntent(contentIntent)
         val notification = builder.build()
@@ -82,27 +83,26 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     }
 
     /**TODO 更新消息界面*/
-    private fun notifyView(msg: Message) {
+    private fun notifyView(msg: MessageBo) {
         RxBus.send(IMessageListService.MessageEvent(
                 group = Group(
-                        id = 14L,
+                        id = msg.extra.belongId.toLong(),
                         name = "TEST",
-                        type = msg.action!!.toInt()
+                        type = msg.extra.chatType.key
                 ),
                 message = arrayListOf(formatMessage(msg)),
                 eventType = IMessageListService.EventType.SHOW_NEW)
         )
     }
 
-    private fun formatMessage(msg: Message): IMessageListService.Message {
+    private fun formatMessage(msg: MessageBo): IMessageListService.Message {
         return ChatMessageBo(
                 user = ChatModel.mLoginUser.value!!,
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        sessionId = 14L,
+                        sessionId = msg.extra.belongId.toLong(),
                         messageId = msg.id.toInt(),
-                        content = ChatContent().create(msg.action!!.toInt(), msg.content ?: "")
-                                .put("content", msg.content ?: "")
+                        content = msg.content
                 )
         )
     }

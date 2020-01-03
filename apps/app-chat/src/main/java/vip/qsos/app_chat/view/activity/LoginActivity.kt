@@ -70,7 +70,7 @@ class LoginActivity(
     }
 
     /**绑定IM账号*/
-    fun bindAccount() {
+    private fun bindAccount() {
         if (IMManagerHelper.isConnected(this)) {
             if (ChatApplication.loginUser.value == null) {
                 ToastUtils.showToast(this, "账号绑定失败！")
