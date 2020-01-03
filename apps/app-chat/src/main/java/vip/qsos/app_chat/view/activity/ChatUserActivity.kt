@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
@@ -28,7 +29,7 @@ import vip.qsos.app_chat.data.model.ChatUserModelIml
 @Route(group = "CHAT", path = "/CHAT/USER")
 class ChatUserActivity(
         override val layoutId: Int = R.layout.activity_chat_user,
-        override val reload: Boolean = true
+        override val reload: Boolean = false
 ) : BaseActivity() {
 
     @Autowired(name = "/CHAT/USER_ID")
@@ -68,6 +69,11 @@ class ChatUserActivity(
                         .navigation()
             }
         }
+
+        this.mChatUser.observe(this, Observer {
+            getData()
+        })
+
         mChatUserModel.getUserById(
                 userId = mUserId!!,
                 failed = {
@@ -83,20 +89,22 @@ class ChatUserActivity(
 
     override fun getData() {
         if (this.mChatUser.value != null) {
-            mChatSessionModel.findSingle(
-                    creator = ChatApplication.loginUser.value!!.imAccount,
-                    member = mChatUser.value!!.imAccount,
-                    failed = {
-                        chat_user_send.text = "加为好友"
-                    },
-                    success = { group ->
-                        mChatGroup.value = group
-                        findFriend()
-                    }
-            )
-        } else {
-            chat_user_send.visibility = View.VISIBLE
+            findFriend()
+            findGroup()
         }
+    }
+
+    private fun findGroup() {
+        mChatSessionModel.findSingle(
+                sender = ChatApplication.loginUser.value!!.imAccount,
+                receiver = mChatUser.value!!.imAccount,
+                failed = {
+                    chat_user_send.text = "加为好友"
+                },
+                success = { group ->
+                    mChatGroup.value = group
+                }
+        )
     }
 
     private fun findFriend() {

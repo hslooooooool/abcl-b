@@ -28,8 +28,8 @@ interface ApiChatSession {
     @GET(value = "$GROUP/info.single")
     fun findSingle(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query("creator") creator: String,
-            @Query("member") member: String
+            @Query("sender") sender: String,
+            @Query("receiver") receiver: String
     ): Call<BaseResponse<ChatGroup>>
 
     @POST(value = "$GROUP/create")

@@ -97,13 +97,13 @@ interface ChatModel {
         )
 
         /**获取单聊群信息
-         * @param creator 创建人聊天账号
-         * @param member 群成员，单人聊天账号
+         * @param sender 创建人聊天账号
+         * @param receiver 群成员，单人聊天账号
          * @return 群数据
          * */
         fun findSingle(
-                creator: String,
-                member: String,
+                sender: String,
+                receiver: String,
                 failed: (msg: String) -> Unit,
                 success: (group: ChatGroup) -> Unit
         )

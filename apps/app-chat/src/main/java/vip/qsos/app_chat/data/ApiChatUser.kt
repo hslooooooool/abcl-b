@@ -36,7 +36,7 @@ interface ApiChatUser {
             @Query(value = "friendId") friendId: Long
     ): Call<BaseResponse<ChatFriend>>
 
-    @POST("$GROUP/friend")
+    @GET("$GROUP/friend")
     fun findFriend(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "userId") userId: Long,

@@ -22,14 +22,14 @@ class ChatSessionModelIml(
 ) : ChatModel.ISession {
 
     override fun findSingle(
-            creator: String,
-            member: String,
+            sender: String,
+            receiver: String,
             failed: (msg: String) -> Unit,
             success: (group: ChatGroup) -> Unit
     ) {
         CoroutineScope(mJob).retrofitWithSuccessByDef<ChatGroup> {
             api = ApiEngine.createService(ApiChatSession::class.java).findSingle(
-                    creator = creator, member = member
+                    sender = sender, receiver = receiver
             )
             onSuccess {
                 it?.let {
