@@ -113,7 +113,7 @@ interface ChatModel {
          * @return 群数据
          * */
         fun getGroupById(
-                groupId: Long,
+                groupId: String,
                 failed: (msg: String) -> Unit,
                 success: (group: ChatGroup) -> Unit
         )
@@ -130,7 +130,7 @@ interface ChatModel {
          * @return 加入的群数据
          * */
         fun addUserListToSession(
-                userIdList: List<Long>, sessionId: Long,
+                userIdList: List<Long>, sessionId: String,
                 failed: (msg: String) -> Unit,
                 success: (group: ChatGroup) -> Unit
         )
@@ -138,7 +138,7 @@ interface ChatModel {
         /**解散群
          * @param sessionId 群ID
          * */
-        fun deleteSession(sessionId: Long)
+        fun deleteSession(sessionId: String)
 
     }
 
@@ -150,12 +150,12 @@ interface ChatModel {
         /**获取群下的历史消息列表，即当前第一条消息时序前【20】条消息
          * @param sessionId 群ID
          * */
-        fun getOldMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
+        fun getOldMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit)
 
         /**获取群下的新消息列表
          * @param sessionId 群ID
          * */
-        fun getNewMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
+        fun getNewMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit)
 
         /**撤回消息
          * @param message 消息
@@ -179,7 +179,7 @@ interface ChatModel {
          * @param success 聊天群数据
          * */
         fun getGroupById(
-                groupId: Long,
+                groupId: String,
                 success: (message: ChatGroupInfo) -> Unit
         )
 
@@ -191,7 +191,7 @@ interface ChatModel {
          * @param sessionId 群ID
          * @return 聊天群数据
          * */
-        fun getGroupBySessionId(sessionId: Long): ChatGroupInfo
+        fun getGroupBySessionId(sessionId: String): ChatGroupInfo
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告

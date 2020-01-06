@@ -9,8 +9,8 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
 import qsos.base.chat.api.IMessageListService
-import qsos.base.chat.data.entity.EnumChatType
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.chat.data.entity.EnumChatType
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -59,7 +59,7 @@ abstract class ItemChatMessageBaseViewHolder(
             }
 
             updateSendStatus(this, position, data)
-            updateReadStatus(this, position, data)
+            updateReadStatus(this, data)
             setContent(this, data, position, mItemListener)
         }
     }
@@ -73,7 +73,7 @@ abstract class ItemChatMessageBaseViewHolder(
             itemView.item_message_time.text = data.createTime
         }
         val contentView: View
-        if (BaseConfig.userId == data.sendUserId) {
+        if (BaseConfig.userId == data.sendUserId.toLong()) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_right)
             contentView.findViewById<TextView>(R.id.item_message_read_state).visibility = View.VISIBLE
@@ -153,7 +153,7 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息读取状态*/
-    private fun updateReadStatus(contentView: View, position: Int, data: IMessageListService.Message) {
+    private fun updateReadStatus(contentView: View, data: IMessageListService.Message) {
         contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (group.type) {
             EnumChatType.SINGLE.key -> {
                 if (data.readNum < 2) "未读" else "已读"

@@ -61,7 +61,7 @@ class ChatSessionActivity(
 
     @Autowired(name = "/CHAT/GROUP_ID")
     @JvmField
-    var mGroupId: Long? = -1L
+    var mGroupId: String? = null
 
     private lateinit var mTitle: TextView
     private lateinit var mMenu: TextView
@@ -92,7 +92,7 @@ class ChatSessionActivity(
     }
 
     override fun initView() {
-        if (mGroupId == null || mGroupId!! < 0) {
+        if (TextUtils.isEmpty(mGroupId)) {
             ToastUtils.showToastLong(this, "聊天不存在")
             finish()
             return
@@ -200,7 +200,7 @@ class ChatSessionActivity(
                             } else {
                                 /**单聊变群聊，切换到新群聊天*/
                                 ARouter.getInstance().build("/CHAT/SESSION")
-                                        .withLong("/CHAT/GROUP_ID", it.id)
+                                        .withString("/CHAT/GROUP_ID", it.id)
                                         .navigation()
                             }
                         }
@@ -316,7 +316,7 @@ class ChatSessionActivity(
                 user = ChatModel.mLoginUser.value!!,
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        sessionId = mGroupId!!,
+                        groupId = mGroupId!!,
                         messageId = UUID.randomUUID().hashCode(),
                         content = content
                 )
@@ -348,7 +348,7 @@ class ChatSessionActivity(
                     user = ChatModel.mLoginUser.value!!,
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
-                            sessionId = mGroupId!!,
+                            groupId = mGroupId!!,
                             messageId = UUID.randomUUID().hashCode(),
                             content = content
                     )

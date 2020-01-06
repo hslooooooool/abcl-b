@@ -58,7 +58,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
     }
 
     /**文件消息上传/发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
-    private val mMessageListUpdateCache: MutableLiveData<HashMap<Int, IMessageListService.Message>> = MutableLiveData()
+    private val mMessageListUpdateCache: MutableLiveData<HashMap<String, IMessageListService.Message>> = MutableLiveData()
 
     constructor(context: Context) : super(context) {}
 
@@ -237,7 +237,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
         )
     }
 
-    override fun notifyMessage(oldMessageId: Int, message: IMessageListService.Message) {
+    override fun notifyMessage(oldMessageId: String, message: IMessageListService.Message) {
         mMessageAdapter?.mStateLiveDataMap!![oldMessageId]?.let {
             mMessageAdapter?.mStateLiveDataMap!![message.messageId] = it
             val position: Int = it.adapterPosition

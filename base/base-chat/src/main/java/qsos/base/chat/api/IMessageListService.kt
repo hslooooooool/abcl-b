@@ -1,9 +1,9 @@
 package qsos.base.chat.api
 
 import androidx.lifecycle.MutableLiveData
+import qsos.base.chat.api.IMessageListService.EventType.*
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.api.IMessageListService.EventType.*
 import qsos.base.chat.view.IMessageListView
 import qsos.lib.base.utils.rx.RxBus
 
@@ -57,7 +57,7 @@ interface IMessageListService {
     /**会话实体属性*/
     interface Group {
         /**群号*/
-        var id: Long
+        var id: String
         /**群名称*/
         var name: String
         /**群类型*/
@@ -67,13 +67,13 @@ interface IMessageListService {
     /**消息实体属性*/
     interface Message {
         /**消息ID*/
-        var messageId: Int
+        var messageId: String
         /**会话ID*/
-        var sessionId: Long
-        /**消息时序，由服务器统一设置*/
-        var timeline: Int
+        var sessionId: String
+        /**消息时序，同一会话下递增*/
+        var timeline: Long
         /**发送人ID*/
-        val sendUserId: Long
+        val sendUserId: String
         /**发送人名称*/
         val sendUserName: String
         /**发送人头像*/
@@ -91,7 +91,7 @@ interface IMessageListService {
 
         /**消息更新发送状态*/
         fun updateSendState(
-                messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus,
+                messageId: String, timeline: Long, sendStatus: EnumChatSendStatus,
                 readNum: Int = 1, readState: Boolean? = false
         )
 
@@ -117,7 +117,7 @@ interface IMessageListService {
     fun sendMessage(
             message: Message,
             failed: (msg: String, message: Message) -> Unit,
-            success: (oldMessageId: Int, message: Message) -> Unit
+            success: (oldMessageId: String, message: Message) -> Unit
     )
 
     /**读取消息，用户读取消息后通知服务器消息已读

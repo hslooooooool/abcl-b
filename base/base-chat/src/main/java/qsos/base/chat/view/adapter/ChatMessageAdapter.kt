@@ -27,7 +27,7 @@ class ChatMessageAdapter(
 ) : BaseAdapter<IMessageListService.Message>(list) {
 
     @SuppressLint("UseSparseArrays")
-    val mStateLiveDataMap = HashMap<Int, BaseHolder<*>>()
+    val mStateLiveDataMap = HashMap<String, BaseHolder<*>>()
 
     override fun onViewAttachedToWindow(holder: BaseHolder<IMessageListService.Message>) {
         super.onViewAttachedToWindow(holder)

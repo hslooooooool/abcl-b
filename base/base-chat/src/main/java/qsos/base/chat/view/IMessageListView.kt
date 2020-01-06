@@ -18,7 +18,7 @@ interface IMessageListView {
     fun refreshMessage(data: ArrayList<IMessageListService.Message>)
 
     /**更新消息状态（发送状态、读取状态）*/
-    fun notifyMessage(oldMessageId: Int, message: IMessageListService.Message)
+    fun notifyMessage(oldMessageId: String, message: IMessageListService.Message)
 
     /**追加历史消息*/
     fun notifyOldMessage(messageList: List<IMessageListService.Message>)

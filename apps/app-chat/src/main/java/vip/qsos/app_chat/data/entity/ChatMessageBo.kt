@@ -2,9 +2,9 @@ package vip.qsos.app_chat.data.entity
 
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageViewConfig
+import qsos.base.chat.api.IMessageListService
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.api.IMessageListService
 import qsos.lib.base.utils.LogUtil
 
 /**
@@ -20,7 +20,7 @@ data class ChatMessageBo(
         var message: ChatMessage
 ) : IMessageListService.Message {
 
-    override var messageId: Int = -1
+    override var messageId: String = ""
         get() {
             field = message.messageId
             return field
@@ -29,19 +29,19 @@ data class ChatMessageBo(
             message.messageId = value
         }
 
-    override var sessionId: Long = -1L
+    override var sessionId: String = ""
         get() {
-            field = message.sessionId
+            field = message.groupId
             return field
         }
         set(value) {
-            message.sessionId = value
+            message.groupId = value
         }
 
-    override var timeline: Int = -1
+    override var timeline: Long = -1L
         get() {
             field = message.timeline
-            if (field == -1) {
+            if (field == -1L) {
                 LogUtil.e("消息时序错误messageId=${message.messageId}")
             }
             return field
@@ -50,8 +50,8 @@ data class ChatMessageBo(
             message.timeline = value
         }
 
-    override val sendUserId: Long
-        get() = user.userId
+    override val sendUserId: String
+        get() = user.userId.toString()
 
     override val sendUserName: String
         get() = user.name
@@ -71,8 +71,10 @@ data class ChatMessageBo(
 
     override var readNum: Int = 1
 
-    override fun updateSendState(messageId: Int, timeline: Int, sendStatus: EnumChatSendStatus,
-                                 readNum: Int, readState: Boolean?) {
+    override fun updateSendState(
+            messageId: String, timeline: Long, sendStatus: EnumChatSendStatus, readNum: Int,
+            readState: Boolean?
+    ) {
         this.message.messageId = messageId
         this.message.timeline = timeline
         this.sendStatus = sendStatus

@@ -1,16 +1,14 @@
 package vip.qsos.app_chat.data.model
 
+import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import qsos.base.chat.data.db.DBChatDatabase
-import vip.qsos.app_chat.data.entity.ChatMessage
-import vip.qsos.app_chat.data.entity.ChatMessageBo
-import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
-import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.db.DBChatDatabase
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.view.IMessageListView
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
@@ -20,6 +18,9 @@ import qsos.lib.netservice.expand.retrofitByDef
 import qsos.lib.netservice.expand.retrofitWithSuccess
 import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 import vip.qsos.app_chat.data.ApiChatMessage
+import vip.qsos.app_chat.data.entity.ChatMessage
+import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
 import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.CoroutineContext
@@ -40,7 +41,7 @@ class MessageListService(
     ) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(group.id) { oldSession ->
             oldSession?.let {
-                val lastTimeline: Int = it.lastMessageTimeline ?: -1
+                val lastTimeline: Long = it.lastMessageTimeline ?: -1L
                 CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
                     /**获取此会话sessionId下最后一条消息lastTimeline及其以上20条数据*/
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
@@ -73,10 +74,10 @@ class MessageListService(
                             array.addAll(list)
                             /**更新当前会话消息时序记录*/
                             if (array.isEmpty()) {
-                                oldSession.nowFirstMessageId = -1
-                                oldSession.nowFirstMessageTimeline = -1
-                                oldSession.nowLastMessageId = -1
-                                oldSession.nowLastMessageTimeline = -1
+                                oldSession.nowFirstMessageId = null
+                                oldSession.nowFirstMessageTimeline = null
+                                oldSession.nowLastMessageId = null
+                                oldSession.nowLastMessageTimeline = null
                             } else {
                                 oldSession.nowFirstMessageId = array.first().messageId
                                 oldSession.nowFirstMessageTimeline = array.first().timeline
@@ -97,16 +98,16 @@ class MessageListService(
     override fun sendMessage(
             message: IMessageListService.Message,
             failed: (msg: String, message: IMessageListService.Message) -> Unit,
-            success: (oldMessageId: Int, message: IMessageListService.Message) -> Unit
+            success: (oldMessageId: String, message: IMessageListService.Message) -> Unit
     ) {
         val oldMessageId = message.messageId
-        if (oldMessageId == -1) {
+        if (TextUtils.isEmpty(oldMessageId)) {
             message.sendStatus = EnumChatSendStatus.FAILED
-            failed.invoke("发送失败，消息临时ID不能为-1", message)
+            failed.invoke("发送失败，消息临时ID不能为空", message)
             return
         }
         val sendMessage = ChatMessage(
-                sessionId = message.sessionId,
+                groupId = message.sessionId,
                 content = message.content
         )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
@@ -121,7 +122,7 @@ class MessageListService(
                     failed.invoke("发送失败", message)
                 } else {
                     message.updateSendState(it.messageId, it.timeline, EnumChatSendStatus.SUCCESS)
-                    DBChatDatabase.DefChatSessionDao.update(it.sessionId, it.messageId, it.timeline) { ok ->
+                    DBChatDatabase.DefChatSessionDao.update(it.groupId, it.messageId, it.timeline) { ok ->
                         success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                     }
@@ -175,7 +176,7 @@ class MessageListService(
         mUpdateShowMessageTimer.schedule(timerTask {
             messageListView.getShowMessageList().also {
                 if (it.isNotEmpty()) {
-                    val messageIdList = arrayListOf<Int>()
+                    val messageIdList = arrayListOf<String>()
                     it.forEach { msg ->
                         messageIdList.add(msg.messageId)
                     }

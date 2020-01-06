@@ -6,12 +6,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.db.DBChatSession
-import vip.qsos.app_chat.data.entity.ChatGroupInfo
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
+import vip.qsos.app_chat.data.entity.ChatGroupInfo
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -23,7 +23,7 @@ class ChatGroupModelIml(
         override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupInfo>> = BaseHttpLiveData()
 ) : ChatModel.IGroup {
 
-    override fun getGroupById(groupId: Long, success: (message: ChatGroupInfo) -> Unit) {
+    override fun getGroupById(groupId: String, success: (message: ChatGroupInfo) -> Unit) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatGroupInfo>> {
             api = ApiEngine.createService(vip.qsos.app_chat.data.ApiChatGroup::class.java).getGroupById(groupId = groupId)
             onSuccess {
@@ -34,7 +34,7 @@ class ChatGroupModelIml(
         }
     }
 
-    override fun getGroupBySessionId(sessionId: Long): ChatGroupInfo {
+    override fun getGroupBySessionId(sessionId: String): ChatGroupInfo {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

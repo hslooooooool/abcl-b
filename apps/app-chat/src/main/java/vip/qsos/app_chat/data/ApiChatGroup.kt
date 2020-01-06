@@ -22,7 +22,7 @@ interface ApiChatGroup {
     @GET(value = "$GROUP/info.id")
     fun getGroupById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "groupId") groupId: Long
+            @Query(value = "groupId") groupId: String
     ): Call<BaseResponse<ChatGroupInfo>>
 
     @GET(value = "$GROUP/list")

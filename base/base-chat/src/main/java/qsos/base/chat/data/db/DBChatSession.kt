@@ -23,17 +23,17 @@ import androidx.room.PrimaryKey
 data class DBChatSession(
         @PrimaryKey
         @ColumnInfo(name = "session_id")
-        var sessionId: Long = -1L,
+        var sessionId: String = "",
         @ColumnInfo(name = "last_message_id")
-        var lastMessageId: Int? = null,
+        var lastMessageId: String? = "",
         @ColumnInfo(name = "last_message_timeline")
-        var lastMessageTimeline: Int? = null,
+        var lastMessageTimeline: Long? = -1L,
         @ColumnInfo(name = "now_first_message_id")
-        var nowFirstMessageId: Int? = null,
+        var nowFirstMessageId: String? = "",
         @ColumnInfo(name = "now_first_message_timeline")
-        var nowFirstMessageTimeline: Int? = null,
+        var nowFirstMessageTimeline: Long? = -1L,
         @ColumnInfo(name = "now_last_message_id")
-        var nowLastMessageId: Int? = null,
+        var nowLastMessageId: String? = "",
         @ColumnInfo(name = "now_last_message_timeline")
-        var nowLastMessageTimeline: Int? = null
+        var nowLastMessageTimeline: Long? = -1L
 )

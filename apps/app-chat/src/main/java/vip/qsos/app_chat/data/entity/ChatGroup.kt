@@ -17,8 +17,8 @@ import qsos.base.chat.data.entity.EnumChatType
  *
  * @see ChatGroupInfo
  */
-data class ChatGroup(
-        override var id: Long,
+data class ChatGroup constructor(
+        override var id: String,
         override var name: String = "",
         var creator: String,
         var member: List<String>,
