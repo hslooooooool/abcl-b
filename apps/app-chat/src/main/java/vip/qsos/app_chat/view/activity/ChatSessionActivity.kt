@@ -317,7 +317,7 @@ class ChatSessionActivity(
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
                         groupId = mGroupId!!,
-                        messageId = UUID.randomUUID().hashCode(),
+                        messageId = UUID.randomUUID().hashCode().toString(),
                         content = content
                 )
         )
@@ -349,7 +349,7 @@ class ChatSessionActivity(
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
                             groupId = mGroupId!!,
-                            messageId = UUID.randomUUID().hashCode(),
+                            messageId = UUID.randomUUID().hashCode().toString(),
                             content = content
                     )
             )

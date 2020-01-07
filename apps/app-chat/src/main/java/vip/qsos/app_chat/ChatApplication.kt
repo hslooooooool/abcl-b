@@ -36,10 +36,10 @@ open class ChatApplication(
 
         CoreConfig.DEBUG = true
         /**BASE_URL配置*/
-        CoreConfig.BASE_URL = "http://192.168.1.3:8085"
+        CoreConfig.BASE_URL = "http://192.168.1.103:8085"
         CoreConfig.PROVIDER = applicationInfo.packageName + ".provider"
         /**消息服务配置*/
-        Constants.IM_SERVER_HOST = "192.168.1.3"
+        Constants.IM_SERVER_HOST = "192.168.1.103"
         Constants.IM_SERVER_PORT = 23456
         /**Timber 日志*/
         LogUtil.open(true, GlobalExceptionHelper.CrashReportingTree())

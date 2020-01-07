@@ -31,7 +31,7 @@ import java.util.*
  */
 class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
-    data class Group(override var id: Long, override var name: String, override var type: Int) : IMessageListService.Group
+    data class Group(override var id: String, override var name: String, override var type: Int) : IMessageListService.Group
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
@@ -86,7 +86,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     private fun notifyView(msg: MessageBo) {
         RxBus.send(IMessageListService.MessageEvent(
                 group = Group(
-                        id = msg.extra.belongId.toLong(),
+                        id = msg.extra.belongId,
                         name = "TEST",
                         type = msg.extra.chatType.key
                 ),
@@ -100,8 +100,8 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
                 user = ChatModel.mLoginUser.value!!,
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        groupId = msg.extra.belongId.toLong(),
-                        messageId = msg.id.toInt(),
+                        groupId = msg.extra.belongId,
+                        messageId = msg.id,
                         content = msg.content
                 )
         )

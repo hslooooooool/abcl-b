@@ -2,15 +2,17 @@ package vip.qsos.app_chat.view.activity
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import qsos.lib.base.utils.ActivityManager
-import qsos.lib.base.utils.ToastUtils
+import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.Constants
+import vip.qsos.app_chat.data.event.LoginSuccessEvent
 import vip.qsos.im.lib.IMManagerHelper
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.ReplyBody
@@ -25,17 +27,22 @@ class LoginActivity(
         override val reload: Boolean = false
 ) : AbsIMActivity() {
 
+    private lateinit var mLoginDisposable: Disposable
+
     override fun getData() {}
 
-    override fun initData(savedInstanceState: Bundle?) {}
+    override fun initData(savedInstanceState: Bundle?) {
+        ChatApplication.loginUser.value = null
+    }
 
     override fun initView() {
         ActivityManager.finishAllButNotMe(this)
 
-        ChatApplication.loginUser.observe(this, Observer {
-            bindAccount()
-        })
-
+        mLoginDisposable = RxBus.toFlow(LoginSuccessEvent::class.java)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    bindAccount()
+                }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -69,11 +76,15 @@ class LoginActivity(
         Toast.makeText(this, "连接服务器失败，请检查当前设备是否能连接上服务器IP和端口", Toast.LENGTH_LONG).show()
     }
 
+    override fun onDestroy() {
+        mLoginDisposable.dispose()
+        super.onDestroy()
+    }
+
     /**绑定IM账号*/
     private fun bindAccount() {
         if (IMManagerHelper.isConnected(this)) {
             if (ChatApplication.loginUser.value == null) {
-                ToastUtils.showToast(this, "账号绑定失败！")
                 return
             }
             IMManagerHelper.bindAccount(this, ChatApplication.loginUser.value!!.imAccount)

@@ -11,7 +11,7 @@ import vip.qsos.im.lib.model.Message
  */
 data class MessageBo(
         /**消息ID*/
-        var id: Long,
+        var id: String,
         /**消息标题*/
         var title: String,
         /**消息发送者账号*/
@@ -52,7 +52,7 @@ data class MessageBo(
             val content = decodeContent(extra.chatType, msg.action!!, msg.format!!, msg.content!!)
             return MessageBo(
                     /**基本信息*/
-                    msg.id, msg.title ?: "", msg.sender!!, msg.receiver!!, msg.timestamp,
+                    msg.id.toString(), msg.title ?: "", msg.sender!!, msg.receiver!!, msg.timestamp,
                     /**附加信息*/
                     extra,
                     /**内容信息*/
@@ -77,4 +77,3 @@ data class MessageBo(
         }
     }
 }
-

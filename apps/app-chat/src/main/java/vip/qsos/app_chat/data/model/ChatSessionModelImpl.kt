@@ -71,13 +71,13 @@ class ChatSessionModelImpl(private val activity: Activity) : ChatSessionModel {
         inflater.inflate(R.menu.chat_message_item_click, popup.menu)
         popup.menu.removeGroup(R.id.menu_message_1)
         when {
-            message.sendUserId == ChatModel.mLoginUser.value?.userId -> {
+            message.sendUserId == ChatModel.mLoginUser.value?.userId?.toString() -> {
                 popup.menu.removeItem(R.id.menu_message_reply)
                 if (message.readNum >= 2) {
                     popup.menu.removeItem(R.id.menu_message_cancel)
                 }
             }
-            message.sendUserId != ChatModel.mLoginUser.value?.userId -> {
+            message.sendUserId != ChatModel.mLoginUser.value?.userId?.toString() -> {
                 popup.menu.removeItem(R.id.menu_message_cancel)
             }
         }

@@ -40,7 +40,7 @@ class ChatSessionModelIml(
     }
 
     override fun getGroupById(
-            groupId: Long,
+            groupId: String,
             failed: (msg: String) -> Unit,
             success: (group: ChatGroup) -> Unit
     ) {
@@ -83,7 +83,7 @@ class ChatSessionModelIml(
     }
 
     override fun addUserListToSession(
-            userIdList: List<Long>, sessionId: Long,
+            userIdList: List<Long>, sessionId: String,
             failed: (msg: String) -> Unit,
             success: (group: ChatGroup) -> Unit
     ) {
@@ -102,8 +102,8 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun deleteSession(sessionId: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun deleteSession(sessionId: String) {
+
     }
 
     override fun clear() {

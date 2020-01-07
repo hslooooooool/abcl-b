@@ -11,8 +11,10 @@ import qsos.base.core.base.db.LoginUserDatabase
 import qsos.base.core.config.BaseConfig
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.utils.ToastUtils
+import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.event.LoginSuccessEvent
 import vip.qsos.app_chat.data.model.LoginUserModelIml
 
 /**
@@ -76,6 +78,7 @@ class LoginFragment(
                 success = { user ->
                     ToastUtils.showToast(context, "登录成功")
                     ChatApplication.loginUser.postValue(user)
+                    RxBus.send(LoginSuccessEvent())
                 })
     }
 }

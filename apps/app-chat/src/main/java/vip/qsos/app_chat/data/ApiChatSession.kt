@@ -41,19 +41,19 @@ interface ApiChatSession {
     @GET(value = "$GROUP/info.id")
     fun getSessionById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "groupId") groupId: Long
+            @Query(value = "groupId") groupId: String
     ): Call<BaseResponse<ChatGroup>>
 
     @GET(value = "$GROUP/getSessionListByUserId")
     fun getSessionListByUserId(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "userId") userId: Int
+            @Query(value = "userId") userId: Long
     ): Call<BaseResponse<List<ChatGroup>>>
 
     @POST(value = "$GROUP/addUserListToSession")
     fun addUserListToSession(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: Long,
+            @Query(value = "id") sessionId: String,
             @Query(value = "userIdList") userIdList: List<Long>
     ): Call<BaseResponse<ChatGroup>>
 

@@ -8,8 +8,10 @@ import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.fragment_register.*
 import qsos.lib.base.base.fragment.BaseFragment
 import qsos.lib.base.utils.ToastUtils
+import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.event.LoginSuccessEvent
 import vip.qsos.app_chat.data.model.LoginUserModelIml
 
 /**
@@ -51,6 +53,7 @@ class RegisterFragment(
                             success = { user ->
                                 ToastUtils.showToast(context, "注册成功")
                                 ChatApplication.loginUser.postValue(user)
+                                RxBus.send(LoginSuccessEvent())
                             })
                 }
             }
