@@ -14,7 +14,7 @@ import qsos.lib.base.utils.LogUtil
  * @param message 消息数据
  * @param createTime 创建时间
  */
-data class ChatMessageBo(
+data class ChatMessageBo constructor(
         var user: ChatUser,
         override var createTime: String,
         var message: ChatMessage
@@ -22,20 +22,20 @@ data class ChatMessageBo(
 
     override var messageId: String = ""
         get() {
-            field = message.messageId
+            field = message.messageId.toString()
             return field
         }
         set(value) {
-            message.messageId = value
+            message.messageId = value.toLong()
         }
 
     override var sessionId: String = ""
         get() {
-            field = message.groupId
+            field = message.groupId.toString()
             return field
         }
         set(value) {
-            message.groupId = value
+            message.groupId = value.toLong()
         }
 
     override var timeline: Long = -1L
@@ -75,7 +75,7 @@ data class ChatMessageBo(
             messageId: String, timeline: Long, sendStatus: EnumChatSendStatus, readNum: Int,
             readState: Boolean?
     ) {
-        this.message.messageId = messageId
+        this.message.messageId = messageId.toLong()
         this.message.timeline = timeline
         this.sendStatus = sendStatus
         this.readNum = readNum

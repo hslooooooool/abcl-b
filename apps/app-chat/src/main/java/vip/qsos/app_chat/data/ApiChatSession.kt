@@ -4,7 +4,7 @@ import qsos.base.core.config.BaseConfig
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
 import retrofit2.http.*
-import vip.qsos.app_chat.data.entity.ChatGroup
+import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatMessage
 
 /**
@@ -14,7 +14,7 @@ import vip.qsos.app_chat.data.entity.ChatMessage
  */
 interface ApiChatSession {
     companion object {
-        const val GROUP = "/api/im/group"
+        const val GROUP = "/api/im/session"
     }
 
     @POST(value = "$GROUP/create")
@@ -23,39 +23,39 @@ interface ApiChatSession {
             @Query("name") name: String,
             @Query("creator") creator: String,
             @Query("members") memberList: List<String>
-    ): Call<BaseResponse<ChatGroup>>
+    ): Call<BaseResponse<ChatSession>>
 
     @GET(value = "$GROUP/info.single")
     fun findSingle(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query("sender") sender: String,
             @Query("receiver") receiver: String
-    ): Call<BaseResponse<ChatGroup>>
+    ): Call<BaseResponse<ChatSession>>
 
     @POST(value = "$GROUP/create")
     fun create(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Body form: FormCreateSession
-    ): Call<BaseResponse<ChatGroup>>
+    ): Call<BaseResponse<ChatSession>>
 
     @GET(value = "$GROUP/info.id")
     fun getSessionById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "groupId") groupId: String
-    ): Call<BaseResponse<ChatGroup>>
+            @Query(value = "groupId") groupId: Long
+    ): Call<BaseResponse<ChatSession>>
 
     @GET(value = "$GROUP/getSessionListByUserId")
     fun getSessionListByUserId(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
             @Query(value = "userId") userId: Long
-    ): Call<BaseResponse<List<ChatGroup>>>
+    ): Call<BaseResponse<List<ChatSession>>>
 
     @POST(value = "$GROUP/addUserListToSession")
     fun addUserListToSession(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: String,
+            @Query(value = "id") sessionId: Long,
             @Query(value = "userIdList") userIdList: List<Long>
-    ): Call<BaseResponse<ChatGroup>>
+    ): Call<BaseResponse<ChatSession>>
 
     @DELETE(value = "$GROUP/deleteSession")
     fun deleteSession(

@@ -36,12 +36,12 @@ interface IMessageListService {
     }
 
     /**消息发送事件实体
-     * @param group 会话实体
+     * @param session 会话实体
      * @param message 消息实体
      * @param eventType 消息更新策略
      * */
     data class MessageEvent(
-            val group: Group,
+            val session: Session,
             val message: List<Message>,
             val eventType: EventType
     ) : RxBus.RxBusEvent<MessageEvent> {
@@ -54,13 +54,11 @@ interface IMessageListService {
         }
     }
 
-    /**会话实体属性*/
-    interface Group {
-        /**群号*/
+    /**会话实体*/
+    interface Session {
+        /**会话ID*/
         var id: String
-        /**群名称*/
-        var name: String
-        /**群类型*/
+        /**会话类型*/
         var type: Int
     }
 
@@ -102,10 +100,10 @@ interface IMessageListService {
     var mUpdateShowMessageList: MutableLiveData<List<Message>>
 
     /**获取消息列表（进入会话页第一次请求）
-     * @param group 会话实体
+     * @param session 会话实体
      * @param messageList 消息列表
      * */
-    fun getMessageListBySessionId(group: Group, messageList: MutableLiveData<ArrayList<Message>>)
+    fun getMessageListBySessionId(session: Session, messageList: MutableLiveData<ArrayList<Message>>)
 
     /**发送消息
      * @param message 消息实体

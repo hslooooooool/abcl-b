@@ -78,7 +78,7 @@ class LoginFragment(
                 success = { user ->
                     ToastUtils.showToast(context, "登录成功")
                     ChatApplication.loginUser.postValue(user)
-                    RxBus.send(LoginSuccessEvent())
+                    RxBus.send(LoginSuccessEvent(user))
                 })
     }
 }

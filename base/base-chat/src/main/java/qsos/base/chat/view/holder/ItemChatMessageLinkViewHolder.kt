@@ -11,7 +11,7 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-链接布局
  */
-class ItemChatMessageLinkViewHolder(group: IMessageListService.Group, view: View) : ItemChatMessageBaseViewHolder(group, view) {
+class ItemChatMessageLinkViewHolder(session: IMessageListService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     override fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_link.visibility = View.VISIBLE

@@ -27,7 +27,7 @@ interface ApiChatMessage {
     @GET(value = "$GROUP/getMessageListBySessionIdAndTimeline")
     fun getMessageListBySessionIdAndTimeline(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "id") sessionId: String,
+            @Query(value = "id") sessionId: Long,
             @Query(value = "timeline") timeline: Long = -1L,
             @Query(value = "next") next: Boolean = true,
             @Query(value = "size") size: Int = 20
@@ -42,25 +42,25 @@ interface ApiChatMessage {
     @POST(value = "$GROUP/readMessage")
     fun readMessage(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "messageId") messageId: String
+            @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<ChatMessageReadStatusBo>>
 
     @DELETE(value = "$GROUP/deleteMessage")
     fun deleteMessage(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "messageId") messageId: String
+            @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<Boolean>>
 
     @GET(value = "$GROUP/getMessageListByIds")
     fun getMessageListByIds(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "messageIds") messageIds: List<String>
+            @Query(value = "messageIds") messageIds: List<Long>
     ): Call<BaseResponse<List<ChatMessageBo>>>
 
     @GET(value = "$GROUP/getMessageById")
     fun getMessageById(
             @Header(value = "userId") meId: Long = BaseConfig.userId,
-            @Query(value = "messageId") messageId: Int
+            @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<ChatMessageBo>>
 
 }

@@ -42,5 +42,5 @@ interface IChatSessionView {
     fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageListService.Message
 
     /**轮序拉取新消息*/
-    fun pullNewMessage(group: IMessageListService.Group)
+    fun pullNewMessage(session: IMessageListService.Session)
 }

@@ -2,7 +2,7 @@ package vip.qsos.app_chat.data.model
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import vip.qsos.app_chat.data.entity.ChatGroupInfo
+import vip.qsos.app_chat.data.entity.ChatGroupBo
 import vip.qsos.app_chat.data.entity.ChatUser
 
 /**
@@ -11,7 +11,7 @@ import vip.qsos.app_chat.data.entity.ChatUser
  */
 class MainViewModel : ViewModel() {
 
-    val mGroupList: MutableLiveData<List<ChatGroupInfo>> = MutableLiveData()
+    val mGroupList: MutableLiveData<List<ChatGroupBo>> = MutableLiveData()
     val mFriendList: MutableLiveData<List<ChatUser>> = MutableLiveData()
 
 }

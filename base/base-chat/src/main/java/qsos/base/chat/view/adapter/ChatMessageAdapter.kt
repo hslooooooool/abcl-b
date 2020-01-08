@@ -17,7 +17,7 @@ import qsos.lib.base.utils.LogUtil
  */
 class ChatMessageAdapter(
         /**会话数据*/
-        val group: IMessageListService.Group,
+        val session: IMessageListService.Session,
         /**消息列表数据*/
         list: ArrayList<IMessageListService.Message>,
         /**消息列表项点击监听*/
@@ -33,7 +33,7 @@ class ChatMessageAdapter(
         super.onViewAttachedToWindow(holder)
         val position = holder.adapterPosition
         onItemShowedListener?.back(position)
-        LogUtil.d("聊天列表", "${group.id}显示了消息位$position")
+        LogUtil.d("聊天列表", "${session.id}显示了消息位$position")
     }
 
     override fun onBindViewHolder(holder: BaseHolder<IMessageListService.Message>, position: Int, payloads: MutableList<Any>) {
@@ -44,7 +44,7 @@ class ChatMessageAdapter(
     override fun getLayoutId(viewType: Int): Int = R.layout.item_message
 
     override fun getHolder(view: View, viewType: Int): BaseHolder<IMessageListService.Message> {
-        return ChatMessageViewConfig.getHolder(group, view, viewType)
+        return ChatMessageViewConfig.getHolder(session, view, viewType)
                 .setOnListItemClickListener(onItemClickListener)
     }
 

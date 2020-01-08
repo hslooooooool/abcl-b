@@ -15,6 +15,7 @@ import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.entity.MessageBo
 import vip.qsos.app_chat.data.model.ChatModel
 import vip.qsos.app_chat.view.activity.MessageActivity
@@ -31,7 +32,7 @@ import java.util.*
  */
 class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
-    data class Group(override var id: String, override var name: String, override var type: Int) : IMessageListService.Group
+    data class Session(override var id: String, override var type: Int) : IMessageListService.Session
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
@@ -63,7 +64,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             channel.enableLights(true)
             notificationManager.createNotificationChannel(channel)
         }
-        val title = msg.title ?: "新消息"
+        val title = msg.title
         val contentIntent = PendingIntent.getActivity(
                 context, 1, Intent(context, MessageActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -78,17 +79,15 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         builder.setContentText(msg.content.getContentDesc())
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
         builder.setContentIntent(contentIntent)
-        val notification = builder.build()
-        notificationManager.notify(R.drawable.ic_launcher, notification)
+        notificationManager.notify(R.drawable.ic_launcher, builder.build())
     }
 
     /**TODO 更新消息界面*/
     private fun notifyView(msg: MessageBo) {
         RxBus.send(IMessageListService.MessageEvent(
-                group = Group(
-                        id = msg.extra.belongId,
-                        name = "TEST",
-                        type = msg.extra.chatType.key
+                session = Session(
+                        id = msg.extra.sessionId.toString(),
+                        type = msg.extra.sessionType.key
                 ),
                 message = arrayListOf(formatMessage(msg)),
                 eventType = IMessageListService.EventType.SHOW_NEW)
@@ -97,10 +96,15 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
     private fun formatMessage(msg: MessageBo): IMessageListService.Message {
         return ChatMessageBo(
-                user = ChatModel.mLoginUser.value!!,
+                user = ChatUser(
+                        ChatModel.mLoginUser.value!!.userId,
+                        ChatModel.mLoginUser.value!!.name,
+                        ChatModel.mLoginUser.value!!.imAccount,
+                        ChatModel.mLoginUser.value!!.avatar
+                ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        groupId = msg.extra.belongId,
+                        groupId = msg.extra.sessionId,
                         messageId = msg.id,
                         content = msg.content
                 )

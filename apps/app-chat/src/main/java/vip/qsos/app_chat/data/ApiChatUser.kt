@@ -5,7 +5,6 @@ import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
 import retrofit2.http.*
 import vip.qsos.app_chat.data.entity.ChatFriend
-import vip.qsos.app_chat.data.entity.ChatGroup
 import vip.qsos.app_chat.data.entity.ChatUser
 
 /**

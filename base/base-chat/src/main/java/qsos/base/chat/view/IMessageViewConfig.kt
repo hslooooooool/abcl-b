@@ -14,7 +14,7 @@ interface IMessageViewConfig {
 
     /**判定消息内容布局*/
     fun getHolder(
-            group: IMessageListService.Group,
+            session: IMessageListService.Session,
             view: View,
             @LayoutRes viewType: Int
     ): ItemChatMessageBaseViewHolder

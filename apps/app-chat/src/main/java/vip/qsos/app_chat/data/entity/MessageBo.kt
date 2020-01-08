@@ -2,7 +2,7 @@ package vip.qsos.app_chat.data.entity
 
 import com.google.gson.Gson
 import qsos.base.chat.data.entity.ChatContent
-import qsos.base.chat.data.entity.EnumChatType
+import qsos.base.chat.data.entity.EnumSessionType
 import vip.qsos.im.lib.model.Message
 
 /**
@@ -11,7 +11,7 @@ import vip.qsos.im.lib.model.Message
  */
 data class MessageBo(
         /**消息ID*/
-        var id: String,
+        var id: Long,
         /**消息标题*/
         var title: String,
         /**消息发送者账号*/
@@ -35,12 +35,12 @@ data class MessageBo(
     }
 
     /**消息附加信息
-     * @param chatType 消息类型
-     * @param belongId ID，一般为群ID
+     * @param sessionType 消息类型
+     * @param sessionId 会话ID
      * */
     data class MessageExtra constructor(
-            var chatType: EnumChatType,
-            var belongId: String
+            var sessionType: EnumSessionType,
+            var sessionId: Long
     )
 
     companion object {
@@ -49,10 +49,10 @@ data class MessageBo(
             /**附加信息转换*/
             val extra = decodeExtra(msg.extra!!)
             /**真是内容转换*/
-            val content = decodeContent(extra.chatType, msg.action!!, msg.format!!, msg.content!!)
+            val content = decodeContent(extra.sessionType, msg.action!!, msg.format!!, msg.content!!)
             return MessageBo(
                     /**基本信息*/
-                    msg.id.toString(), msg.title ?: "", msg.sender!!, msg.receiver!!, msg.timestamp,
+                    msg.id, msg.title ?: "", msg.sender!!, msg.receiver!!, msg.timestamp,
                     /**附加信息*/
                     extra,
                     /**内容信息*/
@@ -60,7 +60,7 @@ data class MessageBo(
             )
         }
 
-        private fun decodeContent(type: EnumChatType, action: String, format: String, content: String): ChatContent {
+        private fun decodeContent(type: EnumSessionType, action: String, format: String, content: String): ChatContent {
             // todo 根据 format 解析
             return decodeContentByJson(type, content)
         }
@@ -69,7 +69,7 @@ data class MessageBo(
             return Gson().fromJson(extra, MessageExtra::class.java)
         }
 
-        private fun decodeContentByJson(type: EnumChatType, content: String): ChatContent {
+        private fun decodeContentByJson(type: EnumSessionType, content: String): ChatContent {
             val sContent = ChatContent()
             val fields = Gson().fromJson<HashMap<String, Any?>>(content, HashMap::class.java)
             sContent.fields = fields

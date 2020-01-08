@@ -4,15 +4,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import qsos.base.chat.data.db.DBChatDatabase
-import vip.qsos.app_chat.data.entity.ChatMessageBo
-import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.db.DBChatDatabase
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.expand.retrofitByDef
 import timber.log.Timber
+import vip.qsos.app_chat.data.entity.ChatMessageBo
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -26,7 +26,7 @@ class ChatMessageModelIml(
     /**是否正在获取新消息*/
     private var pullNewMessageIng = false
 
-    override fun getOldMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit) {
+    override fun getOldMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(sessionId) { oldSession ->
             val nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline
             if (nowFirstMessageTimeline != null && nowFirstMessageTimeline < oldSession.nowLastMessageTimeline ?: -1) {
@@ -44,7 +44,7 @@ class ChatMessageModelIml(
                                 success.invoke(arrayListOf())
                             }
                             else -> {
-                                oldSession.nowFirstMessageId = it.first().messageId
+                                oldSession.nowFirstMessageId = it.first().messageId.toLong()
                                 oldSession.nowFirstMessageTimeline = it.first().timeline
                                 /**按时序正序排列*/
                                 var mLastTime = ""
@@ -84,7 +84,7 @@ class ChatMessageModelIml(
         }
     }
 
-    override fun getNewMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit) {
+    override fun getNewMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit) {
         if (pullNewMessageIng) {
             return
         }
@@ -105,7 +105,7 @@ class ChatMessageModelIml(
                         if (it == null || it.isEmpty()) {
                             pullNewMessageIng = false
                         } else {
-                            oldSession.nowLastMessageId = it.last().messageId
+                            oldSession.nowLastMessageId = it.last().messageId.toLong()
                             oldSession.nowLastMessageTimeline = it.last().timeline
                             /**排除登录用户发送的消息并按时序正序排列*/
                             val messageList = it.filterNot { msg ->

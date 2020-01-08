@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
 import qsos.base.chat.api.IMessageListService
 import qsos.base.chat.data.entity.EnumChatSendStatus
-import qsos.base.chat.data.entity.EnumChatType
+import qsos.base.chat.data.entity.EnumSessionType
 import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
@@ -20,12 +20,12 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-基础布局
  *
- * @param group 消息会话数据
+ * @param session 消息会话数据
  * @param view 消息布局
  */
 @SuppressLint("SetTextI18n")
 abstract class ItemChatMessageBaseViewHolder(
-        private val group: IMessageListService.Group, view: View
+        private val session: IMessageListService.Session, view: View
 ) : BaseHolder<IMessageListService.Message>(view) {
 
     private var mItemListener: OnListItemClickListener? = null
@@ -81,8 +81,8 @@ abstract class ItemChatMessageBaseViewHolder(
             itemView.findViewById<View>(R.id.item_message_right).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_left)
             contentView.findViewById<TextView>(R.id.item_message_read_state).visibility =
-                    when (group.type) {
-                        EnumChatType.GROUP.key -> {
+                    when (session.type) {
+                        EnumSessionType.GROUP.key -> {
                             View.VISIBLE
                         }
                         else -> {
@@ -154,8 +154,8 @@ abstract class ItemChatMessageBaseViewHolder(
 
     /**更新消息读取状态*/
     private fun updateReadStatus(contentView: View, data: IMessageListService.Message) {
-        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (group.type) {
-            EnumChatType.SINGLE.key -> {
+        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
+            EnumSessionType.SINGLE.key -> {
                 if (data.readNum < 2) "未读" else "已读"
             }
             else -> {

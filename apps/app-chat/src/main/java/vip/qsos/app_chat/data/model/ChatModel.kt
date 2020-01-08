@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 interface ChatModel {
 
     companion object {
-        val mLoginUser: MutableLiveData<ChatUser> = MutableLiveData()
+        val mLoginUser: MutableLiveData<LoginUser> = MutableLiveData()
     }
 
     interface IUser {
@@ -93,7 +93,7 @@ interface ChatModel {
                 accountList: List<String>,
                 message: ChatMessage? = null,
                 failed: (msg: String) -> Unit,
-                success: (group: ChatGroup) -> Unit
+                success: (group: ChatSession) -> Unit
         )
 
         /**获取单聊群信息
@@ -105,24 +105,24 @@ interface ChatModel {
                 sender: String,
                 receiver: String,
                 failed: (msg: String) -> Unit,
-                success: (group: ChatGroup) -> Unit
+                success: (group: ChatSession) -> Unit
         )
 
         /**获取群数据
          * @param groupId 群ID
          * @return 群数据
          * */
-        fun getGroupById(
-                groupId: String,
+        fun getSessionById(
+                groupId: Long,
                 failed: (msg: String) -> Unit,
-                success: (group: ChatGroup) -> Unit
+                success: (group: ChatSession) -> Unit
         )
 
         /**获取用户订阅的群
          * @param userId 用户ID
          * @return 用户订阅的群
          * */
-        fun getSessionListByUserId(userId: Long): List<ChatGroup>
+        fun getSessionListByUserId(userId: Long): List<ChatSession>
 
         /**往已有群中增加用户
          * @param userIdList 被添加用户ID集合
@@ -130,15 +130,15 @@ interface ChatModel {
          * @return 加入的群数据
          * */
         fun addUserListToSession(
-                userIdList: List<Long>, sessionId: String,
+                userIdList: List<Long>, sessionId: Long,
                 failed: (msg: String) -> Unit,
-                success: (group: ChatGroup) -> Unit
+                success: (group: ChatSession) -> Unit
         )
 
         /**解散群
          * @param sessionId 群ID
          * */
-        fun deleteSession(sessionId: String)
+        fun deleteSession(sessionId: Long)
 
     }
 
@@ -150,12 +150,12 @@ interface ChatModel {
         /**获取群下的历史消息列表，即当前第一条消息时序前【20】条消息
          * @param sessionId 群ID
          * */
-        fun getOldMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit)
+        fun getOldMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
 
         /**获取群下的新消息列表
          * @param sessionId 群ID
          * */
-        fun getNewMessageBySessionId(sessionId: String, success: (messageList: List<ChatMessageBo>) -> Unit)
+        fun getNewMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
 
         /**撤回消息
          * @param message 消息
@@ -172,15 +172,15 @@ interface ChatModel {
 
         val mJob: CoroutineContext
         fun clear()
-        val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupInfo>>
+        val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupBo>>
 
         /**获取聊天群数据
          * @param groupId 聊天群ID
          * @param success 聊天群数据
          * */
         fun getGroupById(
-                groupId: String,
-                success: (message: ChatGroupInfo) -> Unit
+                groupId: Long,
+                success: (message: ChatGroupBo) -> Unit
         )
 
         //TODO 建立消息数据库，读取最新消息并进行未读统计后入库，消息列表与群列表从数据库获取经过排序的数据并更新未读数
@@ -191,19 +191,19 @@ interface ChatModel {
          * @param sessionId 群ID
          * @return 聊天群数据
          * */
-        fun getGroupBySessionId(sessionId: String): ChatGroupInfo
+        fun getGroupBySessionId(sessionId: Long): ChatGroupBo
 
         /**更新聊天群公告
          * @param notice 需更新的聊天群公告
          * @return 已更新的聊天群数据
          * */
-        fun updateGroupNotice(notice: String): ChatGroupInfo
+        fun updateGroupNotice(notice: String): ChatGroupBo
 
         /**更新聊天群名称
          * @param name 需更新的聊天群名称
          * @return 已更新的聊天群数据
          * */
-        fun updateGroupName(name: String): ChatGroupInfo
+        fun updateGroupName(name: String): ChatGroupBo
 
     }
 }

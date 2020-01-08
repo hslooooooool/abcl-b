@@ -16,7 +16,7 @@ import qsos.lib.base.utils.ToastUtils
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.ChatFriend
-import vip.qsos.app_chat.data.entity.ChatGroup
+import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.model.ChatModel
 import vip.qsos.app_chat.data.model.ChatSessionModelIml
@@ -37,7 +37,7 @@ class ChatUserActivity(
     var mUserId: Long? = -1L
 
     private val mChatUser: MutableLiveData<ChatUser> = MutableLiveData()
-    private val mChatGroup: MutableLiveData<ChatGroup> = MutableLiveData()
+    private val mChatGroup: MutableLiveData<ChatSession> = MutableLiveData()
     private val mChatFriend: MutableLiveData<ChatFriend> = MutableLiveData()
 
     private lateinit var mChatSessionModel: ChatModel.ISession

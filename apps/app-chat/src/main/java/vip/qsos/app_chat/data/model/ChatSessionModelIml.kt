@@ -9,7 +9,7 @@ import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 import vip.qsos.app_chat.data.ApiChatSession
-import vip.qsos.app_chat.data.entity.ChatGroup
+import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatMessage
 import kotlin.coroutines.CoroutineContext
 
@@ -25,9 +25,9 @@ class ChatSessionModelIml(
             sender: String,
             receiver: String,
             failed: (msg: String) -> Unit,
-            success: (group: ChatGroup) -> Unit
+            success: (group: ChatSession) -> Unit
     ) {
-        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatGroup> {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSession> {
             api = ApiEngine.createService(ApiChatSession::class.java).findSingle(
                     sender = sender, receiver = receiver
             )
@@ -39,12 +39,12 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun getGroupById(
-            groupId: String,
+    override fun getSessionById(
+            groupId: Long,
             failed: (msg: String) -> Unit,
-            success: (group: ChatGroup) -> Unit
+            success: (group: ChatSession) -> Unit
     ) {
-        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatGroup> {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSession> {
             api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(
                     groupId = groupId
             )
@@ -61,9 +61,9 @@ class ChatSessionModelIml(
             accountList: List<String>,
             message: ChatMessage?,
             failed: (msg: String) -> Unit,
-            success: (group: ChatGroup) -> Unit
+            success: (group: ChatSession) -> Unit
     ) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatGroup>> {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
             api = ApiEngine.createService(ApiChatSession::class.java).createSession(
                     name = "測試群", creator = creator, memberList = accountList
             )
@@ -78,16 +78,16 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun getSessionListByUserId(userId: Long): List<ChatGroup> {
+    override fun getSessionListByUserId(userId: Long): List<ChatSession> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun addUserListToSession(
-            userIdList: List<Long>, sessionId: String,
+            userIdList: List<Long>, sessionId: Long,
             failed: (msg: String) -> Unit,
-            success: (group: ChatGroup) -> Unit
+            success: (group: ChatSession) -> Unit
     ) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatGroup>> {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
             api = ApiEngine.createService(ApiChatSession::class.java).addUserListToSession(
                     sessionId = sessionId, userIdList = userIdList
             )
@@ -102,7 +102,7 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun deleteSession(sessionId: String) {
+    override fun deleteSession(sessionId: Long) {
 
     }
 

@@ -46,7 +46,7 @@ abstract class DBChatDatabase : RoomDatabase() {
 
     object DefChatSessionDao {
 
-        fun getChatSessionById(sessionId: String, result: (session: DBChatSession?) -> Unit) {
+        fun getChatSessionById(sessionId: Long, result: (session: DBChatSession?) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 LogUtil.d("会话数据库", "获取会话")
                 val session = try {
@@ -87,7 +87,7 @@ abstract class DBChatDatabase : RoomDatabase() {
             }
         }
 
-        fun update(sessionId: String, nowLastMessageId: String, nowLastMessageTimeline: Long, result: (success: Boolean) -> Unit) {
+        fun update(sessionId: Long, nowLastMessageId: Long, nowLastMessageTimeline: Long, result: (success: Boolean) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 LogUtil.d("会话数据库", "更新会话")
                 val line = getInstance(BaseApplication.appContext).chatSessionDao.update(sessionId, nowLastMessageId, nowLastMessageTimeline)

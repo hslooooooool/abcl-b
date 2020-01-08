@@ -2,14 +2,14 @@ package qsos.base.chat.data.entity
 
 /**
  * @author : 华清松
- * 聊天类型
- * @sample EnumChatType.SINGLE
- * @sample EnumChatType.GROUP
- * @sample EnumChatType.NOTICE
- * @sample EnumChatType.SUBSCRIPTION
- * @sample EnumChatType.SYSTEM
+ * 会话类型
+ * @sample EnumSessionType.SINGLE
+ * @sample EnumSessionType.GROUP
+ * @sample EnumSessionType.NOTICE
+ * @sample EnumSessionType.SUBSCRIPTION
+ * @sample EnumSessionType.SYSTEM
  */
-enum class EnumChatType(val key: Int) {
+enum class EnumSessionType(val key: Int) {
     /**单聊*/
     SINGLE(1),
     /**群聊*/

@@ -13,6 +13,7 @@ import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.Constants
 import vip.qsos.app_chat.data.event.LoginSuccessEvent
+import vip.qsos.app_chat.data.model.ChatModel
 import vip.qsos.im.lib.IMManagerHelper
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.ReplyBody
@@ -41,6 +42,7 @@ class LoginActivity(
         mLoginDisposable = RxBus.toFlow(LoginSuccessEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    ChatModel.mLoginUser.value = it.user
                     bindAccount()
                 }
     }

@@ -53,7 +53,7 @@ class RegisterFragment(
                             success = { user ->
                                 ToastUtils.showToast(context, "注册成功")
                                 ChatApplication.loginUser.postValue(user)
-                                RxBus.send(LoginSuccessEvent())
+                                RxBus.send(LoginSuccessEvent(user))
                             })
                 }
             }

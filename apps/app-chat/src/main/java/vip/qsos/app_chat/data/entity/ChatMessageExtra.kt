@@ -1,7 +1,7 @@
 package vip.qsos.app_chat.data.entity
 
 import com.google.gson.Gson
-import qsos.base.chat.data.entity.EnumChatType
+import qsos.base.chat.data.entity.EnumSessionType
 import java.io.Serializable
 
 /**
@@ -9,7 +9,7 @@ import java.io.Serializable
  * TODO 类说明，描述此类的类型和用途
  */
 data class ChatMessageExtra constructor(
-        var chatType: EnumChatType,
+        var sessionType: EnumSessionType,
         var belongId: String
 ) : Serializable {
     companion object {

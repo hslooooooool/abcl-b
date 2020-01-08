@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
-import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.utils.RecycleViewUtils
 import qsos.base.chat.view.IMessageListView
 import qsos.base.chat.view.adapter.ChatMessageAdapter
@@ -38,7 +38,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
 
     private lateinit var mOwner: LifecycleOwner
     private lateinit var mMessageListService: IMessageListService
-    private lateinit var mGroup: IMessageListService.Group
+    private lateinit var mSession: IMessageListService.Session
 
     private var mReadNumListener: OnTListener<Int>? = null
     private var mMessageAdapter: ChatMessageAdapter? = null
@@ -73,20 +73,20 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
      * - 新消息追加上屏与新消息数量展示
      * - 历史消息追加上屏
      * - 消息状态发送状态、读取状态更新
-     * @param group 消息会话数据
+     * @param session 消息会话数据
      * @param messageListService 消息服务，发送、撤销消息实现
      * @param itemClickListener 消息列表项点击监听
      * @param newMessageNumLimit 新消息滚动最小列数，大于此列不自动滚动，小于列表自动滚动到底部
      */
     fun initView(
-            group: IMessageListService.Group,
+            session: IMessageListService.Session,
             messageListService: IMessageListService,
             itemClickListener: OnListItemClickListener? = null,
             newMessageNumLimit: Int = 4,
             lifecycleOwner: LifecycleOwner,
             readNumListener: OnTListener<Int>? = null
     ) {
-        this.mGroup = group
+        this.mSession = session
         this.mMessageListService = messageListService
         this.mOnListItemClickListener = itemClickListener
         this.mNewMessageNumLimit = newMessageNumLimit
@@ -96,7 +96,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
         this.mOwner.lifecycle.addObserver(this)
 
         mMessageListUpdateCache.value = HashMap()
-        mMessageAdapter = ChatMessageAdapter(group, arrayListOf(), itemClickListener, object : OnTListener<Int> {
+        mMessageAdapter = ChatMessageAdapter(session, arrayListOf(), itemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
             }
@@ -155,7 +155,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
         RxBus.toFlow(IMessageListService.MessageEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (it.group.id == group.id) {
+                    if (it.session.id == session.id) {
                         when (it.eventType) {
                             IMessageListService.EventType.UPDATE_SHOWED -> {
                                 it.message.forEach { message ->
@@ -189,7 +189,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
                     }
                 }
 
-        messageListService.getMessageListBySessionId(group, mMessageList)
+        messageListService.getMessageListBySessionId(session, mMessageList)
         messageListService.updateShowMessage(this)
     }
 

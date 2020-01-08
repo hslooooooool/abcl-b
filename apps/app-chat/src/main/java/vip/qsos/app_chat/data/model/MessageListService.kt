@@ -36,16 +36,16 @@ class MessageListService(
     private var mUpdateShowMessageTimer: Timer = Timer()
 
     override fun getMessageListBySessionId(
-            group: IMessageListService.Group,
+            session: IMessageListService.Session,
             messageList: MutableLiveData<ArrayList<IMessageListService.Message>>
     ) {
-        DBChatDatabase.DefChatSessionDao.getChatSessionById(group.id) { oldSession ->
+        DBChatDatabase.DefChatSessionDao.getChatSessionById(session.id.toLong()) { oldSession ->
             oldSession?.let {
                 val lastTimeline: Long = it.lastMessageTimeline ?: -1L
                 CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
                     /**获取此会话sessionId下最后一条消息lastTimeline及其以上20条数据*/
                     api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListBySessionIdAndTimeline(
-                            sessionId = group.id, timeline = lastTimeline + 1, next = false, size = 20
+                            sessionId = session.id.toLong(), timeline = lastTimeline + 1, next = false, size = 20
                     )
                     onSuccess { result ->
 
@@ -79,9 +79,9 @@ class MessageListService(
                                 oldSession.nowLastMessageId = null
                                 oldSession.nowLastMessageTimeline = null
                             } else {
-                                oldSession.nowFirstMessageId = array.first().messageId
+                                oldSession.nowFirstMessageId = array.first().messageId.toLong()
                                 oldSession.nowFirstMessageTimeline = array.first().timeline
-                                oldSession.nowLastMessageId = array.last().messageId
+                                oldSession.nowLastMessageId = array.last().messageId.toLong()
                                 oldSession.nowLastMessageTimeline = array.last().timeline
                             }
                             DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
@@ -107,7 +107,7 @@ class MessageListService(
             return
         }
         val sendMessage = ChatMessage(
-                groupId = message.sessionId,
+                groupId = message.sessionId.toLong(),
                 content = message.content
         )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
@@ -121,7 +121,7 @@ class MessageListService(
                     message.sendStatus = EnumChatSendStatus.FAILED
                     failed.invoke("发送失败", message)
                 } else {
-                    message.updateSendState(it.messageId, it.timeline, EnumChatSendStatus.SUCCESS)
+                    message.updateSendState(it.messageId.toString(), it.timeline, EnumChatSendStatus.SUCCESS)
                     DBChatDatabase.DefChatSessionDao.update(it.groupId, it.messageId, it.timeline) { ok ->
                         success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
@@ -134,7 +134,7 @@ class MessageListService(
     override fun readMessage(message: IMessageListService.Message, failed: (msg: String, message: IMessageListService.Message) -> Unit, success: (message: IMessageListService.Message) -> Unit) {
         if (message.readStatus == false) {
             CoroutineScope(mJob).retrofitByDef<ChatMessageReadStatusBo> {
-                api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId)
+                api = ApiEngine.createService(ApiChatMessage::class.java).readMessage(messageId = message.messageId.toLong())
                 onFailed { _, msg, error ->
                     failed.invoke(msg ?: "更新已读失败${error?.message}", message)
                 }
@@ -157,7 +157,7 @@ class MessageListService(
             success: (message: IMessageListService.Message) -> Unit
     ) {
         CoroutineScope(mJob).retrofitByDef<Boolean> {
-            api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(messageId = message.messageId)
+            api = ApiEngine.createService(ApiChatMessage::class.java).deleteMessage(messageId = message.messageId.toLong())
             onFailed { _, msg, error ->
                 failed.invoke(msg ?: "撤回失败${error?.message}", message)
             }
@@ -176,9 +176,9 @@ class MessageListService(
         mUpdateShowMessageTimer.schedule(timerTask {
             messageListView.getShowMessageList().also {
                 if (it.isNotEmpty()) {
-                    val messageIdList = arrayListOf<String>()
+                    val messageIdList = arrayListOf<Long>()
                     it.forEach { msg ->
-                        messageIdList.add(msg.messageId)
+                        messageIdList.add(msg.messageId.toLong())
                     }
                     CoroutineScope(mJob).retrofitWithSuccessByDef<List<ChatMessageBo>> {
                         api = ApiEngine.createService(ApiChatMessage::class.java).getMessageListByIds(messageIds = messageIdList)

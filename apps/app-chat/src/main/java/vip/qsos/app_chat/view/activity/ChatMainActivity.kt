@@ -10,15 +10,13 @@ import androidx.fragment.app.Fragment
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
-import vip.qsos.app_chat.data.model.ChatUserModelIml
-import vip.qsos.app_chat.data.model.ChatModel
-import vip.qsos.app_chat.view.fragment.ChatFriendListFragment
-import vip.qsos.app_chat.view.fragment.ChatGroupListFragment
-import qsos.base.core.config.BaseConfig
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
-import qsos.lib.base.utils.ToastUtils
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.model.ChatModel
+import vip.qsos.app_chat.data.model.ChatUserModelIml
+import vip.qsos.app_chat.view.fragment.ChatFriendListFragment
+import vip.qsos.app_chat.view.fragment.ChatGroupListFragment
 
 /**
  * @author : 华清松
@@ -63,16 +61,6 @@ class ChatMainActivity(
 
         main_vp.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(main_tab))
         main_tab.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(main_vp))
-
-        mChatUserModel?.getUserById(
-                userId = BaseConfig.userId,
-                failed = {
-                    ToastUtils.showToast(this, it)
-                },
-                success = {
-                    ChatModel.mLoginUser.postValue(it)
-                }
-        )
     }
 
     override fun getData() {}

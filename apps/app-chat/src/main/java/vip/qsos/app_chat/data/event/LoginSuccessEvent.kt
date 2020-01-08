@@ -1,12 +1,15 @@
 package vip.qsos.app_chat.data.event
 
 import qsos.lib.base.utils.rx.RxBus
+import vip.qsos.app_chat.data.entity.LoginUser
 
 /**
  * @author : 华清松
  * 登录成功事件
  */
-class LoginSuccessEvent : RxBus.RxBusEvent<LoginSuccessEvent> {
+data class LoginSuccessEvent(
+        val user: LoginUser
+) : RxBus.RxBusEvent<LoginSuccessEvent> {
     override fun message(): LoginSuccessEvent {
         return this
     }

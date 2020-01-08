@@ -12,9 +12,9 @@ import qsos.base.chat.data.entity.ChatContent
  * @param content 消息内容
  */
 data class ChatMessage(
-        /**@see ChatGroup.id*/
-        var groupId: String = "",
-        var messageId: String = "",
+        /**@see ChatSession.id*/
+        var groupId: Long = -1L,
+        var messageId: Long = -1L,
         var timeline: Long = -1L,
         var cancelBack: Boolean = false,
         var content: ChatContent

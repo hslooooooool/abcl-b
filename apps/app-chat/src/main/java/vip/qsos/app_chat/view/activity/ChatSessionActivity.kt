@@ -40,9 +40,9 @@ import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.entity.ChatGroup
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.model.*
 import java.util.*
@@ -61,7 +61,7 @@ class ChatSessionActivity(
 
     @Autowired(name = "/CHAT/GROUP_ID")
     @JvmField
-    var mGroupId: String? = null
+    var mGroupId: Long? = -1L
 
     private lateinit var mTitle: TextView
     private lateinit var mMenu: TextView
@@ -70,7 +70,7 @@ class ChatSessionActivity(
     private lateinit var mFileModel: IFileModel
     private lateinit var mChatMessageModel: ChatModel.IMessage
     private lateinit var mMessageListService: IMessageListService
-    private val mMessageGroup: MutableLiveData<ChatGroup> = MutableLiveData()
+    private val mMessageGroup: MutableLiveData<ChatSession> = MutableLiveData()
     private lateinit var mChatUserModel: ChatModel.IUser
     private lateinit var mChatGroupModel: ChatModel.IGroup
     private lateinit var mChatUserAdapter: BaseAdapter<ChatUser>
@@ -92,7 +92,7 @@ class ChatSessionActivity(
     }
 
     override fun initView() {
-        if (TextUtils.isEmpty(mGroupId)) {
+        if (mGroupId == null || mGroupId == -1L) {
             ToastUtils.showToastLong(this, "聊天不存在")
             finish()
             return
@@ -123,7 +123,7 @@ class ChatSessionActivity(
                 chat_message_srl.isRefreshing = false
                 if (it.isNotEmpty()) {
                     RxBus.send(IMessageListService.MessageEvent(
-                            group = mMessageGroup.value!!,
+                            session = mMessageGroup.value!!,
                             message = it,
                             eventType = IMessageListService.EventType.SHOW_MORE
                     ))
@@ -195,7 +195,7 @@ class ChatSessionActivity(
                             ToastUtils.showToast(this, it)
                         },
                         success = {
-                            if (mGroupId == it.id) {
+                            if (mGroupId == it.id.toLong()) {
                                 ToastUtils.showToast(this, "已添加")
                             } else {
                                 /**单聊变群聊，切换到新群聊天*/
@@ -225,7 +225,7 @@ class ChatSessionActivity(
     override fun getData() {
         mChatUserModel.getAllChatUser()
 
-        mChatSessionModel.getGroupById(
+        mChatSessionModel.getSessionById(
                 groupId = mGroupId!!,
                 failed = {
                     ToastUtils.showToast(this, it)
@@ -238,7 +238,7 @@ class ChatSessionActivity(
                     }
 
                     chat_message_rv.initView(
-                            group = it, messageListService = mMessageListService,
+                            session = it, messageListService = mMessageListService,
                             itemClickListener = object : OnListItemClickListener {
                                 override fun onItemClick(view: View, position: Int, obj: Any?) {
                                     preOnItemClick(view, obj)
@@ -304,7 +304,7 @@ class ChatSessionActivity(
                 success = {
                     it.sendStatus = EnumChatSendStatus.CANCEL_CAN
                     RxBus.send(IMessageListService.MessageEvent(
-                            group = mMessageGroup.value!!,
+                            session = mMessageGroup.value!!,
                             message = arrayListOf(it),
                             eventType = IMessageListService.EventType.UPDATE_SHOWED
                     ))
@@ -313,17 +313,22 @@ class ChatSessionActivity(
 
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageListService.Message {
         val message = ChatMessageBo(
-                user = ChatModel.mLoginUser.value!!,
+                user = ChatUser(
+                        ChatModel.mLoginUser.value!!.userId,
+                        ChatModel.mLoginUser.value!!.name,
+                        ChatModel.mLoginUser.value!!.imAccount,
+                        ChatModel.mLoginUser.value!!.avatar
+                ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
                         groupId = mGroupId!!,
-                        messageId = UUID.randomUUID().hashCode().toString(),
+                        messageId = UUID.randomUUID().hashCode().toLong(),
                         content = content
                 )
         )
 
         RxBus.send(IMessageListService.MessageEvent(
-                group = mMessageGroup.value!!,
+                session = mMessageGroup.value!!,
                 message = arrayListOf(message),
                 eventType = IMessageListService.EventType.SEND
         ))
@@ -345,17 +350,22 @@ class ChatSessionActivity(
                     .put("url", file.path)
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
-                    user = ChatModel.mLoginUser.value!!,
+                    user = ChatUser(
+                            ChatModel.mLoginUser.value!!.userId,
+                            ChatModel.mLoginUser.value!!.name,
+                            ChatModel.mLoginUser.value!!.imAccount,
+                            ChatModel.mLoginUser.value!!.avatar
+                    ),
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
                             groupId = mGroupId!!,
-                            messageId = UUID.randomUUID().hashCode().toString(),
+                            messageId = UUID.randomUUID().hashCode().toLong(),
                             content = content
                     )
             )
 
             RxBus.send(IMessageListService.MessageEvent(
-                    group = mMessageGroup.value!!,
+                    session = mMessageGroup.value!!,
                     message = arrayListOf(message),
                     eventType = IMessageListService.EventType.SHOW
             ))
@@ -374,7 +384,7 @@ class ChatSessionActivity(
             message.sendStatus = EnumChatSendStatus.SENDING
 
             RxBus.send(IMessageListService.MessageEvent(
-                    group = mMessageGroup.value!!,
+                    session = mMessageGroup.value!!,
                     message = arrayListOf(message),
                     eventType = IMessageListService.EventType.UPDATE_SHOWED
             ))
@@ -388,7 +398,7 @@ class ChatSessionActivity(
                         message.content.put("avatar", file.avatar)
 
                         RxBus.send(IMessageListService.MessageEvent(
-                                group = mMessageGroup.value!!,
+                                session = mMessageGroup.value!!,
                                 message = arrayListOf(message),
                                 eventType = IMessageListService.EventType.SEND_SHOWED
                         ))
@@ -403,7 +413,7 @@ class ChatSessionActivity(
                             message.sendStatus = EnumChatSendStatus.FAILED
 
                             RxBus.send(IMessageListService.MessageEvent(
-                                    group = mMessageGroup.value!!,
+                                    session = mMessageGroup.value!!,
                                     message = arrayListOf(message),
                                     eventType = IMessageListService.EventType.UPDATE_SHOWED
                             ))
@@ -414,7 +424,7 @@ class ChatSessionActivity(
         }
     }
 
-    override fun pullNewMessage(group: IMessageListService.Group) {
+    override fun pullNewMessage(session: IMessageListService.Session) {
         /**TODO 往后走Socket*/
         mPullMessageTimer?.cancel()
         mPullMessageTimer = Timer()
@@ -422,7 +432,7 @@ class ChatSessionActivity(
             mChatMessageModel.getNewMessageBySessionId(mGroupId!!) {
                 if (it.isNotEmpty()) {
                     RxBus.send(IMessageListService.MessageEvent(
-                            group = mMessageGroup.value!!,
+                            session = mMessageGroup.value!!,
                             message = it,
                             eventType = IMessageListService.EventType.SHOW_NEW)
                     )
@@ -482,7 +492,7 @@ class ChatSessionActivity(
                     mModel.resendMessage(obj) {
                         if (it == null) {
                             RxBus.send(IMessageListService.MessageEvent(
-                                    group = mMessageGroup.value!!,
+                                    session = mMessageGroup.value!!,
                                     message = arrayListOf(obj),
                                     eventType = IMessageListService.EventType.SEND_SHOWED
                             ))
@@ -507,7 +517,7 @@ class ChatSessionActivity(
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
                         RxBus.send(IMessageListService.MessageEvent(
-                                group = mMessageGroup.value!!,
+                                session = mMessageGroup.value!!,
                                 message = arrayListOf(obj),
                                 eventType = IMessageListService.EventType.UPDATE_SHOWED
                         ))
