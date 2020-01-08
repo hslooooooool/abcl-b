@@ -9,6 +9,8 @@ import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import qsos.lib.netservice.expand.retrofitWithLiveDataByDef
+import vip.qsos.app_chat.data.ApiBiz1
+import vip.qsos.app_chat.data.ApiChatFriend
 import vip.qsos.app_chat.data.ApiChatUser
 import vip.qsos.app_chat.data.entity.ChatFriend
 import vip.qsos.app_chat.data.entity.ChatUser
@@ -21,27 +23,11 @@ import kotlin.coroutines.CoroutineContext
 class ChatUserModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
         override val mDataOfChatUserList: BaseHttpLiveData<List<ChatUser>> = BaseHttpLiveData()
-) : ChatModel.IUser {
+) : ChatUserModel {
 
-    override fun createUser(user: ChatUser, failed: (msg: String) -> Unit, success: (user: ChatUser) -> Unit) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatUser>> {
-            api = ApiEngine.createService(ApiChatUser::class.java).createUser(user)
-            onFailed { _, msg, error ->
-                failed.invoke(msg ?: "创建失败${error.toString()}")
-            }
-            onSuccess {
-                if (it?.data == null) {
-                    failed.invoke("创建失败${it?.msg}")
-                } else {
-                    success.invoke(it.data!!)
-                }
-            }
-        }
-    }
-
-    override fun getAllChatUser() {
+    override fun getFriendList() {
         CoroutineScope(mJob).retrofitWithLiveDataByDef<List<ChatUser>> {
-            api = ApiEngine.createService(ApiChatUser::class.java).getAllUser()
+            api = ApiEngine.createService(ApiBiz1::class.java).getFriendList(ChatModel.mLoginUser.value!!.userId)
             data = mDataOfChatUserList
         }
     }
@@ -67,7 +53,7 @@ class ChatUserModelIml(
             success: (user: ChatFriend) -> Unit
     ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatFriend>> {
-            api = ApiEngine.createService(ApiChatUser::class.java).addFriend(
+            api = ApiEngine.createService(ApiChatFriend::class.java).addChatFriend(
                     userId = userId, friendId = friendId
             )
             onSuccess {
@@ -81,26 +67,16 @@ class ChatUserModelIml(
     override fun findFriend(
             userId: Long, friendId: Long,
             failed: (msg: String) -> Unit,
-            success: (user: ChatFriend) -> Unit
+            success: (user: ChatFriend?) -> Unit
     ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatFriend>> {
-            api = ApiEngine.createService(ApiChatUser::class.java).findFriend(
+            api = ApiEngine.createService(ApiChatFriend::class.java).findChatFriend(
                     userId = userId, friendId = friendId
             )
             onSuccess {
-                if (it?.data != null) {
-                    success.invoke(it.data!!)
-                }
+                success.invoke(it!!.data)
             }
         }
-    }
-
-    override fun getUserListBySessionId(sessionId: Long): List<ChatUser> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun deleteUser(sessionId: Long, userId: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun clear() {

@@ -6,11 +6,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_group_list.*
-import vip.qsos.app_chat.data.entity.ChatGroupBo
-import vip.qsos.app_chat.data.model.ChatGroupModelIml
-import vip.qsos.app_chat.data.model.ChatModel
 import qsos.lib.base.base.fragment.BaseFragment
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.model.ChatGroupModel
+import vip.qsos.app_chat.data.model.ChatGroupModelIml
 import vip.qsos.app_chat.data.model.MainViewModel
 import vip.qsos.app_chat.view.adapter.ChatGroupAdapter
 
@@ -24,7 +24,7 @@ class ChatGroupListFragment(
 ) : BaseFragment() {
 
     private lateinit var mGroupAdapter: ChatGroupAdapter
-    private lateinit var mChatGroupModel: ChatModel.IGroup
+    private lateinit var mChatGroupModel: ChatGroupModel
     private val mMainViewModel: MainViewModel by viewModels()
     private val mGroupList = arrayListOf<ChatGroupBo>()
 

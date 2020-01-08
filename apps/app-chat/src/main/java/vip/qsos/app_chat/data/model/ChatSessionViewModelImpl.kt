@@ -37,7 +37,7 @@ import kotlin.collections.HashMap
  * @author : 华清松
  * 聊天会话功能接口
  */
-class ChatSessionModelImpl(private val activity: Activity) : ChatSessionModel {
+class ChatSessionViewModelImpl(private val activity: Activity) : ChatSessionViewModel {
 
     /**文件上传大小限制*/
     private val mUpdateLimit = 5 * 1000 * 1000

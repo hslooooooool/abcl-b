@@ -16,10 +16,11 @@ import qsos.lib.base.utils.ToastUtils
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.ChatFriend
-import vip.qsos.app_chat.data.entity.ChatSession
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.entity.ChatUser
-import vip.qsos.app_chat.data.model.ChatModel
+import vip.qsos.app_chat.data.model.ChatSessionModel
 import vip.qsos.app_chat.data.model.ChatSessionModelIml
+import vip.qsos.app_chat.data.model.ChatUserModel
 import vip.qsos.app_chat.data.model.ChatUserModelIml
 
 /**
@@ -37,11 +38,11 @@ class ChatUserActivity(
     var mUserId: Long? = -1L
 
     private val mChatUser: MutableLiveData<ChatUser> = MutableLiveData()
-    private val mChatGroup: MutableLiveData<ChatSession> = MutableLiveData()
+    private val mChatSession: MutableLiveData<ChatSessionBo> = MutableLiveData()
     private val mChatFriend: MutableLiveData<ChatFriend> = MutableLiveData()
 
-    private lateinit var mChatSessionModel: ChatModel.ISession
-    private lateinit var mChatUserModel: ChatModel.IUser
+    private lateinit var mChatSessionModel: ChatSessionModel
+    private lateinit var mChatUserModel: ChatUserModel
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatSessionModel = ChatSessionModelIml()
@@ -61,12 +62,12 @@ class ChatUserActivity(
         }
 
         chat_user_send.setOnClickListener {
-            if (mChatGroup.value == null) {
-                addFriend()
-            } else if (this.mChatFriend.value?.accept == true) {
+            if (this.mChatFriend.value?.accept == true) {
                 ARouter.getInstance().build("/CHAT/SESSION")
-                        .withString("/CHAT/GROUP_ID", mChatGroup.value!!.id)
+                        .withLong("/CHAT/SESSION_ID", mChatSession.value!!.sessionId)
                         .navigation()
+            } else {
+                addFriend()
             }
         }
 
@@ -90,23 +91,25 @@ class ChatUserActivity(
     override fun getData() {
         if (this.mChatUser.value != null) {
             findFriend()
-            findGroup()
         }
     }
 
-    private fun findGroup() {
-        mChatSessionModel.findSingle(
+    /**获取会话数据,发起聊天*/
+    private fun findSession() {
+        mChatSessionModel.findSessionOfSingle(
                 sender = ChatApplication.loginUser.value!!.imAccount,
                 receiver = mChatUser.value!!.imAccount,
                 failed = {
-                    chat_user_send.text = "加为好友"
+                    ToastUtils.showToast(this, it)
                 },
-                success = { group ->
-                    mChatGroup.value = group
+                success = {
+                    mChatSession.value = it
+                    chat_user_send.isEnabled = true
                 }
         )
     }
 
+    /**检查好友关系*/
     private fun findFriend() {
         mChatUserModel.findFriend(
                 ChatApplication.loginUser.value!!.userId,
@@ -120,6 +123,7 @@ class ChatUserActivity(
         )
     }
 
+    /**添加好友操作*/
     private fun addFriend() {
         mChatUserModel.addFriend(
                 ChatApplication.loginUser.value!!.userId,
@@ -133,13 +137,18 @@ class ChatUserActivity(
         )
     }
 
-    private fun changeSendButton(friend: ChatFriend) {
+    /**修改底部按钮*/
+    private fun changeSendButton(friend: ChatFriend?) {
         chat_user_send.visibility = View.VISIBLE
         this.mChatFriend.value = friend
         when {
-            friend.accept == true -> {
-                chat_user_send.text = "发消息"
+            friend == null -> {
+                chat_user_send.text = "加为好友"
                 chat_user_send.isEnabled = true
+            }
+            friend.accept == true -> {
+                findSession()
+                chat_user_send.text = "发消息"
             }
             friend.accept == false -> {
                 chat_user_send.text = "重新申请"

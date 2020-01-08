@@ -1,5 +1,6 @@
 package vip.qsos.app_chat.view.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.model.ChatModel
+import vip.qsos.app_chat.data.model.ChatUserModel
 import vip.qsos.app_chat.data.model.ChatUserModelIml
 import vip.qsos.app_chat.view.fragment.ChatFriendListFragment
 import vip.qsos.app_chat.view.fragment.ChatGroupListFragment
@@ -34,7 +36,7 @@ class ChatMainActivity(
     private var mGroupListTab: View? = null
     private var mFriendListTab: View? = null
 
-    private var mChatUserModel: ChatModel.IUser? = null
+    private lateinit var mChatUserModel: ChatUserModel
 
     override fun initData(savedInstanceState: Bundle?) {
         mChatUserModel = ChatUserModelIml()
@@ -65,6 +67,7 @@ class ChatMainActivity(
 
     override fun getData() {}
 
+    @SuppressLint("InflateParams")
     private fun getTabItem(name: String, iconID: Int?): View {
         val tabItemView = LayoutInflater.from(mContext).inflate(R.layout.tab_chat, null)
         tabItemView.findViewById<TextView>(R.id.tab_chat_name).text = name
@@ -74,7 +77,7 @@ class ChatMainActivity(
     }
 
     override fun onDestroy() {
-        mChatUserModel?.clear()
+        mChatUserModel.clear()
         super.onDestroy()
     }
 

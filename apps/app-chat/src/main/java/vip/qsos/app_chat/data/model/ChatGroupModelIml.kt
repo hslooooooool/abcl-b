@@ -11,6 +11,8 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
+import vip.qsos.app_chat.data.ApiBiz1
+import vip.qsos.app_chat.data.ApiChatGroup
 import vip.qsos.app_chat.data.entity.ChatGroupBo
 import kotlin.coroutines.CoroutineContext
 
@@ -21,11 +23,11 @@ import kotlin.coroutines.CoroutineContext
 class ChatGroupModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
         override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupBo>> = BaseHttpLiveData()
-) : ChatModel.IGroup {
+) : ChatGroupModel {
 
-    override fun getGroupById(groupId: Long, success: (message: ChatGroupBo) -> Unit) {
+    override fun getSessionById(groupId: Long, success: (message: ChatGroupBo) -> Unit) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatGroupBo>> {
-            api = ApiEngine.createService(vip.qsos.app_chat.data.ApiChatGroup::class.java).getSessionById(groupId = groupId)
+            api = ApiEngine.createService(ApiChatGroup::class.java).getSessionById(groupId = groupId)
             onSuccess {
                 it?.data?.let { group ->
                     success.invoke(group)
@@ -40,7 +42,7 @@ class ChatGroupModelIml(
 
     override fun getGroupListWithMe() {
         CoroutineScope(mJob).retrofit<BaseResponse<List<ChatGroupBo>>> {
-            api = ApiEngine.createService(vip.qsos.app_chat.data.ApiChatGroup::class.java).getGroupWithMe()
+            api = ApiEngine.createService(ApiBiz1::class.java).getSessionList(ChatModel.mLoginUser.value!!.userId)
             onSuccess {
                 it?.let {
                     mGroupListWithMeLiveData.postValue(it)
@@ -73,14 +75,6 @@ class ChatGroupModelIml(
                 }
             }
         }
-    }
-
-    override fun updateGroupNotice(notice: String): ChatGroupBo {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun updateGroupName(name: String): ChatGroupBo {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun clear() {

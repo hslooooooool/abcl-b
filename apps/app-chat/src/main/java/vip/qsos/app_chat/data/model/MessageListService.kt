@@ -107,7 +107,7 @@ class MessageListService(
             return
         }
         val sendMessage = ChatMessage(
-                groupId = message.sessionId.toLong(),
+                sessionId = message.sessionId.toLong(),
                 content = message.content
         )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
@@ -122,7 +122,7 @@ class MessageListService(
                     failed.invoke("发送失败", message)
                 } else {
                     message.updateSendState(it.messageId.toString(), it.timeline, EnumChatSendStatus.SUCCESS)
-                    DBChatDatabase.DefChatSessionDao.update(it.groupId, it.messageId, it.timeline) { ok ->
+                    DBChatDatabase.DefChatSessionDao.update(it.sessionId, it.messageId, it.timeline) { ok ->
                         success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                     }

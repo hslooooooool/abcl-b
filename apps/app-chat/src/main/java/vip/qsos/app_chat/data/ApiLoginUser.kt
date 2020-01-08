@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.entity.LoginUser
 
 /**
@@ -30,6 +31,6 @@ interface ApiLoginUser {
     ): Call<BaseResponse<LoginUser>>
 
     @GET("$GROUP/list")
-    fun list(): Call<BaseResponse<List<LoginUser>>>
+    fun list(): Call<BaseResponse<List<ChatUser>>>
 
 }

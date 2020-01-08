@@ -9,8 +9,9 @@ import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import qsos.lib.netservice.expand.retrofitWithSuccessByDef
 import vip.qsos.app_chat.data.ApiChatSession
-import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatMessage
+import vip.qsos.app_chat.data.entity.ChatSession
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,16 +20,16 @@ import kotlin.coroutines.CoroutineContext
  */
 class ChatSessionModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job()
-) : ChatModel.ISession {
+) : ChatSessionModel {
 
-    override fun findSingle(
+    override fun findSessionOfSingle(
             sender: String,
             receiver: String,
             failed: (msg: String) -> Unit,
-            success: (group: ChatSession) -> Unit
+            success: (group: ChatSessionBo) -> Unit
     ) {
-        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSession> {
-            api = ApiEngine.createService(ApiChatSession::class.java).findSingle(
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSessionBo> {
+            api = ApiEngine.createService(ApiChatSession::class.java).findSessionOfSingle(
                     sender = sender, receiver = receiver
             )
             onSuccess {
@@ -40,13 +41,13 @@ class ChatSessionModelIml(
     }
 
     override fun getSessionById(
-            groupId: Long,
+            sessionId: Long,
             failed: (msg: String) -> Unit,
-            success: (group: ChatSession) -> Unit
+            success: (group: ChatSessionBo) -> Unit
     ) {
-        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSession> {
+        CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSessionBo> {
             api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(
-                    groupId = groupId
+                    groupId = sessionId
             )
             onSuccess {
                 it?.let {
@@ -61,9 +62,9 @@ class ChatSessionModelIml(
             accountList: List<String>,
             message: ChatMessage?,
             failed: (msg: String) -> Unit,
-            success: (group: ChatSession) -> Unit
+            success: (group: ChatSessionBo) -> Unit
     ) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatSessionBo>> {
             api = ApiEngine.createService(ApiChatSession::class.java).createSession(
                     name = "測試群", creator = creator, memberList = accountList
             )

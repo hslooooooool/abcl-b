@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class ChatMessageModelIml(
         override val mJob: CoroutineContext = Dispatchers.Main + Job()
-) : ChatModel.IMessage {
+) : ChatMessageModel {
 
     /**是否正在获取新消息*/
     private var pullNewMessageIng = false

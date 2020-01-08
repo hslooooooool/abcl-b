@@ -24,7 +24,7 @@ class ChatGroupAdapter(list: ArrayList<ChatGroupBo>) : BaseAdapter<ChatGroupBo>(
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {
         ARouter.getInstance().build("/CHAT/SESSION")
-                .withLong("/CHAT/GROUP_ID", data[position].groupId)
+                .withLong("/CHAT/SESSION_ID", data[position].sessionId)
                 .navigation()
     }
 

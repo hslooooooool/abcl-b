@@ -1,42 +1,75 @@
 package vip.qsos.app_chat.data.model
 
-import android.content.Context
-import android.view.View
-import android.widget.ImageView
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.base.chat.api.IMessageListService
-import qsos.lib.netservice.file.HttpFileEntity
+import vip.qsos.app_chat.data.entity.ChatMessage
+import vip.qsos.app_chat.data.entity.ChatSession
+import vip.qsos.app_chat.data.entity.ChatSessionBo
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
- * 聊天会话功能接口
+ * 聊天会话接口
  */
-interface ChatSessionModel : LifecycleObserver {
+interface ChatSessionModel {
 
-    /**点击文本消息*/
-    fun clickTextMessage(view: View, message: IMessageListService.Message, back: (action: Int) -> Unit)
+    val mJob: CoroutineContext
+    fun clear()
 
-    /**长按文本消息*/
-    fun longClickTextMessage(view: View, message: IMessageListService.Message, back: (action: Int) -> Unit)
-
-    /**消息重发*/
-    fun resendMessage(message: IMessageListService.Message, back: (file: HttpFileEntity?) -> Unit)
-
-    /**语音播放*/
-    fun playAudio(view: View, stateView: ImageView, data: MChatMessageAudio)
-
-    /**停止所有语音播放*/
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun stopAudioPlay()
-
-    /**获取并发送文件消息*/
-    fun sendFileMessage(
-            context: Context, fm: FragmentManager, fileType: Int,
-            back: (type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) -> Unit
+    /**创建群,可同时往群发送一条消息,适用于发起单聊/群聊/分享等场景
+     * @param creator 创建人聊天账号
+     * @param accountList 用户聊天账号集合
+     * @param message 发送的消息
+     * @return 群数据
+     * */
+    fun createSession(
+            creator: String,
+            accountList: List<String>,
+            message: ChatMessage? = null,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSessionBo) -> Unit
     )
+
+    /**获取单聊会话信息
+     * @param sender 发送方聊天账号
+     * @param receiver 接收方聊天账号
+     * @return 会话数据
+     * */
+    fun findSessionOfSingle(
+            sender: String,
+            receiver: String,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSessionBo) -> Unit
+    )
+
+    /**获取群数据
+     * @param sessionId 会话ID
+     * @return 群数据
+     * */
+    fun getSessionById(
+            sessionId: Long,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSessionBo) -> Unit
+    )
+
+    /**获取用户订阅的群
+     * @param userId 用户ID
+     * @return 用户订阅的群
+     * */
+    fun getSessionListByUserId(userId: Long): List<ChatSession>
+
+    /**往已有群中增加用户
+     * @param userIdList 被添加用户ID集合
+     * @param sessionId 群ID
+     * @return 加入的群数据
+     * */
+    fun addUserListToSession(
+            userIdList: List<Long>, sessionId: Long,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSession) -> Unit
+    )
+
+    /**解散群
+     * @param sessionId 群ID
+     * */
+    fun deleteSession(sessionId: Long)
+
 }

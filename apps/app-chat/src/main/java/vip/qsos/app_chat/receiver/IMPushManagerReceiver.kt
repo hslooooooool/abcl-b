@@ -104,7 +104,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        groupId = msg.extra.sessionId,
+                        sessionId = msg.extra.sessionId,
                         messageId = msg.id,
                         content = msg.content
                 )

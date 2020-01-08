@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_friend_list.*
 import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.model.ChatUserModelIml
-import vip.qsos.app_chat.data.model.ChatModel
 import qsos.lib.base.base.fragment.BaseFragment
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.model.ChatUserModel
 import vip.qsos.app_chat.data.model.MainViewModel
 import vip.qsos.app_chat.view.adapter.ChatFriendAdapter
 
@@ -24,7 +24,7 @@ class ChatFriendListFragment(
 ) : BaseFragment() {
 
     private lateinit var mFriendAdapter: ChatFriendAdapter
-    private lateinit var mChatUserModel: ChatModel.IUser
+    private lateinit var mChatUserModel: ChatUserModel
     private val mMainViewModel: MainViewModel by viewModels()
     private val mList = arrayListOf<ChatUser>()
 
@@ -53,7 +53,7 @@ class ChatFriendListFragment(
     }
 
     override fun getData() {
-        mChatUserModel.getAllChatUser()
+        mChatUserModel.getFriendList()
     }
 
     override fun onDestroy() {

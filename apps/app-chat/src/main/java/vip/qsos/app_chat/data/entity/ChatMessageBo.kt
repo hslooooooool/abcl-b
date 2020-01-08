@@ -31,11 +31,11 @@ data class ChatMessageBo constructor(
 
     override var sessionId: String = ""
         get() {
-            field = message.groupId.toString()
+            field = message.sessionId.toString()
             return field
         }
         set(value) {
-            message.groupId = value.toLong()
+            message.sessionId = value.toLong()
         }
 
     override var timeline: Long = -1L
