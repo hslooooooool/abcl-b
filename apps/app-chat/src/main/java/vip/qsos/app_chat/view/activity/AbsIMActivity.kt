@@ -35,11 +35,9 @@ abstract class AbsIMActivity : BaseActivity(), IMEventListener {
     }
 
     override fun onMessageReceived(message: Message) {
-        Toast.makeText(this, "收到消息", Toast.LENGTH_SHORT).show()
     }
 
     override fun onNetworkChanged(networkInfo: NetworkInfo?) {
-        Toast.makeText(this, "网络变化", Toast.LENGTH_SHORT).show()
     }
 
     override fun onConnectionClosed() {
@@ -51,14 +49,11 @@ abstract class AbsIMActivity : BaseActivity(), IMEventListener {
     }
 
     override fun onConnectionSuccess(hasAutoBind: Boolean) {
-        Toast.makeText(this, "连接成功", Toast.LENGTH_SHORT).show()
     }
 
     override fun onReplyReceived(replyBody: ReplyBody) {
-        Toast.makeText(this, "收到回执", Toast.LENGTH_SHORT).show()
     }
 
     override fun onSentSuccess(sendBody: SendBody) {
-        Toast.makeText(this, "发送成功", Toast.LENGTH_SHORT).show()
     }
 }
