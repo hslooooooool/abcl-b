@@ -92,10 +92,10 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
         return ChatMessageBo(
                 user = ChatUser(
-                        ChatModel.mLoginUser.value!!.userId,
-                        ChatModel.mLoginUser.value!!.name,
-                        ChatModel.mLoginUser.value!!.imAccount,
-                        ChatModel.mLoginUser.value!!.avatar
+                        ChatModel.getLoginUser().userId,
+                        ChatModel.getLoginUser().name,
+                        ChatModel.getLoginUser().imAccount,
+                        ChatModel.getLoginUser().avatar
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(

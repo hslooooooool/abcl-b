@@ -28,7 +28,7 @@ class SessionListViewModelImpl(
     override fun getSessionList() {
         CoroutineScope(mJob).retrofit<BaseResponse<List<ChatSessionBo>>> {
             api = ApiEngine.createService(MainApi::class.java)
-                    .getSessionList(ChatModel.mLoginUser.value!!.userId)
+                    .getSessionList(ChatModel.getLoginUser().userId)
 
             onSuccess {
                 it?.let {

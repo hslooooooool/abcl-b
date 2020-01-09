@@ -24,7 +24,7 @@ class FriendListViewModelImpl(
     override fun getFriendList() {
         CoroutineScope(mJob).retrofitWithSuccessByDef<List<ChatUser>> {
             api = ApiEngine.createService(MainApi::class.java)
-                    .getFriendList(ChatModel.mLoginUser.value!!.userId)
+                    .getFriendList(ChatModel.getLoginUser().userId)
             onSuccess {
                 it?.let { mFriendList.postValue(it) }
             }

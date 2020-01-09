@@ -111,7 +111,7 @@ class ChatMessageViewModelImpl(
                             oldSession.nowLastMessageTimeline = it.last().timeline
                             /**排除登录用户发送的消息并按时序正序排列*/
                             val messageList = it.filterNot { msg ->
-                                msg.user.userId == ChatModel.mLoginUser.value?.userId
+                                msg.user.userId == ChatModel.getLoginUser().userId
                             }.sortedBy { msg ->
                                 msg.timeline
                             }

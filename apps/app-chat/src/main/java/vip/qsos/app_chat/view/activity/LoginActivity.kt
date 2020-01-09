@@ -42,7 +42,7 @@ class LoginActivity(
         mLoginDisposable = RxBus.toFlow(LoginSuccessEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    ChatModel.mLoginUser.value = it.user
+                    ChatModel.setLoginUser(it.user)
                     bindAccount()
                 }
     }

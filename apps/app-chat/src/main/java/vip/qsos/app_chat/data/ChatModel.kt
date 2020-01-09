@@ -1,6 +1,8 @@
 package vip.qsos.app_chat.data
 
 import androidx.lifecycle.MutableLiveData
+import com.alibaba.android.arouter.launcher.ARouter
+import qsos.core.exception.GlobalException
 import vip.qsos.app_chat.data.entity.LoginUser
 
 /**
@@ -9,6 +11,17 @@ import vip.qsos.app_chat.data.entity.LoginUser
  */
 object ChatModel {
 
-    val mLoginUser: MutableLiveData<LoginUser> = MutableLiveData()
+    private val mLoginUser: MutableLiveData<LoginUser> = MutableLiveData()
 
+    fun getLoginUser(): LoginUser {
+        if (mLoginUser.value == null) {
+            ARouter.getInstance().build("/USER/LOGIN").navigation()
+            throw GlobalException(403, "请重新登录")
+        }
+        return mLoginUser.value!!
+    }
+
+    fun setLoginUser(user: LoginUser) {
+        mLoginUser.value = user
+    }
 }

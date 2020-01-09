@@ -257,10 +257,10 @@ class ChatSessionActivity(
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): MessageViewHelper.Message {
         val message = ChatMessageBo(
                 user = ChatUser(
-                        ChatModel.mLoginUser.value!!.userId,
-                        ChatModel.mLoginUser.value!!.name,
-                        ChatModel.mLoginUser.value!!.imAccount,
-                        ChatModel.mLoginUser.value!!.avatar
+                        ChatModel.getLoginUser().userId,
+                        ChatModel.getLoginUser().name,
+                        ChatModel.getLoginUser().imAccount,
+                        ChatModel.getLoginUser().avatar
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
@@ -294,10 +294,10 @@ class ChatSessionActivity(
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
                     user = ChatUser(
-                            ChatModel.mLoginUser.value!!.userId,
-                            ChatModel.mLoginUser.value!!.name,
-                            ChatModel.mLoginUser.value!!.imAccount,
-                            ChatModel.mLoginUser.value!!.avatar
+                            ChatModel.getLoginUser().userId,
+                            ChatModel.getLoginUser().name,
+                            ChatModel.getLoginUser().imAccount,
+                            ChatModel.getLoginUser().avatar
                     ),
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
