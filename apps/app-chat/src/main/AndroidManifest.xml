@@ -76,7 +76,7 @@
 		</activity>
 		
 		<!--聊天用户页面-->
-		<activity android:name="vip.qsos.app_chat.view.activity.ChatUserActivity" />
+		<activity android:name="vip.qsos.app_chat.view.activity.ChatUserInfoActivity" />
 		<!--聊天会话页面-->
 		<activity android:name="vip.qsos.app_chat.view.activity.ChatSessionActivity" />
 		<!-- ****************************************IM推送配置 begin*************************************** -->

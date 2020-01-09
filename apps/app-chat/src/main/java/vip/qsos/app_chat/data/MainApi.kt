@@ -9,20 +9,18 @@ import vip.qsos.app_chat.data.entity.ChatUser
 
 /**
  * @author : 华清松
- * 主界面接口
+ * 主页接口
  */
-interface ApiBiz1 {
+interface MainApi {
 
-    companion object {
-        const val GROUP = "/api/app/biz1"
-    }
-
-    @GET(value = "$GROUP/list.session")
+    /**获取会话列表*/
+    @GET(value = "/api/app/main/list.session")
     fun getSessionList(
             @Query("userId") userId: Long
     ): Call<BaseResponse<List<ChatGroupBo>>>
 
-    @GET(value = "$GROUP/list.friend")
+    /**获取好友列表*/
+    @GET(value = "/api/app/main/list.friend")
     fun getFriendList(
             @Query("userId") userId: Long
     ): Call<BaseResponse<List<ChatUser>>>

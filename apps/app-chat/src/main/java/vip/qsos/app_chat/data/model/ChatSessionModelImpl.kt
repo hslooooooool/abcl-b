@@ -1,5 +1,6 @@
 package vip.qsos.app_chat.data.model
 
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -8,19 +9,17 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import qsos.lib.netservice.expand.retrofitWithSuccessByDef
-import vip.qsos.app_chat.data.ApiChatSession
+import vip.qsos.app_chat.data.SessionApi
 import vip.qsos.app_chat.data.entity.ChatMessage
-import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
- * 聊天会话接口默认实现
  */
-class ChatSessionModelIml(
+class ChatSessionModelImpl(
         override val mJob: CoroutineContext = Dispatchers.Main + Job()
-) : ChatSessionModel {
+) : ChatSessionModel, ViewModel() {
 
     override fun findSessionOfSingle(
             sender: String,
@@ -29,7 +28,7 @@ class ChatSessionModelIml(
             success: (group: ChatSessionBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSessionBo> {
-            api = ApiEngine.createService(ApiChatSession::class.java).findSessionOfSingle(
+            api = ApiEngine.createService(SessionApi::class.java).findSessionOfSingle(
                     sender = sender, receiver = receiver
             )
             onSuccess {
@@ -46,9 +45,7 @@ class ChatSessionModelIml(
             success: (group: ChatSessionBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofitWithSuccessByDef<ChatSessionBo> {
-            api = ApiEngine.createService(ApiChatSession::class.java).getSessionById(
-                    groupId = sessionId
-            )
+            api = ApiEngine.createService(SessionApi::class.java).getSessionById(sessionId)
             onSuccess {
                 it?.let {
                     success.invoke(it)
@@ -65,7 +62,7 @@ class ChatSessionModelIml(
             success: (group: ChatSessionBo) -> Unit
     ) {
         CoroutineScope(mJob).retrofit<BaseResponse<ChatSessionBo>> {
-            api = ApiEngine.createService(ApiChatSession::class.java).createSession(
+            api = ApiEngine.createService(SessionApi::class.java).createSession(
                     name = "測試群", creator = creator, memberList = accountList
             )
             onFailed { _, msg, error ->
@@ -79,17 +76,13 @@ class ChatSessionModelIml(
         }
     }
 
-    override fun getSessionListByUserId(userId: Long): List<ChatSession> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun addUserListToSession(
             userIdList: List<Long>, sessionId: Long,
             failed: (msg: String) -> Unit,
-            success: (group: ChatSession) -> Unit
+            success: (group: ChatSessionBo) -> Unit
     ) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatSession>> {
-            api = ApiEngine.createService(ApiChatSession::class.java).addUserListToSession(
+        CoroutineScope(mJob).retrofit<BaseResponse<ChatSessionBo>> {
+            api = ApiEngine.createService(SessionApi::class.java).addUserListToSession(
                     sessionId = sessionId, userIdList = userIdList
             )
             onFailed { _, msg, error ->

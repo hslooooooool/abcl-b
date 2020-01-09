@@ -2,20 +2,21 @@ package vip.qsos.app_chat.view.adapter
 
 import android.view.View
 import com.alibaba.android.arouter.launcher.ARouter
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import com.google.gson.Gson
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.view.holder.ItemChatGroupViewHolder
+import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.view.holder.SessionViewHolder
 
 /**
  * @author : 华清松
- * 聊天群列表
+ * 会话列表
  */
-class ChatGroupAdapter(list: ArrayList<ChatGroupBo>) : BaseAdapter<ChatGroupBo>(list) {
+class ChatSessionAdapter(list: ArrayList<ChatGroupBo>) : BaseAdapter<ChatGroupBo>(list) {
 
     override fun getHolder(view: View, viewType: Int): BaseHolder<ChatGroupBo> {
-        return ItemChatGroupViewHolder(view, this)
+        return SessionViewHolder(view, this)
     }
 
     override fun getLayoutId(viewType: Int): Int {
@@ -24,11 +25,10 @@ class ChatGroupAdapter(list: ArrayList<ChatGroupBo>) : BaseAdapter<ChatGroupBo>(
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {
         ARouter.getInstance().build("/CHAT/SESSION")
-                .withLong("/CHAT/SESSION_ID", data[position].sessionId)
+                .withString("/CHAT/SESSION_JSON", Gson().toJson(data[position]))
                 .navigation()
     }
 
-    override fun onItemLongClick(view: View, position: Int, obj: Any?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun onItemLongClick(view: View, position: Int, obj: Any?) {}
+
 }

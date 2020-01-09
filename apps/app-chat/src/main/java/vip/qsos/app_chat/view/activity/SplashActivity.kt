@@ -8,7 +8,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import qsos.lib.base.utils.ActivityManager
 import vip.qsos.app_chat.BuildConfig
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.Constants
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.im.lib.IMManagerHelper
 
 /**

@@ -2,7 +2,7 @@ package vip.qsos.app_chat.data.entity
 
 import com.google.gson.Gson
 import qsos.base.chat.ChatMessageViewConfig
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.lib.base.utils.LogUtil
@@ -18,7 +18,7 @@ data class ChatMessageBo constructor(
         var user: ChatUser,
         override var createTime: String,
         var message: ChatMessage
-) : IMessageListService.Message {
+) : MessageViewHelper.Message {
 
     override var messageId: String = ""
         get() {
@@ -62,7 +62,6 @@ data class ChatMessageBo constructor(
     override val content: ChatContent
         get() = message.content
 
-    /**消息发送状态,本地存储*/
     override var sendStatus: EnumChatSendStatus? = null
         get() = if (field == null) EnumChatSendStatus.SUCCESS else field
 

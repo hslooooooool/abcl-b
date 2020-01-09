@@ -12,9 +12,9 @@ import androidx.lifecycle.MutableLiveData
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import qsos.base.chat.R
+import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.base.chat.api.IMessageListService
 import qsos.base.chat.utils.AudioUtils
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
@@ -29,15 +29,15 @@ import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.netservice.file.HttpFileEntity
+import vip.qsos.app_chat.data.ChatModel
 import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
 
 /**
  * @author : 华清松
- * 聊天会话功能接口
  */
-class ChatSessionViewModelImpl(private val activity: Activity) : ChatSessionViewModel {
+class SessionViewHelperImpl(private val activity: Activity) : SessionViewHelper {
 
     /**文件上传大小限制*/
     private val mUpdateLimit = 5 * 1000 * 1000
@@ -48,7 +48,7 @@ class ChatSessionViewModelImpl(private val activity: Activity) : ChatSessionView
     }
 
     override fun clickTextMessage(
-            view: View, message: IMessageListService.Message,
+            view: View, message: MessageViewHelper.Message,
             back: (action: Int) -> Unit
     ) {
         val popup = PopupMenu(activity, view)
@@ -63,7 +63,7 @@ class ChatSessionViewModelImpl(private val activity: Activity) : ChatSessionView
     }
 
     override fun longClickTextMessage(
-            view: View, message: IMessageListService.Message,
+            view: View, message: MessageViewHelper.Message,
             back: (action: Int) -> Unit
     ) {
         val popup = PopupMenu(activity, view)
@@ -88,7 +88,7 @@ class ChatSessionViewModelImpl(private val activity: Activity) : ChatSessionView
         popup.show()
     }
 
-    override fun resendMessage(message: IMessageListService.Message, back: (file: HttpFileEntity?) -> Unit) {
+    override fun resendMessage(message: MessageViewHelper.Message, back: (file: HttpFileEntity?) -> Unit) {
         var needUpdate = false
         var file: File? = null
         when (message.content.getContentType()) {

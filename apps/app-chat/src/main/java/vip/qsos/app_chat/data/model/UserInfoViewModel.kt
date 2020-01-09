@@ -1,24 +1,19 @@
 package vip.qsos.app_chat.data.model
 
-import qsos.lib.netservice.data.BaseHttpLiveData
-import vip.qsos.app_chat.data.entity.ChatFriend
+import androidx.lifecycle.MutableLiveData
+import vip.qsos.app_chat.data.entity.ChatFriendBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.entity.ChatUser
 import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
- * 聊天用户接口
+ * 用户资料页接口
  */
-interface ChatUserModel {
+interface UserInfoViewModel {
 
     val mJob: CoroutineContext
     fun clear()
-    val mDataOfChatUserList: BaseHttpLiveData<List<ChatUser>>
-
-    /**获取好友列表数据
-     * @return 好友列表
-     * */
-    fun getFriendList()
 
     /**获取用户数据
      * @param userId 用户ID
@@ -38,7 +33,7 @@ interface ChatUserModel {
             userId: Long,
             friendId: Long,
             failed: (msg: String) -> Unit,
-            success: (user: ChatFriend) -> Unit
+            success: (user: ChatFriendBo) -> Unit
     )
 
     /**判断好友关系
@@ -49,7 +44,15 @@ interface ChatUserModel {
             userId: Long,
             friendId: Long,
             failed: (msg: String) -> Unit,
-            success: (user: ChatFriend?) -> Unit
+            success: (user: ChatFriendBo?) -> Unit
+    )
+
+    /**获取单聊会话信息*/
+    fun getSessionOfSingle(
+            sender: String,
+            receiver: String,
+            failed: (msg: String) -> Unit,
+            success: (session: ChatSessionBo?) -> Unit
     )
 
 }

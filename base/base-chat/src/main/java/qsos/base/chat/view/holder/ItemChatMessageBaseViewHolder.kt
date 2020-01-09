@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.item_message.view.*
 import qsos.base.chat.R
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.data.entity.EnumSessionType
 import qsos.base.core.config.BaseConfig
@@ -25,8 +25,8 @@ import qsos.lib.base.callback.OnListItemClickListener
  */
 @SuppressLint("SetTextI18n")
 abstract class ItemChatMessageBaseViewHolder(
-        private val session: IMessageListService.Session, view: View
-) : BaseHolder<IMessageListService.Message>(view) {
+        private val session: MessageViewHelper.Session, view: View
+) : BaseHolder<MessageViewHelper.Message>(view) {
 
     private var mItemListener: OnListItemClickListener? = null
 
@@ -37,9 +37,9 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**展示消息内容数据*/
-    abstract fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?)
+    abstract fun setContent(contentView: View, data: MessageViewHelper.Message, position: Int, itemListener: OnListItemClickListener?)
 
-    override fun setData(data: IMessageListService.Message, position: Int) {
+    override fun setData(data: MessageViewHelper.Message, position: Int) {
         getContentView(data, position).apply {
             ImageLoaderUtils.displayRounded(
                     context,
@@ -65,7 +65,7 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**判断获取具体内容视图*/
-    private fun getContentView(data: IMessageListService.Message, position: Int): View {
+    private fun getContentView(data: MessageViewHelper.Message, position: Int): View {
         if (TextUtils.isEmpty(data.createTime)) {
             itemView.item_message_time.visibility = View.GONE
         } else {
@@ -113,7 +113,7 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息发送状态*/
-    private fun updateSendStatus(contentView: View, position: Int, data: IMessageListService.Message) {
+    private fun updateSendStatus(contentView: View, position: Int, data: MessageViewHelper.Message) {
         itemView.item_message_cancel.visibility = View.GONE
         itemView.item_message_main.visibility = View.VISIBLE
         val messageStateView = contentView.getTag(R.id.item_message_state) as View
@@ -153,7 +153,7 @@ abstract class ItemChatMessageBaseViewHolder(
     }
 
     /**更新消息读取状态*/
-    private fun updateReadStatus(contentView: View, data: IMessageListService.Message) {
+    private fun updateReadStatus(contentView: View, data: MessageViewHelper.Message) {
         contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
             EnumSessionType.SINGLE.key -> {
                 if (data.readNum < 2) "未读" else "已读"

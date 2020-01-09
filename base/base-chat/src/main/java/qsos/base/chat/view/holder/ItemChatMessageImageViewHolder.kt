@@ -4,7 +4,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_message_image.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.MChatMessageImage
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.core.player.PlayerConfigHelper
 import qsos.core.player.data.PreImageEntity
@@ -14,9 +14,9 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-图片布局
  */
-class ItemChatMessageImageViewHolder(session: IMessageListService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageImageViewHolder(session: MessageViewHelper.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
 
-    override fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?) {
+    override fun setContent(contentView: View, data: MessageViewHelper.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_image.visibility = View.VISIBLE
             data.getRealContent<MChatMessageImage>()?.let {

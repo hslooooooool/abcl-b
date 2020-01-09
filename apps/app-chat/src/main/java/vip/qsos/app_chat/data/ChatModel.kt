@@ -1,4 +1,4 @@
-package vip.qsos.app_chat.data.model
+package vip.qsos.app_chat.data
 
 import androidx.lifecycle.MutableLiveData
 import vip.qsos.app_chat.data.entity.LoginUser

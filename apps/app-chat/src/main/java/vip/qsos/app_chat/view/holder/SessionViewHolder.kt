@@ -10,9 +10,12 @@ import vip.qsos.app_chat.data.entity.ChatGroupBo
 
 /**
  * @author : 华清松
- * 聊天群列表项布局
+ * 会话列表项布局
  */
-class ItemChatGroupViewHolder(view: View, private val mClickListener: OnListItemClickListener) : BaseHolder<ChatGroupBo>(view) {
+class SessionViewHolder(
+        view: View,
+        private val mClickListener: OnListItemClickListener
+) : BaseHolder<ChatGroupBo>(view) {
 
     override fun setData(data: ChatGroupBo, position: Int) {
         itemView.apply {

@@ -1,7 +1,7 @@
 package qsos.base.chat.api
 
 import androidx.lifecycle.MutableLiveData
-import qsos.base.chat.api.IMessageListService.EventType.*
+import qsos.base.chat.api.MessageViewHelper.EventType.*
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.view.IMessageListView
@@ -11,7 +11,7 @@ import qsos.lib.base.utils.rx.RxBus
  * @author : 华清松
  * 消息服务配置接口
  */
-interface IMessageListService {
+interface MessageViewHelper {
 
     companion object {
         /**消息时间显示间隔，低于此值间的消息不显示时间*/

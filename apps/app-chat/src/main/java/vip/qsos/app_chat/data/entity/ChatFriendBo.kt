@@ -7,7 +7,7 @@ package vip.qsos.app_chat.data.entity
  * @param friend 好友用户ID
  * @param accept 是否接受
  */
-data class ChatFriend(
+data class ChatFriendBo(
         var applicant: Long,
         var friend: Long,
         var accept: Boolean?

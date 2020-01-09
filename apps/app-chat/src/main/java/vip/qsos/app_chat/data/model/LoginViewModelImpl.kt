@@ -13,17 +13,17 @@ import qsos.lib.base.base.BaseApplication
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.ApiLoginUser
+import vip.qsos.app_chat.data.LoginApi
 import vip.qsos.app_chat.data.entity.LoginUser
 import kotlin.coroutines.CoroutineContext
 
-class LoginUserModelIml : LoginUserModel, ViewModel() {
+class LoginViewModelImpl : LoginViewModel, ViewModel() {
 
     override val mJob: CoroutineContext = Dispatchers.Main + Job()
 
     override fun login(account: String, password: String, failed: (msg: String) -> Unit, success: (user: LoginUser) -> Unit) {
         CoroutineScope(mJob).retrofit<BaseResponse<LoginUser>> {
-            api = ApiEngine.createService(ApiLoginUser::class.java).login(account, password)
+            api = ApiEngine.createService(LoginApi::class.java).login(account, password)
             onFailed { code, msg, error ->
                 failed.invoke(msg ?: "$code 登录失败${error?.message}")
             }
@@ -37,7 +37,7 @@ class LoginUserModelIml : LoginUserModel, ViewModel() {
 
     override fun register(account: String, password: String, failed: (msg: String) -> Unit, success: (user: LoginUser) -> Unit) {
         CoroutineScope(mJob).retrofit<BaseResponse<LoginUser>> {
-            api = ApiEngine.createService(ApiLoginUser::class.java).register(account, password)
+            api = ApiEngine.createService(LoginApi::class.java).register(account, password)
             onFailed { code, msg, error ->
                 failed.invoke(msg ?: "$code 注册失败${error?.message}")
             }

@@ -7,7 +7,7 @@ import kotlin.coroutines.CoroutineContext
  * @author : 华清松
  * 登录用户相关接口
  */
-interface LoginUserModel {
+interface LoginViewModel {
     val mJob: CoroutineContext
 
     fun clear()

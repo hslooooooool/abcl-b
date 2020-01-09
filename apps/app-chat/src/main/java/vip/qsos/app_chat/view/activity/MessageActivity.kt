@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_message.*
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.Constants
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.view.adapter.MessageAdapter
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.Message

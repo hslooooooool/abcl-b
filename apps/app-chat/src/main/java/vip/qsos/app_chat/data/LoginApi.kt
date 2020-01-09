@@ -5,32 +5,24 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
-import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.entity.LoginUser
 
 /**
  * @author : 华清松
- * 用户相关接口
+ * 登录页接口
  */
-interface ApiLoginUser {
+interface LoginApi {
 
-    companion object {
-        const val GROUP = "/api/app/user"
-    }
-
-    @GET("$GROUP/login")
+    @GET("/api/app/login/login")
     fun login(
             @Query("account") account: String,
             @Query("password") password: String
     ): Call<BaseResponse<LoginUser>>
 
-    @POST("$GROUP/register")
+    @POST("/api/app/login/register")
     fun register(
             @Query("account") account: String,
             @Query("password") password: String
     ): Call<BaseResponse<LoginUser>>
-
-    @GET("$GROUP/list")
-    fun list(): Call<BaseResponse<List<ChatUser>>>
 
 }

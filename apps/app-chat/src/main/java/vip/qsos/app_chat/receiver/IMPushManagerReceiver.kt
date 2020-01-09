@@ -9,7 +9,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
@@ -17,7 +17,7 @@ import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.entity.MessageBo
-import vip.qsos.app_chat.data.model.ChatModel
+import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.view.activity.MessageActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
 import vip.qsos.im.lib.IMListenerManager
@@ -32,7 +32,7 @@ import java.util.*
  */
 class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
-    data class Session(override var id: String, override var type: Int) : IMessageListService.Session
+    data class Session(override var id: String, override var type: Int) : MessageViewHelper.Session
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
@@ -84,17 +84,17 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
     /**TODO 更新消息界面*/
     private fun notifyView(msg: MessageBo) {
-        RxBus.send(IMessageListService.MessageEvent(
+        RxBus.send(MessageViewHelper.MessageEvent(
                 session = Session(
                         id = msg.extra.sessionId.toString(),
                         type = msg.extra.sessionType.key
                 ),
                 message = arrayListOf(formatMessage(msg)),
-                eventType = IMessageListService.EventType.SHOW_NEW)
+                eventType = MessageViewHelper.EventType.SHOW_NEW)
         )
     }
 
-    private fun formatMessage(msg: MessageBo): IMessageListService.Message {
+    private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
         return ChatMessageBo(
                 user = ChatUser(
                         ChatModel.mLoginUser.value!!.userId,

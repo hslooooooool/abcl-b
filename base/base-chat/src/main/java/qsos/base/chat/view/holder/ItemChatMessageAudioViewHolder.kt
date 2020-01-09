@@ -5,16 +5,16 @@ import android.view.View
 import kotlinx.android.synthetic.main.item_message_voice.view.*
 import kotlinx.android.synthetic.main.item_message_items.view.*
 import qsos.base.chat.data.entity.MChatMessageAudio
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.base.callback.OnListItemClickListener
 
 /**
  * @author : 华清松
  * 消息内容-音频布局
  */
-class ItemChatMessageAudioViewHolder(session: IMessageListService.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageAudioViewHolder(session: MessageViewHelper.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
     @SuppressLint("SetTextI18n")
-    override fun setContent(contentView: View, data: IMessageListService.Message, position: Int, itemListener: OnListItemClickListener?) {
+    override fun setContent(contentView: View, data: MessageViewHelper.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_audio.visibility = View.VISIBLE
             data.getRealContent<MChatMessageAudio>()?.let {

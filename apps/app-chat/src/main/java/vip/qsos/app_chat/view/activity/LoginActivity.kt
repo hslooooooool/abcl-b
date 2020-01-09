@@ -11,9 +11,9 @@ import qsos.lib.base.utils.ActivityManager
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.Constants
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.event.LoginSuccessEvent
-import vip.qsos.app_chat.data.model.ChatModel
+import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.im.lib.IMManagerHelper
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.ReplyBody

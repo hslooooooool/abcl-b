@@ -1,6 +1,6 @@
 package vip.qsos.app_chat.data.entity
 
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.EnumSessionType
 
 /**
@@ -14,7 +14,17 @@ data class ChatSessionBo(
         var sessionId: Long = -1L,
         var creator: String = "",
         var sessionType: EnumSessionType
-) : IMessageListService.Session {
-    override var id: String = "$sessionId"
-    override var type: Int = sessionType.key
+) : MessageViewHelper.Session {
+    override var id: String = ""
+        get() = "$sessionId"
+        set(v) {
+            field = v
+            sessionId = v.toLong()
+        }
+    override var type: Int = 0
+        get() = sessionType.key
+        set(v) {
+            field = v
+            sessionType = EnumSessionType.values()[v]
+        }
 }

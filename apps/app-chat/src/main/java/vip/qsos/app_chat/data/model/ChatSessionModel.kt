@@ -1,7 +1,6 @@
 package vip.qsos.app_chat.data.model
 
 import vip.qsos.app_chat.data.entity.ChatMessage
-import vip.qsos.app_chat.data.entity.ChatSession
 import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
 
@@ -50,12 +49,6 @@ interface ChatSessionModel {
             success: (session: ChatSessionBo) -> Unit
     )
 
-    /**获取用户订阅的群
-     * @param userId 用户ID
-     * @return 用户订阅的群
-     * */
-    fun getSessionListByUserId(userId: Long): List<ChatSession>
-
     /**往已有群中增加用户
      * @param userIdList 被添加用户ID集合
      * @param sessionId 群ID
@@ -64,7 +57,7 @@ interface ChatSessionModel {
     fun addUserListToSession(
             userIdList: List<Long>, sessionId: Long,
             failed: (msg: String) -> Unit,
-            success: (session: ChatSession) -> Unit
+            success: (session: ChatSessionBo) -> Unit
     )
 
     /**解散群

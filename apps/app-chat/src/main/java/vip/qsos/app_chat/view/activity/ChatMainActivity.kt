@@ -14,15 +14,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.base.adapter.BaseFragmentAdapter
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.model.ChatModel
-import vip.qsos.app_chat.data.model.ChatUserModel
-import vip.qsos.app_chat.data.model.ChatUserModelIml
-import vip.qsos.app_chat.view.fragment.ChatFriendListFragment
-import vip.qsos.app_chat.view.fragment.ChatGroupListFragment
+import vip.qsos.app_chat.view.fragment.FriendListFragment
+import vip.qsos.app_chat.view.fragment.SessionListFragment
 
 /**
  * @author : 华清松
- * 聊天群列表页面
+ * 主页
  */
 @Route(group = "APP", path = "/CHAT/MAIN")
 class ChatMainActivity(
@@ -31,26 +28,20 @@ class ChatMainActivity(
 ) : BaseActivity() {
 
     private val fragments = arrayListOf<Fragment>()
-    private var mFragmentAdapter: BaseFragmentAdapter? = null
+    private lateinit var mFragmentAdapter: BaseFragmentAdapter
 
-    private var mGroupListTab: View? = null
-    private var mFriendListTab: View? = null
-
-    private lateinit var mChatUserModel: ChatUserModel
+    private lateinit var mGroupListTab: View
+    private lateinit var mFriendListTab: View
 
     override fun initData(savedInstanceState: Bundle?) {
-        mChatUserModel = ChatUserModelIml()
-
-        val fragment1 = ChatGroupListFragment()
-        val fragment2 = ChatFriendListFragment()
+        val fragment1 = SessionListFragment()
+        val fragment2 = FriendListFragment()
         fragments.clear()
         fragments.add(fragment1)
         fragments.add(fragment2)
         mFragmentAdapter = BaseFragmentAdapter(supportFragmentManager, fragments)
-
-        mGroupListTab = getTabItem("群列表", R.color.red)
-        mFriendListTab = getTabItem("通讯录", R.color.orange)
-
+        mGroupListTab = getTabItem("会话", R.color.red)
+        mFriendListTab = getTabItem("好友", R.color.orange)
     }
 
     override fun initView() {
@@ -74,11 +65,6 @@ class ChatMainActivity(
         tabItemView.findViewById<ImageView>(R.id.tab_chat_icon).setImageResource(iconID
                 ?: R.color.orange)
         return tabItemView
-    }
-
-    override fun onDestroy() {
-        mChatUserModel.clear()
-        super.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

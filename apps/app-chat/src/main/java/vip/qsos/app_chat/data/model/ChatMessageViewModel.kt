@@ -5,9 +5,9 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
- * 聊天消息接口
+ * 消息接口
  */
-interface ChatMessageModel {
+interface ChatMessageViewModel {
 
     val mJob: CoroutineContext
     fun clear()

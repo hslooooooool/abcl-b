@@ -12,7 +12,7 @@ import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.event.LoginSuccessEvent
-import vip.qsos.app_chat.data.model.LoginUserModelIml
+import vip.qsos.app_chat.data.model.LoginViewModelImpl
 
 /**
  * @author : 华清松
@@ -23,7 +23,7 @@ class RegisterFragment(
         override val reload: Boolean = false
 ) : BaseFragment() {
 
-    private val mLoginUserModel: LoginUserModelIml by viewModels()
+    private val mLoginUserModel: LoginViewModelImpl by viewModels()
 
     override fun getData() {}
 

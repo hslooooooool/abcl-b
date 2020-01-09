@@ -10,7 +10,7 @@ import qsos.core.player.PlayerConfigHelper
 import qsos.lib.base.base.BaseApplication
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.rx.RxBus
-import vip.qsos.app_chat.data.Constants
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.entity.LoginUser
 
 /**

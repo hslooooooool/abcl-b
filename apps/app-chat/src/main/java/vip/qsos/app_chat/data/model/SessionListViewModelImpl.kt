@@ -1,5 +1,6 @@
 package vip.qsos.app_chat.data.model
 
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,41 +12,27 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.ApiBiz1
-import vip.qsos.app_chat.data.ApiChatGroup
+import vip.qsos.app_chat.data.MainApi
+import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.data.entity.ChatGroupBo
 import kotlin.coroutines.CoroutineContext
 
 /**
  * @author : 华清松
- * 聊天群组相关接口默认实现
  */
-class ChatGroupModelIml(
+class SessionListViewModelImpl(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mGroupListWithMeLiveData: BaseHttpLiveData<List<ChatGroupBo>> = BaseHttpLiveData()
-) : ChatGroupModel {
+        override val mSessionListLiveData: BaseHttpLiveData<List<ChatGroupBo>> = BaseHttpLiveData()
+) : SessionListViewModel, ViewModel() {
 
-    override fun getSessionById(groupId: Long, success: (message: ChatGroupBo) -> Unit) {
-        CoroutineScope(mJob).retrofit<BaseResponse<ChatGroupBo>> {
-            api = ApiEngine.createService(ApiChatGroup::class.java).getSessionById(groupId = groupId)
-            onSuccess {
-                it?.data?.let { group ->
-                    success.invoke(group)
-                }
-            }
-        }
-    }
-
-    override fun getGroupBySessionId(sessionId: Long): ChatGroupBo {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getGroupListWithMe() {
+    override fun getSessionList() {
         CoroutineScope(mJob).retrofit<BaseResponse<List<ChatGroupBo>>> {
-            api = ApiEngine.createService(ApiBiz1::class.java).getSessionList(ChatModel.mLoginUser.value!!.userId)
+            api = ApiEngine.createService(MainApi::class.java)
+                    .getSessionList(ChatModel.mLoginUser.value!!.userId)
+
             onSuccess {
                 it?.let {
-                    mGroupListWithMeLiveData.postValue(it)
+                    mSessionListLiveData.postValue(it)
                     /**保存或更新会话数据，用于新消息获取*/
                     it.data?.forEach { group ->
                         DBChatDatabase.DefChatSessionDao.getChatSessionById(group.groupId) { oldSession ->

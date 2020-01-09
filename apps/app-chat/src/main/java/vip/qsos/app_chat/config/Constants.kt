@@ -1,4 +1,4 @@
-package vip.qsos.app_chat.data
+package vip.qsos.app_chat.config
 
 interface Constants {
 

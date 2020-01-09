@@ -2,14 +2,14 @@ package vip.qsos.app_chat.view.activity
 
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.api.IMessageListService
+import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.netservice.file.HttpFileEntity
 
 /**
  * @author : 华清松
  * 消息会话操作
  */
-interface IChatSessionView {
+interface ChatSessionView {
     /**回到主页*/
     fun goToHome()
 
@@ -33,14 +33,14 @@ interface IChatSessionView {
     fun uploadFile(files: ArrayList<HttpFileEntity>)
 
     /**删除（撤销）消息*/
-    fun deleteMessage(message: IMessageListService.Message)
+    fun deleteMessage(message: MessageViewHelper.Message)
 
     /**发送文件消息*/
     fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>)
 
     /**发送消息*/
-    fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): IMessageListService.Message
+    fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): MessageViewHelper.Message
 
     /**轮序拉取新消息*/
-    fun pullNewMessage(session: IMessageListService.Session)
+    fun pullNewMessage(session: MessageViewHelper.Session)
 }
