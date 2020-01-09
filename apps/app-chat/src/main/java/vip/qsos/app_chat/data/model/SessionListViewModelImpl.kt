@@ -12,9 +12,9 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.MainApi
 import vip.qsos.app_chat.data.ChatModel
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.MainApi
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -22,11 +22,11 @@ import kotlin.coroutines.CoroutineContext
  */
 class SessionListViewModelImpl(
         override val mJob: CoroutineContext = Dispatchers.Main + Job(),
-        override val mSessionListLiveData: BaseHttpLiveData<List<ChatGroupBo>> = BaseHttpLiveData()
+        override val mSessionListLiveData: BaseHttpLiveData<List<ChatSessionBo>> = BaseHttpLiveData()
 ) : SessionListViewModel, ViewModel() {
 
     override fun getSessionList() {
-        CoroutineScope(mJob).retrofit<BaseResponse<List<ChatGroupBo>>> {
+        CoroutineScope(mJob).retrofit<BaseResponse<List<ChatSessionBo>>> {
             api = ApiEngine.createService(MainApi::class.java)
                     .getSessionList(ChatModel.mLoginUser.value!!.userId)
 
@@ -34,12 +34,12 @@ class SessionListViewModelImpl(
                 it?.let {
                     mSessionListLiveData.postValue(it)
                     /**保存或更新会话数据，用于新消息获取*/
-                    it.data?.forEach { group ->
-                        DBChatDatabase.DefChatSessionDao.getChatSessionById(group.groupId) { oldSession ->
+                    it.data?.forEach { session ->
+                        DBChatDatabase.DefChatSessionDao.getChatSessionById(session.id) { oldSession ->
                             val newSession = DBChatSession(
-                                    sessionId = group.groupId,
-                                    lastMessageId = group.lastMessage?.messageId,
-                                    lastMessageTimeline = group.lastMessage?.timeline,
+                                    sessionId = session.id,
+                                    lastMessageId = null,
+                                    lastMessageTimeline = null,
                                     nowFirstMessageId = oldSession?.nowFirstMessageId,
                                     nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline,
                                     nowLastMessageId = oldSession?.nowLastMessageId,

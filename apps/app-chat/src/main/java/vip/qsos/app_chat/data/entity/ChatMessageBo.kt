@@ -5,7 +5,9 @@ import qsos.base.chat.ChatMessageViewConfig
 import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
+import vip.qsos.im.lib.model.Message
 
 /**
  * @author : 华清松
@@ -19,6 +21,31 @@ data class ChatMessageBo constructor(
         override var createTime: String,
         var message: ChatMessage
 ) : MessageViewHelper.Message {
+
+    companion object {
+
+        fun formatMessage(user: ChatUser, msg: Message): MessageViewHelper.Message? {
+            val extra: MessageBo.MessageExtra
+            val content: ChatContent
+            try {
+                extra = Gson().fromJson(msg.extra, MessageBo.MessageExtra::class.java)
+                content = ChatContent(Gson().fromJson<HashMap<String, Any?>>(msg.content, HashMap::class.java))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+            // TODO 丢弃Content方式
+            return ChatMessageBo(
+                    user = user,
+                    createTime = DateUtils.format(millis = msg.timestamp, date = null),
+                    message = ChatMessage(
+                            sessionId = extra.sessionId,
+                            messageId = msg.id,
+                            content = content
+                    )
+            )
+        }
+    }
 
     override var messageId: String = ""
         get() {

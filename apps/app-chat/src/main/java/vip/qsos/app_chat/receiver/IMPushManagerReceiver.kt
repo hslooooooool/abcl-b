@@ -13,12 +13,9 @@ import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.entity.ChatMessage
-import vip.qsos.app_chat.data.entity.ChatMessageBo
-import vip.qsos.app_chat.data.entity.ChatUser
-import vip.qsos.app_chat.data.entity.MessageBo
 import vip.qsos.app_chat.data.ChatModel
-import vip.qsos.app_chat.view.activity.MessageActivity
+import vip.qsos.app_chat.data.entity.*
+import vip.qsos.app_chat.view.activity.ChatSessionActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
 import vip.qsos.im.lib.IMListenerManager
 import vip.qsos.im.lib.constant.IMConstant
@@ -31,8 +28,6 @@ import java.util.*
  * 消息接收广播服务
  */
 class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
-
-    data class Session(override var id: String, override var type: Int) : MessageViewHelper.Session
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
@@ -66,7 +61,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         }
         val title = msg.title
         val contentIntent = PendingIntent.getActivity(
-                context, 1, Intent(context, MessageActivity::class.java),
+                context, 1, Intent(context, ChatSessionActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
         val builder = NotificationCompat.Builder(context, channelId)

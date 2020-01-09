@@ -6,7 +6,7 @@ package qsos.base.chat.data.entity
  * @param fields 内容map集合
  *  FIXME 待取消此实体
  */
-data class ChatContent(
+data class ChatContent constructor(
         var fields: HashMap<String, Any?> = HashMap()
 ) {
 

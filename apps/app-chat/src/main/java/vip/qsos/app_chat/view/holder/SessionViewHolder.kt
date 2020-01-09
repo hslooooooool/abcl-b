@@ -5,8 +5,7 @@ import kotlinx.android.synthetic.main.item_chat_group.view.*
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.holder.BaseHolder
 import qsos.lib.base.callback.OnListItemClickListener
-import qsos.lib.base.utils.DateUtils
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 
 /**
  * @author : 华清松
@@ -15,21 +14,16 @@ import vip.qsos.app_chat.data.entity.ChatGroupBo
 class SessionViewHolder(
         view: View,
         private val mClickListener: OnListItemClickListener
-) : BaseHolder<ChatGroupBo>(view) {
+) : BaseHolder<ChatSessionBo>(view) {
 
-    override fun setData(data: ChatGroupBo, position: Int) {
+    override fun setData(data: ChatSessionBo, position: Int) {
         itemView.apply {
             data.run {
                 ImageLoaderUtils.display(context, item_chat_group_avatar, avatar)
 
-                item_chat_group_name.text = name
-                lastMessage?.timestamp?.let {
-                    item_chat_group_last_send_time.text = DateUtils.getTimeToNow(
-                            DateUtils.strToDate(it)
-                    )
-                }
+                item_chat_group_name.text = title
 
-                item_chat_group_desc.text = lastMessage?.getContent()?.getContentDesc()
+                item_chat_group_desc.text = content
 
                 setOnClickListener {
                     mClickListener.onItemClick(it, position, this)

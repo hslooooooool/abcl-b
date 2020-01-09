@@ -60,11 +60,11 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
     /**文件消息上传/发送结果缓存，防止文件上传过程中，用户切换到其它页面后，消息状态无法更新*/
     private val mMessageListUpdateCache: MutableLiveData<HashMap<String, MessageViewHelper.Message>> = MutableLiveData()
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle) {}
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
     /**
      * @author 华清松
@@ -92,11 +92,11 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
         this.mNewMessageNumLimit = newMessageNumLimit
         this.mOwner = lifecycleOwner
         this.mReadNumListener = readNumListener
-
+        this.mMessageList.value = arrayListOf()
         this.mOwner.lifecycle.addObserver(this)
 
         mMessageListUpdateCache.value = HashMap()
-        mMessageAdapter = ChatMessageAdapter(session, arrayListOf(), itemClickListener, object : OnTListener<Int> {
+        mMessageAdapter = ChatMessageAdapter(mSession, arrayListOf(), itemClickListener, object : OnTListener<Int> {
             override fun back(t: Int) {
                 readMessage(t)
             }

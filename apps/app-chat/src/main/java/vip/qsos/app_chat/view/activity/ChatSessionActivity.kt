@@ -115,11 +115,11 @@ class ChatSessionActivity(
 
         chat_message_srl.setColorSchemeResources(R.color.colorPrimary, R.color.black, R.color.green)
         chat_message_srl.setOnRefreshListener {
-            mChatMessageViewModel.getOldMessageBySessionId(mChatSession.value!!.sessionId) {
+            mChatMessageViewModel.getOldMessageBySessionId(mChatSession.value!!.id) {
                 chat_message_srl.isRefreshing = false
                 if (it.isNotEmpty()) {
                     RxBus.send(MessageViewHelper.MessageEvent(
-                            session = mChatSession.value!!,
+                            session = mChatSession.value!!.getSession(),
                             message = it,
                             eventType = MessageViewHelper.EventType.SHOW_MORE
                     ))
@@ -181,7 +181,7 @@ class ChatSessionActivity(
         }
 
         chat_message_rv.initView(
-                session = mChatSession.value!!, messageViewHelper = mMessageViewHelper,
+                session = mChatSession.value!!.getSession(), messageViewHelper = mMessageViewHelper,
                 itemClickListener = object : OnListItemClickListener {
                     override fun onItemClick(view: View, position: Int, obj: Any?) {
                         preOnItemClick(view, obj)
@@ -208,7 +208,7 @@ class ChatSessionActivity(
 
         chat_message_group_info.text = sessionJson
 
-        pullNewMessage(mChatSession.value!!)
+        pullNewMessage(mChatSession.value!!.getSession())
     }
 
     override fun getData() {}
@@ -247,7 +247,7 @@ class ChatSessionActivity(
                 success = {
                     it.sendStatus = EnumChatSendStatus.CANCEL_CAN
                     RxBus.send(MessageViewHelper.MessageEvent(
-                            session = mChatSession.value!!,
+                            session = mChatSession.value!!.getSession(),
                             message = arrayListOf(it),
                             eventType = MessageViewHelper.EventType.UPDATE_SHOWED
                     ))
@@ -264,14 +264,14 @@ class ChatSessionActivity(
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
-                        sessionId = mChatSession.value!!.sessionId,
+                        sessionId = mChatSession.value!!.id,
                         messageId = UUID.randomUUID().hashCode().toLong(),
                         content = content
                 )
         )
 
         RxBus.send(MessageViewHelper.MessageEvent(
-                session = mChatSession.value!!,
+                session = mChatSession.value!!.getSession(),
                 message = arrayListOf(message),
                 eventType = MessageViewHelper.EventType.SEND
         ))
@@ -301,14 +301,14 @@ class ChatSessionActivity(
                     ),
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(
-                            sessionId = mChatSession.value!!.sessionId,
+                            sessionId = mChatSession.value!!.id,
                             messageId = UUID.randomUUID().hashCode().toLong(),
                             content = content
                     )
             )
 
             RxBus.send(MessageViewHelper.MessageEvent(
-                    session = mChatSession.value!!,
+                    session = mChatSession.value!!.getSession(),
                     message = arrayListOf(message),
                     eventType = MessageViewHelper.EventType.SHOW
             ))
@@ -327,7 +327,7 @@ class ChatSessionActivity(
             message.sendStatus = EnumChatSendStatus.SENDING
 
             RxBus.send(MessageViewHelper.MessageEvent(
-                    session = mChatSession.value!!,
+                    session = mChatSession.value!!.getSession(),
                     message = arrayListOf(message),
                     eventType = MessageViewHelper.EventType.UPDATE_SHOWED
             ))
@@ -341,7 +341,7 @@ class ChatSessionActivity(
                         message.content.put("avatar", file.avatar)
 
                         RxBus.send(MessageViewHelper.MessageEvent(
-                                session = mChatSession.value!!,
+                                session = mChatSession.value!!.getSession(),
                                 message = arrayListOf(message),
                                 eventType = MessageViewHelper.EventType.SEND_SHOWED
                         ))
@@ -356,7 +356,7 @@ class ChatSessionActivity(
                             message.sendStatus = EnumChatSendStatus.FAILED
 
                             RxBus.send(MessageViewHelper.MessageEvent(
-                                    session = mChatSession.value!!,
+                                    session = mChatSession.value!!.getSession(),
                                     message = arrayListOf(message),
                                     eventType = MessageViewHelper.EventType.UPDATE_SHOWED
                             ))
@@ -375,7 +375,7 @@ class ChatSessionActivity(
             mChatMessageViewModel.getNewMessageBySessionId(session.id.toLong()) {
                 if (it.isNotEmpty()) {
                     RxBus.send(MessageViewHelper.MessageEvent(
-                            session = mChatSession.value!!,
+                            session = mChatSession.value!!.getSession(),
                             message = it,
                             eventType = MessageViewHelper.EventType.SHOW_NEW)
                     )
@@ -435,7 +435,7 @@ class ChatSessionActivity(
                     mViewHelper.resendMessage(obj) {
                         if (it == null) {
                             RxBus.send(MessageViewHelper.MessageEvent(
-                                    session = mChatSession.value!!,
+                                    session = mChatSession.value!!.getSession(),
                                     message = arrayListOf(obj),
                                     eventType = MessageViewHelper.EventType.SEND_SHOWED
                             ))
@@ -460,7 +460,7 @@ class ChatSessionActivity(
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
                         RxBus.send(MessageViewHelper.MessageEvent(
-                                session = mChatSession.value!!,
+                                session = mChatSession.value!!.getSession(),
                                 message = arrayListOf(obj),
                                 eventType = MessageViewHelper.EventType.UPDATE_SHOWED
                         ))

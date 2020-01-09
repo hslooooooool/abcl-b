@@ -4,7 +4,7 @@ import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.entity.ChatUser
 
 /**
@@ -17,7 +17,7 @@ interface MainApi {
     @GET(value = "/api/app/main/list.session")
     fun getSessionList(
             @Query("userId") userId: Long
-    ): Call<BaseResponse<List<ChatGroupBo>>>
+    ): Call<BaseResponse<List<ChatSessionBo>>>
 
     /**获取好友列表*/
     @GET(value = "/api/app/main/list.friend")

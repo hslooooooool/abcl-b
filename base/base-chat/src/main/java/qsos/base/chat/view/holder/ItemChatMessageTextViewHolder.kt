@@ -13,7 +13,9 @@ import qsos.lib.base.callback.OnListItemClickListener
  * @author : 华清松
  * 消息内容-文本布局
  */
-class ItemChatMessageTextViewHolder(session: MessageViewHelper.Session, view: View) : ItemChatMessageBaseViewHolder(session, view) {
+class ItemChatMessageTextViewHolder(
+        session: MessageViewHelper.Session, view: View
+) : ItemChatMessageBaseViewHolder(session, view) {
     override fun setContent(contentView: View, data: MessageViewHelper.Message, position: Int, itemListener: OnListItemClickListener?) {
         contentView.apply {
             item_message_view_text.visibility = View.VISIBLE

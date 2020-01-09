@@ -6,16 +6,16 @@ import com.google.gson.Gson
 import qsos.lib.base.base.adapter.BaseAdapter
 import qsos.lib.base.base.holder.BaseHolder
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.view.holder.SessionViewHolder
 
 /**
  * @author : 华清松
  * 会话列表
  */
-class ChatSessionAdapter(list: ArrayList<ChatGroupBo>) : BaseAdapter<ChatGroupBo>(list) {
+class ChatSessionAdapter(list: ArrayList<ChatSessionBo>) : BaseAdapter<ChatSessionBo>(list) {
 
-    override fun getHolder(view: View, viewType: Int): BaseHolder<ChatGroupBo> {
+    override fun getHolder(view: View, viewType: Int): BaseHolder<ChatSessionBo> {
         return SessionViewHolder(view, this)
     }
 

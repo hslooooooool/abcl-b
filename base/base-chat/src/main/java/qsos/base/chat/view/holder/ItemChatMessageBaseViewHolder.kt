@@ -154,13 +154,14 @@ abstract class ItemChatMessageBaseViewHolder(
 
     /**更新消息读取状态*/
     private fun updateReadStatus(contentView: View, data: MessageViewHelper.Message) {
-        contentView.findViewById<TextView>(R.id.item_message_read_state).text = when (session.type) {
-            EnumSessionType.SINGLE.key -> {
-                if (data.readNum < 2) "未读" else "已读"
-            }
-            else -> {
-                "${data.readNum}人已读"
-            }
-        }
+        contentView.findViewById<TextView>(R.id.item_message_read_state).text =
+                when (session.type) {
+                    EnumSessionType.SINGLE.key -> {
+                        if (data.readNum < 2) "未读" else "已读"
+                    }
+                    else -> {
+                        "${data.readNum}人已读"
+                    }
+                }
     }
 }

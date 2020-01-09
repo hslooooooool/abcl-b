@@ -59,9 +59,11 @@
 		<activity
 			android:name=".view.activity.ChatMainActivity"
 			android:launchMode="singleTask" />
-		<!--消息列表页-->
+		<!--聊天用户页面-->
+		<activity android:name="vip.qsos.app_chat.view.activity.ChatUserInfoActivity" />
+		<!--聊天会话页面-->
 		<activity
-			android:name=".view.activity.MessageActivity"
+			android:name="vip.qsos.app_chat.view.activity.ChatSessionActivity"
 			android:alwaysRetainTaskState="true"
 			android:launchMode="singleTask"
 			android:screenOrientation="portrait">
@@ -74,11 +76,6 @@
 				android:name="IM_RECEIVE_ORDER"
 				android:value="100" />
 		</activity>
-		
-		<!--聊天用户页面-->
-		<activity android:name="vip.qsos.app_chat.view.activity.ChatUserInfoActivity" />
-		<!--聊天会话页面-->
-		<activity android:name="vip.qsos.app_chat.view.activity.ChatSessionActivity" />
 		<!-- ****************************************IM推送配置 begin*************************************** -->
 		<service
 			android:name="vip.qsos.im.lib.IMService"

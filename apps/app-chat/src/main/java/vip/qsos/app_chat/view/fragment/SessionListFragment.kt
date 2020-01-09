@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_group_list.*
 import qsos.lib.base.base.fragment.BaseFragment
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.entity.ChatGroupBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.model.SessionListViewModelImpl
 import vip.qsos.app_chat.view.adapter.ChatSessionAdapter
 
@@ -25,7 +25,7 @@ class SessionListFragment(
 
     private val mSessionListViewModel: SessionListViewModelImpl by viewModels()
 
-    private val mSessionList = arrayListOf<ChatGroupBo>()
+    private val mSessionList = arrayListOf<ChatSessionBo>()
 
     override fun initData(savedInstanceState: Bundle?) {}
 
