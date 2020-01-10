@@ -1,7 +1,7 @@
 package vip.qsos.app_chat.data.event
 
 import qsos.lib.base.utils.rx.RxBus
-import vip.qsos.app_chat.data.entity.LoginUser
+import qsos.base.core.base.LoginUser
 
 /**
  * @author : 华清松

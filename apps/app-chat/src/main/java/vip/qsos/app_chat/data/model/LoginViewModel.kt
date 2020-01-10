@@ -1,6 +1,6 @@
 package vip.qsos.app_chat.data.model
 
-import vip.qsos.app_chat.data.entity.LoginUser
+import qsos.base.core.base.LoginUser
 import kotlin.coroutines.CoroutineContext
 
 /**

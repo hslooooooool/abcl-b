@@ -10,10 +10,10 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
 import qsos.base.chat.api.MessageViewHelper
+import qsos.base.core.config.BaseConfig
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.data.entity.*
 import vip.qsos.app_chat.view.activity.ChatSessionActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
@@ -92,10 +92,10 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
         return ChatMessageBo(
                 user = ChatUser(
-                        ChatModel.getLoginUser().userId,
-                        ChatModel.getLoginUser().name,
-                        ChatModel.getLoginUser().imAccount,
-                        ChatModel.getLoginUser().avatar
+                        BaseConfig.getLoginUserId(),
+                        BaseConfig.getLoginUser().name,
+                        BaseConfig.getLoginUser().imAccount,
+                        BaseConfig.getLoginUser().avatar
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(

@@ -8,13 +8,13 @@ import kotlinx.coroutines.cancel
 import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.entity.EnumChatSendStatus
+import qsos.base.core.config.BaseConfig
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.expand.retrofitByDef
 import timber.log.Timber
 import vip.qsos.app_chat.data.MessageApi
-import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import kotlin.coroutines.CoroutineContext
 
@@ -111,7 +111,7 @@ class ChatMessageViewModelImpl(
                             oldSession.nowLastMessageTimeline = it.last().timeline
                             /**排除登录用户发送的消息并按时序正序排列*/
                             val messageList = it.filterNot { msg ->
-                                msg.user.userId == ChatModel.getLoginUser().userId
+                                msg.user.userId == BaseConfig.getLoginUserId()
                             }.sortedBy { msg ->
                                 msg.timeline
                             }

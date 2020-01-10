@@ -70,8 +70,8 @@ interface MessageViewHelper {
         var sessionId: String
         /**消息时序，同一会话下递增*/
         var timeline: Long
-        /**发送人ID*/
-        val sendUserId: String
+        /**发送人消息账号*/
+        val sendUserAccount: String
         /**发送人名称*/
         val sendUserName: String
         /**发送人头像*/

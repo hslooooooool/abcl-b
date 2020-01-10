@@ -77,7 +77,7 @@ data class ChatMessageBo constructor(
             message.timeline = value
         }
 
-    override val sendUserId: String
+    override val sendUserAccount: String
         get() = user.userId.toString()
 
     override val sendUserName: String

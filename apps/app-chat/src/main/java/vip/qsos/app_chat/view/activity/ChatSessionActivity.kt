@@ -23,6 +23,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_chat_message.*
 import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.*
+import qsos.base.core.config.BaseConfig
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
@@ -34,7 +35,6 @@ import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatSessionBo
@@ -257,10 +257,10 @@ class ChatSessionActivity(
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): MessageViewHelper.Message {
         val message = ChatMessageBo(
                 user = ChatUser(
-                        ChatModel.getLoginUser().userId,
-                        ChatModel.getLoginUser().name,
-                        ChatModel.getLoginUser().imAccount,
-                        ChatModel.getLoginUser().avatar
+                        BaseConfig.getLoginUserId(),
+                        BaseConfig.getLoginUser().name,
+                        BaseConfig.getLoginUserAccount(),
+                        BaseConfig.getLoginUser().avatar
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
@@ -294,10 +294,10 @@ class ChatSessionActivity(
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
                     user = ChatUser(
-                            ChatModel.getLoginUser().userId,
-                            ChatModel.getLoginUser().name,
-                            ChatModel.getLoginUser().imAccount,
-                            ChatModel.getLoginUser().avatar
+                            BaseConfig.getLoginUserId(),
+                            BaseConfig.getLoginUser().name,
+                            BaseConfig.getLoginUser().imAccount,
+                            BaseConfig.getLoginUser().avatar
                     ),
                     createTime = DateUtils.format(date = Date()),
                     message = ChatMessage(

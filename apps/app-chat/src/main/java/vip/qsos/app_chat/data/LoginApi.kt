@@ -5,7 +5,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
-import vip.qsos.app_chat.data.entity.LoginUser
+import qsos.base.core.base.LoginUser
 
 /**
  * @author : 华清松

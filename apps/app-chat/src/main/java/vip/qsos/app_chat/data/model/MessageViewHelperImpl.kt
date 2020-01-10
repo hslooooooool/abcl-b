@@ -106,12 +106,13 @@ class MessageViewHelperImpl(
             failed.invoke("发送失败，消息临时ID不能为空", message)
             return
         }
-        val sendMessage = ChatMessage(
-                sessionId = message.sessionId.toLong(),
-                content = message.content
-        )
         CoroutineScope(mJob).retrofitByDef<ChatMessage> {
-            api = ApiEngine.createService(MessageApi::class.java).sendMessage(message = sendMessage)
+            api = ApiEngine.createService(MessageApi::class.java).sendMessage(
+                    sessionId = message.sessionId.toLong(),
+                    contentType = message.content.getContentType(),
+                    content = message.content.getContent(),
+                    sender = message.sendUserAccount
+            )
             onFailed { _, msg, error ->
                 message.sendStatus = EnumChatSendStatus.FAILED
                 failed.invoke(msg ?: "发送失败${error?.message}", message)

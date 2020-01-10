@@ -33,7 +33,7 @@ class LoginFragment(
 
     override fun initData(savedInstanceState: Bundle?) {
         mLastLoginUserId = activity!!.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                .getLong("LAST_LOGIN_USER_ID", BaseConfig.userId)
+                .getLong("LAST_LOGIN_USER_ID", BaseConfig.getLoginUserId())
     }
 
     override fun initView(view: View) {

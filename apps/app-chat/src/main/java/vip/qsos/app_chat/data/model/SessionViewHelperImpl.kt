@@ -16,6 +16,7 @@ import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.EnumChatMessageType
 import qsos.base.chat.data.entity.MChatMessageAudio
 import qsos.base.chat.utils.AudioUtils
+import qsos.base.core.config.BaseConfig
 import qsos.core.file.RxImageConverters
 import qsos.core.file.RxImagePicker
 import qsos.core.file.Sources
@@ -29,7 +30,6 @@ import qsos.core.player.data.PreAudioEntity
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.netservice.file.HttpFileEntity
-import vip.qsos.app_chat.data.ChatModel
 import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
@@ -71,13 +71,13 @@ class SessionViewHelperImpl(private val activity: Activity) : SessionViewHelper 
         inflater.inflate(R.menu.chat_message_item_click, popup.menu)
         popup.menu.removeGroup(R.id.menu_message_1)
         when {
-            message.sendUserId == ChatModel.getLoginUser().userId.toString() -> {
+            message.sendUserAccount == BaseConfig.getLoginUserAccount() -> {
                 popup.menu.removeItem(R.id.menu_message_reply)
                 if (message.readNum >= 2) {
                     popup.menu.removeItem(R.id.menu_message_cancel)
                 }
             }
-            message.sendUserId != ChatModel.getLoginUser().userId.toString() -> {
+            message.sendUserAccount != BaseConfig.getLoginUserAccount() -> {
                 popup.menu.removeItem(R.id.menu_message_cancel)
             }
         }

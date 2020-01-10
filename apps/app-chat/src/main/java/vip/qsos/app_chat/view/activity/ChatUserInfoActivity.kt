@@ -9,10 +9,10 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_chat_user.*
+import qsos.base.core.config.BaseConfig
 import qsos.core.lib.utils.image.ImageLoaderUtils
 import qsos.lib.base.base.activity.BaseActivity
 import qsos.lib.base.utils.ToastUtils
-import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.ChatFriendBo
 import vip.qsos.app_chat.data.model.UserInfoViewModelImpl
@@ -82,7 +82,7 @@ class ChatUserInfoActivity(
     /**获取会话数据,发起聊天*/
     private fun findSession() {
         mUserInfoViewModel.getSessionOfSingle(
-                sender = ChatApplication.loginUser.value!!.imAccount,
+                sender = BaseConfig.getLoginUserAccount(),
                 receiver = mUserInfoViewModel.mChatUser.value!!.imAccount,
                 failed = {
                     ToastUtils.showToast(this, it)
@@ -97,7 +97,7 @@ class ChatUserInfoActivity(
     /**检查好友关系*/
     private fun findFriend() {
         mUserInfoViewModel.findFriend(
-                ChatApplication.loginUser.value!!.userId,
+                BaseConfig.getLoginUserId(),
                 mUserInfoViewModel.mChatUser.value!!.userId,
                 failed = {
                     ToastUtils.showToast(this, it)
@@ -111,7 +111,7 @@ class ChatUserInfoActivity(
     /**添加好友操作*/
     private fun addFriend() {
         mUserInfoViewModel.addFriend(
-                ChatApplication.loginUser.value!!.userId,
+                BaseConfig.getLoginUserId(),
                 mUserInfoViewModel.mChatUser.value!!.userId,
                 failed = {
                     ToastUtils.showToast(this, it)

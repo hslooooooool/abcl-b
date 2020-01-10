@@ -7,13 +7,13 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import qsos.base.core.config.BaseConfig
 import qsos.lib.base.utils.ActivityManager
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.ChatApplication
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.event.LoginSuccessEvent
-import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.im.lib.IMManagerHelper
 import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.ReplyBody
@@ -42,7 +42,7 @@ class LoginActivity(
         mLoginDisposable = RxBus.toFlow(LoginSuccessEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    ChatModel.setLoginUser(it.user)
+                    BaseConfig.setLoginUser(it.user)
                     bindAccount()
                 }
     }

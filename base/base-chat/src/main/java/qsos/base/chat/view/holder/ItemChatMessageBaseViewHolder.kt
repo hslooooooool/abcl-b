@@ -73,7 +73,7 @@ abstract class ItemChatMessageBaseViewHolder(
             itemView.item_message_time.text = data.createTime
         }
         val contentView: View
-        if (BaseConfig.userId == data.sendUserId.toLong()) {
+        if (BaseConfig.getLoginUserAccount() == data.sendUserAccount) {
             itemView.findViewById<View>(R.id.item_message_left).visibility = View.GONE
             contentView = itemView.findViewById<View>(R.id.item_message_right)
             contentView.findViewById<TextView>(R.id.item_message_read_state).visibility = View.VISIBLE

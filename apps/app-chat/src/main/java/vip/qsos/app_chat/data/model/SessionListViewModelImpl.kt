@@ -7,12 +7,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import qsos.base.chat.data.db.DBChatDatabase
 import qsos.base.chat.data.db.DBChatSession
+import qsos.base.core.config.BaseConfig
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.ChatModel
 import vip.qsos.app_chat.data.MainApi
 import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
@@ -27,8 +27,7 @@ class SessionListViewModelImpl(
 
     override fun getSessionList() {
         CoroutineScope(mJob).retrofit<BaseResponse<List<ChatSessionBo>>> {
-            api = ApiEngine.createService(MainApi::class.java)
-                    .getSessionList(ChatModel.getLoginUser().userId)
+            api = ApiEngine.createService(MainApi::class.java).getSessionList(BaseConfig.getLoginUserId())
 
             onSuccess {
                 it?.let {

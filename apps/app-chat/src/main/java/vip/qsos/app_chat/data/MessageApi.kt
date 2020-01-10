@@ -13,16 +13,19 @@ import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
  */
 interface MessageApi {
 
-    companion object {
-        const val GROUP = "/api/app/chat/single"
-    }
-
-    @POST(value = "$GROUP/message/send")
+    @POST(value = "/api/app/session/single/message/send")
     fun sendMessage(
-            @Body message: ChatMessage
+            @Query("sessionId")
+            sessionId: Long,
+            @Query("contentType")
+            contentType: Int,
+            @Query("content")
+            content: String,
+            @Query("sender")
+            sender: String
     ): Call<BaseResponse<ChatMessage>>
 
-    @GET(value = "$GROUP/message/list/{sessionId}/{timeline}")
+    @GET(value = "/api/app/chat/single/message/list/{sessionId}/{timeline}")
     fun getMessageListBySessionIdAndTimeline(
             @Path(value = "sessionId") sessionId: Long,
             @Path(value = "timeline") timeline: Long = -1L,
@@ -30,17 +33,17 @@ interface MessageApi {
             @Query(value = "size") size: Int = 20
     ): Call<BaseResponse<List<ChatMessageBo>>>
 
-    @POST(value = "$GROUP/message/read")
+    @POST(value = "/api/app/chat/single/message/read")
     fun readMessage(
             @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<ChatMessageReadStatusBo>>
 
-    @DELETE(value = "$GROUP/message")
+    @DELETE(value = "/api/app/chat/single/message")
     fun deleteMessage(
             @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<Boolean>>
 
-    @GET(value = "$GROUP/message/list")
+    @GET(value = "/api/app/chat/single/message/list")
     fun getMessageListByIds(
             @Query(value = "messageIds") messageIds: List<Long>
     ): Call<BaseResponse<List<ChatMessageBo>>>

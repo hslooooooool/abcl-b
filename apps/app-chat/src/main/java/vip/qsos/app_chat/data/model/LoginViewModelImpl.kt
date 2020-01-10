@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import qsos.base.core.base.LoginUser
 import qsos.base.core.base.db.DBLoginUser
 import qsos.base.core.base.db.LoginUserDatabase
 import qsos.base.core.config.BaseConfig
@@ -14,7 +15,6 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
 import vip.qsos.app_chat.data.LoginApi
-import vip.qsos.app_chat.data.entity.LoginUser
 import kotlin.coroutines.CoroutineContext
 
 class LoginViewModelImpl : LoginViewModel, ViewModel() {
@@ -52,7 +52,7 @@ class LoginViewModelImpl : LoginViewModel, ViewModel() {
     private fun saveLoginUser(user: LoginUser, failed: (msg: String) -> Unit, success: (user: LoginUser) -> Unit) {
         LoginUserDatabase.DefLoginUserDao.insert(
                 user = DBLoginUser(
-                        userId = user.userId, name = user.name,
+                        userId = user.id, name = user.name,
                         account = user.imAccount, password = user.password,
                         avatar = user.avatar
                 ),
@@ -60,9 +60,9 @@ class LoginViewModelImpl : LoginViewModel, ViewModel() {
                     if (it == null) {
                         failed.invoke("失败，APP异常")
                     } else {
-                        BaseConfig.userId = user.userId
+                        BaseConfig.setLoginUser(user)
                         BaseApplication.appContext.getSharedPreferences("SHARED_PRE", Context.MODE_PRIVATE)
-                                .edit().putLong("LAST_LOGIN_USER_ID", BaseConfig.userId).apply()
+                                .edit().putLong("LAST_LOGIN_USER_ID", BaseConfig.getLoginUserId()).apply()
                         success.invoke(user)
                     }
                 }

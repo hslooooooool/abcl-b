@@ -11,7 +11,7 @@ import qsos.lib.base.base.BaseApplication
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.config.Constants
-import vip.qsos.app_chat.data.entity.LoginUser
+import qsos.base.core.base.LoginUser
 
 /**
  * @author : 华清松
