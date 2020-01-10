@@ -3,9 +3,9 @@ package vip.qsos.app_chat.data
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
 import retrofit2.http.*
-import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
+import vip.qsos.app_chat.data.entity.MessageOfGroupBo
 
 /**
  * @author : 华清松
@@ -23,7 +23,8 @@ interface MessageApi {
             content: String,
             @Query("sender")
             sender: String
-    ): Call<BaseResponse<ChatMessage>>
+            //TODO 消息对象错误 MessageOfGroupBo
+    ): Call<BaseResponse<MessageOfGroupBo>>
 
     @GET(value = "/api/app/chat/single/message/list/{sessionId}/{timeline}")
     fun getMessageListBySessionIdAndTimeline(

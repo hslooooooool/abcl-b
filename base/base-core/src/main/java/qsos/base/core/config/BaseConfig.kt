@@ -3,7 +3,6 @@ package qsos.base.core.config
 import androidx.lifecycle.MutableLiveData
 import com.alibaba.android.arouter.launcher.ARouter
 import qsos.base.core.base.LoginUser
-import qsos.core.exception.GlobalException
 
 /**
  * @author : 华清松
@@ -16,7 +15,7 @@ object BaseConfig {
     fun getLoginUser(): LoginUser {
         if (mLoginUser.value == null) {
             ARouter.getInstance().build("/USER/LOGIN").navigation()
-            throw GlobalException(403, "请重新登录")
+            return LoginUser(-1L, "", "", "")
         }
         return mLoginUser.value!!
     }

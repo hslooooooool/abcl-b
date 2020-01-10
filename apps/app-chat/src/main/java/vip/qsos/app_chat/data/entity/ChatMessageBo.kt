@@ -78,7 +78,7 @@ data class ChatMessageBo constructor(
         }
 
     override val sendUserAccount: String
-        get() = user.userId.toString()
+        get() = user.imAccount
 
     override val sendUserName: String
         get() = user.name

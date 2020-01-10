@@ -21,6 +21,7 @@ import vip.qsos.app_chat.data.MessageApi
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
+import vip.qsos.app_chat.data.entity.MessageOfGroupBo
 import java.util.*
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.CoroutineContext
@@ -106,7 +107,8 @@ class MessageViewHelperImpl(
             failed.invoke("发送失败，消息临时ID不能为空", message)
             return
         }
-        CoroutineScope(mJob).retrofitByDef<ChatMessage> {
+        //TODO 消息对象错误 MessageOfGroupBo
+        CoroutineScope(mJob).retrofitByDef<MessageOfGroupBo> {
             api = ApiEngine.createService(MessageApi::class.java).sendMessage(
                     sessionId = message.sessionId.toLong(),
                     contentType = message.content.getContentType(),
@@ -123,7 +125,7 @@ class MessageViewHelperImpl(
                     failed.invoke("发送失败", message)
                 } else {
                     message.updateSendState(it.messageId.toString(), it.timeline, EnumChatSendStatus.SUCCESS)
-                    DBChatDatabase.DefChatSessionDao.update(it.sessionId, it.messageId, it.timeline) { ok ->
+                    DBChatDatabase.DefChatSessionDao.update(message.sessionId.toLong(), it.messageId, it.timeline) { ok ->
                         success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                     }

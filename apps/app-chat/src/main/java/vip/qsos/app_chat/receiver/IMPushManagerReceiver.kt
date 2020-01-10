@@ -10,7 +10,6 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
 import qsos.base.chat.api.MessageViewHelper
-import qsos.base.core.config.BaseConfig
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
@@ -90,12 +89,11 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     }
 
     private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
+        // TODO 通过IM账号获取用户信息-数据库
         return ChatMessageBo(
                 user = ChatUser(
-                        BaseConfig.getLoginUserId(),
-                        BaseConfig.getLoginUser().name,
-                        BaseConfig.getLoginUser().imAccount,
-                        BaseConfig.getLoginUser().avatar
+                        0, "临时账号", msg.sender,
+                        "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png"
                 ),
                 createTime = DateUtils.format(date = Date()),
                 message = ChatMessage(
