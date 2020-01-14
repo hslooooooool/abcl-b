@@ -105,6 +105,9 @@ abstract class ItemChatMessageBaseViewHolder(
         if (contentView.getTag(R.id.item_message_progress) == null) {
             contentView.setTag(R.id.item_message_progress, contentView.findViewById(R.id.item_message_progress))
         }
+        if (contentView.getTag(R.id.item_message_read_state) == null) {
+            contentView.setTag(R.id.item_message_read_state, contentView.findViewById(R.id.item_message_read_state))
+        }
 
         itemView.item_message_cancel_reedit.setOnClickListener {
             mItemListener?.onItemClick(it, position, data)
@@ -116,8 +119,11 @@ abstract class ItemChatMessageBaseViewHolder(
     private fun updateSendStatus(contentView: View, position: Int, data: MessageViewHelper.Message) {
         itemView.item_message_cancel.visibility = View.GONE
         itemView.item_message_main.visibility = View.VISIBLE
+
         val messageStateView = contentView.getTag(R.id.item_message_state) as View
         val messageProgressView = contentView.getTag(R.id.item_message_progress) as View
+        val messageReadView = contentView.getTag(R.id.item_message_read_state) as View
+
         messageStateView.setOnClickListener {
             mItemListener?.onItemClick(it, position, data)
         }
@@ -125,18 +131,22 @@ abstract class ItemChatMessageBaseViewHolder(
             EnumChatSendStatus.FAILED -> {
                 messageStateView.visibility = View.VISIBLE
                 messageProgressView.visibility = View.INVISIBLE
+                messageReadView.visibility = View.INVISIBLE
             }
             EnumChatSendStatus.SENDING -> {
                 messageStateView.visibility = View.INVISIBLE
                 messageProgressView.visibility = View.VISIBLE
+                messageReadView.visibility = View.INVISIBLE
             }
             EnumChatSendStatus.SUCCESS -> {
                 messageStateView.visibility = View.INVISIBLE
                 messageProgressView.visibility = View.INVISIBLE
+                messageReadView.visibility = View.VISIBLE
             }
             EnumChatSendStatus.CANCEL_CAN, EnumChatSendStatus.CANCEL_OK -> {
                 messageStateView.visibility = View.INVISIBLE
                 messageProgressView.visibility = View.INVISIBLE
+                messageReadView.visibility = View.VISIBLE
 
                 itemView.item_message_cancel.visibility = View.VISIBLE
                 itemView.item_message_main.visibility = View.GONE

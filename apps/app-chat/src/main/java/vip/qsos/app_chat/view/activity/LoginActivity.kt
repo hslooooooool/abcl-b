@@ -42,7 +42,6 @@ class LoginActivity(
         mLoginDisposable = RxBus.toFlow(LoginSuccessEvent::class.java)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    BaseConfig.setLoginUser(it.user)
                     bindAccount()
                 }
     }
