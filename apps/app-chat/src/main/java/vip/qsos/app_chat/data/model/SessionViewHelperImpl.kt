@@ -1,10 +1,10 @@
 package vip.qsos.app_chat.data.model
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.FragmentManager
@@ -37,7 +37,7 @@ import kotlin.collections.HashMap
 /**
  * @author : 华清松
  */
-class SessionViewHelperImpl(private val activity: Activity) : SessionViewHelper {
+class SessionViewHelperImpl(private val activity: AppCompatActivity) : SessionViewHelper {
 
     /**文件上传大小限制*/
     private val mUpdateLimit = 5 * 1000 * 1000
@@ -45,6 +45,7 @@ class SessionViewHelperImpl(private val activity: Activity) : SessionViewHelper 
 
     init {
         mPlayList.value = HashMap()
+        activity.lifecycle.addObserver(this)
     }
 
     override fun clickTextMessage(

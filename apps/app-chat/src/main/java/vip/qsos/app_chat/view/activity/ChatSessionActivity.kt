@@ -35,16 +35,15 @@ import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.data.entity.AppUserBo
 import vip.qsos.app_chat.data.entity.ChatMessage
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatSessionBo
-import vip.qsos.app_chat.data.entity.ChatUser
 import vip.qsos.app_chat.data.model.ChatMessageViewModelImpl
 import vip.qsos.app_chat.data.model.MessageViewHelperImpl
 import vip.qsos.app_chat.data.model.SessionViewHelper
 import vip.qsos.app_chat.data.model.SessionViewHelperImpl
 import java.util.*
-import kotlin.concurrent.timerTask
 
 /**
  * @author : 华清松
@@ -70,14 +69,11 @@ class ChatSessionActivity(
 
     private val mChatSession: MutableLiveData<ChatSessionBo> = MutableLiveData()
 
-    private var mPullMessageTimer: Timer? = null
-
     private lateinit var mViewHelper: SessionViewHelper
 
     override fun initData(savedInstanceState: Bundle?) {
         mFileModel = FileRepository(mChatMessageViewModel.mJob)
         mViewHelper = SessionViewHelperImpl(this)
-        lifecycle.addObserver(mViewHelper)
 
         try {
             val session = Gson().fromJson<ChatSessionBo>(sessionJson, ChatSessionBo::class.java)
@@ -173,7 +169,7 @@ class ChatSessionActivity(
         base_title_bar.apply {
             this.findViewById<TextView>(R.id.base_title_bar_title)?.text = ""
             this.findViewById<View>(R.id.base_title_bar_icon_left)?.setOnClickListener {
-                ARouter.getInstance().build("/APP/MAIN")
+                ARouter.getInstance().build("/CHAT/MAIN")
                         .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                         .navigation()
                 finish()
@@ -215,7 +211,6 @@ class ChatSessionActivity(
 
     override fun onDestroy() {
         mChatMessageViewModel.clear()
-        mPullMessageTimer?.cancel()
         super.onDestroy()
     }
 
@@ -256,7 +251,7 @@ class ChatSessionActivity(
 
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): MessageViewHelper.Message {
         val message = ChatMessageBo(
-                user = ChatUser(
+                user = AppUserBo(
                         BaseConfig.getLoginUserId(),
                         BaseConfig.getLoginUser().name,
                         BaseConfig.getLoginUserAccount(),
@@ -293,7 +288,7 @@ class ChatSessionActivity(
                     .put("url", file.path)
                     .put("length", file.adjoin as Long?)
             val message = ChatMessageBo(
-                    user = ChatUser(
+                    user = AppUserBo(
                             BaseConfig.getLoginUserId(),
                             BaseConfig.getLoginUser().name,
                             BaseConfig.getLoginUser().imAccount,
@@ -368,20 +363,7 @@ class ChatSessionActivity(
     }
 
     override fun pullNewMessage(session: MessageViewHelper.Session) {
-        /**TODO 往后走Socket*/
-        mPullMessageTimer?.cancel()
-        mPullMessageTimer = Timer()
-        mPullMessageTimer!!.schedule(timerTask {
-            mChatMessageViewModel.getNewMessageBySessionId(session.id.toLong()) {
-                if (it.isNotEmpty()) {
-                    RxBus.send(MessageViewHelper.MessageEvent(
-                            session = mChatSession.value!!.getSession(),
-                            message = it,
-                            eventType = MessageViewHelper.EventType.SHOW_NEW)
-                    )
-                }
-            }
-        }, 2000L, 500L)
+        // 已通过SOCKET进行推送新消息
     }
 
     override fun checkHaveSending(): Boolean {
@@ -395,7 +377,7 @@ class ChatSessionActivity(
     }
 
     override fun goToHome() {
-        ARouter.getInstance().build("/APP/MAIN")
+        ARouter.getInstance().build("/CHAT/MAIN")
                 .withTransition(R.anim.activity_out_center, R.anim.activity_in_center)
                 .navigation()
         finish()

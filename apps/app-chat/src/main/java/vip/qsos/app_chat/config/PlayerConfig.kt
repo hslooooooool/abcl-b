@@ -1,4 +1,4 @@
-package qsos.base.demo.config
+package vip.qsos.app_chat.config
 
 import android.app.Activity
 import android.content.Context
@@ -29,7 +29,6 @@ import java.io.File
 /**
  * @author : 华清松
  * 文件预览具体实现，附件预览后应缓存并替换为本地路径预览
- * TODO 此为独立功能实现，将在ABCL-C层实现
  */
 class PlayerConfig : IPlayerConfig {
     private val mDefPlayerConfig: DefPlayerConfig = DefPlayerConfig()

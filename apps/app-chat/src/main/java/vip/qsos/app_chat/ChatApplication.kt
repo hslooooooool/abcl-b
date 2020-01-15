@@ -2,7 +2,7 @@ package vip.qsos.app_chat
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.*
-import qsos.base.demo.config.PlayerConfig
+import qsos.base.core.base.LoginUser
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
 import qsos.core.lib.config.CoreConfig
@@ -11,7 +11,7 @@ import qsos.lib.base.base.BaseApplication
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.config.Constants
-import qsos.base.core.base.LoginUser
+import vip.qsos.app_chat.config.PlayerConfig
 
 /**
  * @author : 华清松

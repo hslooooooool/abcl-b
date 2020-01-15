@@ -16,14 +16,11 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofitByDef
 import qsos.lib.netservice.expand.retrofitWithSuccess
-import qsos.lib.netservice.expand.retrofitWithSuccessByDef
-import vip.qsos.app_chat.data.MessageApi
-import vip.qsos.app_chat.data.entity.ChatMessage
+import vip.qsos.app_chat.data.api.MessageApi
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
 import vip.qsos.app_chat.data.entity.MessageOfGroupBo
 import java.util.*
-import kotlin.concurrent.timerTask
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -176,24 +173,7 @@ class MessageViewHelperImpl(
     }
 
     override fun updateShowMessage(messageListView: IMessageListView) {
-        mUpdateShowMessageTimer.schedule(timerTask {
-            messageListView.getShowMessageList().also {
-                if (it.isNotEmpty()) {
-                    val messageIdList = arrayListOf<Long>()
-                    it.forEach { msg ->
-                        messageIdList.add(msg.messageId.toLong())
-                    }
-                    CoroutineScope(mJob).retrofitWithSuccessByDef<List<ChatMessageBo>> {
-                        api = ApiEngine.createService(MessageApi::class.java).getMessageListByIds(messageIds = messageIdList)
-                        onSuccess { list ->
-                            list?.let {
-                                mUpdateShowMessageList.postValue(list)
-                            }
-                        }
-                    }
-                }
-            }
-        }, 2000L, 2000L)
+        // FIXME 无用 messageListView.getShowMessageList()
     }
 
     override fun clear() {

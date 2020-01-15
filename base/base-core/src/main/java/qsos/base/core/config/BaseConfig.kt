@@ -14,7 +14,7 @@ object BaseConfig {
 
     fun getLoginUser(): LoginUser {
         if (mLoginUser.value == null) {
-            ARouter.getInstance().build("/USER/LOGIN").navigation()
+            ARouter.getInstance().build("/CHAT/LOGIN").navigation()
             return LoginUser(-1L, "", "", "")
         }
         return mLoginUser.value!!

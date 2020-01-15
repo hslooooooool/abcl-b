@@ -10,13 +10,15 @@ import qsos.base.chat.data.entity.EnumSessionType
  * @param title 标题
  * @param avatar 封面
  * @param content 消息内容
+ * @param timeline 消息时序
  */
 data class ChatSessionBo(
         var id: Long,
         var type: EnumSessionType,
         var title: String,
         var avatar: String? = null,
-        var content: String? = null
+        var content: String? = null,
+        var timeline: Long? = null
 ) {
     fun getSession(): Session {
         return Session("$id", type.key)

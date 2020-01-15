@@ -13,11 +13,11 @@ import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.entity.*
 import vip.qsos.app_chat.view.activity.ChatSessionActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
 import vip.qsos.im.lib.IMListenerManager
-import vip.qsos.im.lib.constant.IMConstant
 import vip.qsos.im.lib.model.Message
 import vip.qsos.im.lib.model.ReplyBody
 import java.util.*
@@ -30,10 +30,8 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
 
     override fun onMessageReceived(message: Message, intent: Intent) {
         IMListenerManager.notifyOnMessageReceived(message)
-        /**以9开头的消息无须广播,如被强行下线消息
-         * @sample IMConstant.MessageAction.ACTION_999
-         * */
-        if (message.action?.startsWith("9") == true) {
+        /**强行下线消息*/
+        if (Constants.MessageAction.ACTION_999 == message.action) {
             ARouter.getInstance().build("/CHAT/LOGIN").navigation()
             return
         }
@@ -91,7 +89,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
     private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
         // TODO 通过IM账号获取用户信息-数据库
         return ChatMessageBo(
-                user = ChatUser(
+                user = AppUserBo(
                         0, "临时账号", msg.sender,
                         "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png"
                 ),

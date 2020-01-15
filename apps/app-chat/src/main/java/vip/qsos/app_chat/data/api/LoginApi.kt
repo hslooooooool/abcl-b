@@ -1,4 +1,4 @@
-package vip.qsos.app_chat.data
+package vip.qsos.app_chat.data.api
 
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call

@@ -1,4 +1,4 @@
-package vip.qsos.app_chat.data
+package vip.qsos.app_chat.data.api
 
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
@@ -43,10 +43,5 @@ interface MessageApi {
     fun deleteMessage(
             @Query(value = "messageId") messageId: Long
     ): Call<BaseResponse<Boolean>>
-
-    @GET(value = "/api/app/chat/single/message/list")
-    fun getMessageListByIds(
-            @Query(value = "messageIds") messageIds: List<Long>
-    ): Call<BaseResponse<List<ChatMessageBo>>>
 
 }

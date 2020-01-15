@@ -17,14 +17,14 @@ import vip.qsos.im.lib.model.Message
  * @param createTime 创建时间
  */
 data class ChatMessageBo constructor(
-        var user: ChatUser,
+        var user: AppUserBo,
         override var createTime: String,
         var message: ChatMessage
 ) : MessageViewHelper.Message {
 
     companion object {
 
-        fun formatMessage(user: ChatUser, msg: Message): MessageViewHelper.Message? {
+        fun formatMessage(user: AppUserBo, msg: Message): MessageViewHelper.Message? {
             val extra: MessageBo.MessageExtra
             val content: ChatContent
             try {

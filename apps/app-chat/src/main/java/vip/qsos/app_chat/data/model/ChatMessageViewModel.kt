@@ -17,11 +17,6 @@ interface ChatMessageViewModel {
      * */
     fun getOldMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
 
-    /**获取群下的新消息列表
-     * @param sessionId 群ID
-     * */
-    fun getNewMessageBySessionId(sessionId: Long, success: (messageList: List<ChatMessageBo>) -> Unit)
-
     /**撤回消息
      * @param message 消息
      * */

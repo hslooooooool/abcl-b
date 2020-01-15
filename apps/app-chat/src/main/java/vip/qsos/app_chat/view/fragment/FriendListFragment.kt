@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_chat_friend_list.*
 import qsos.lib.base.base.fragment.BaseFragment
 import vip.qsos.app_chat.R
-import vip.qsos.app_chat.data.entity.ChatUser
+import vip.qsos.app_chat.data.entity.AppUserBo
 import vip.qsos.app_chat.data.model.FriendListViewModelImpl
 import vip.qsos.app_chat.view.adapter.ChatFriendAdapter
 
@@ -24,7 +24,7 @@ class FriendListFragment(
     private lateinit var mFriendAdapter: ChatFriendAdapter
     private val mFriendListViewModel: FriendListViewModelImpl by viewModels()
 
-    private val mList = arrayListOf<ChatUser>()
+    private val mList = arrayListOf<AppUserBo>()
 
     override fun initData(savedInstanceState: Bundle?) {}
 

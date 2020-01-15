@@ -37,10 +37,12 @@ data class MessageBo(
     /**消息附加信息
      * @param sessionType 消息类型
      * @param sessionId 会话ID
+     * @param timeline 消息时序
      * */
     data class MessageExtra constructor(
             var sessionType: EnumSessionType,
-            var sessionId: Long
+            var sessionId: Long,
+            var timeline: Long
     )
 
     companion object {

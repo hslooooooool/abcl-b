@@ -1,9 +1,8 @@
 package vip.qsos.app_chat.data.model
 
-import androidx.lifecycle.MutableLiveData
 import vip.qsos.app_chat.data.entity.ChatFriendBo
 import vip.qsos.app_chat.data.entity.ChatSessionBo
-import vip.qsos.app_chat.data.entity.ChatUser
+import vip.qsos.app_chat.data.entity.AppUserBo
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -22,7 +21,7 @@ interface UserInfoViewModel {
     fun getUserById(
             userId: Long,
             failed: (msg: String) -> Unit,
-            success: (user: ChatUser) -> Unit
+            success: (user: AppUserBo) -> Unit
     )
 
     /**加好友

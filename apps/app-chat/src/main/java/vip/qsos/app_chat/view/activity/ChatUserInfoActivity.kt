@@ -98,7 +98,7 @@ class ChatUserInfoActivity(
     private fun findFriend() {
         mUserInfoViewModel.findFriend(
                 BaseConfig.getLoginUserId(),
-                mUserInfoViewModel.mChatUser.value!!.userId,
+                mUserInfoViewModel.mChatUser.value!!.id,
                 failed = {
                     ToastUtils.showToast(this, it)
                 },
@@ -112,7 +112,7 @@ class ChatUserInfoActivity(
     private fun addFriend() {
         mUserInfoViewModel.addFriend(
                 BaseConfig.getLoginUserId(),
-                mUserInfoViewModel.mChatUser.value!!.userId,
+                mUserInfoViewModel.mChatUser.value!!.id,
                 failed = {
                     ToastUtils.showToast(this, it)
                 },

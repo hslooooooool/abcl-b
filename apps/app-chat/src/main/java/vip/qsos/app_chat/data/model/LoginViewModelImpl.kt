@@ -14,7 +14,7 @@ import qsos.lib.base.base.BaseApplication
 import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.LoginApi
+import vip.qsos.app_chat.data.api.LoginApi
 import kotlin.coroutines.CoroutineContext
 
 class LoginViewModelImpl : LoginViewModel, ViewModel() {

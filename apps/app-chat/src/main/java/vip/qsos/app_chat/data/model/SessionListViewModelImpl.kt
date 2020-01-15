@@ -13,7 +13,7 @@ import qsos.lib.netservice.ApiEngine
 import qsos.lib.netservice.data.BaseHttpLiveData
 import qsos.lib.netservice.data.BaseResponse
 import qsos.lib.netservice.expand.retrofit
-import vip.qsos.app_chat.data.MainApi
+import vip.qsos.app_chat.data.api.MainApi
 import vip.qsos.app_chat.data.entity.ChatSessionBo
 import kotlin.coroutines.CoroutineContext
 
@@ -28,7 +28,6 @@ class SessionListViewModelImpl(
     override fun getSessionList() {
         CoroutineScope(mJob).retrofit<BaseResponse<List<ChatSessionBo>>> {
             api = ApiEngine.createService(MainApi::class.java).getSessionList(BaseConfig.getLoginUserId())
-
             onSuccess {
                 it?.let {
                     mSessionListLiveData.postValue(it)
