@@ -455,7 +455,7 @@ class ChatSessionActivity(
                                 deleteMessage(obj)
                             }
                             R.id.menu_message_reply -> {
-                                chat_message_edit.setText("回复(${obj.sendUserName})：")
+                                chat_message_edit.setText("回复(${obj.sendUserName})：\n")
                             }
                             R.id.menu_message_copy -> {
                                 val mClipData = ClipData.newPlainText(
