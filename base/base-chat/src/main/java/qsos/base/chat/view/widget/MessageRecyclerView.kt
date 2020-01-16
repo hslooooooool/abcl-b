@@ -215,8 +215,6 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
             mMessageAdapter?.notifyDataSetChanged()
             mMessageList.value?.clear()
             mMessageList.value?.addAll(data)
-        } else {
-            ToastUtils.showToast(context, "暂无消息")
         }
     }
 
