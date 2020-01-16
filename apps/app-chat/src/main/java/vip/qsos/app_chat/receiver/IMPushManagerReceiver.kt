@@ -10,17 +10,18 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
 import qsos.base.chat.api.MessageViewHelper
-import qsos.lib.base.utils.DateUtils
+import qsos.base.chat.data.entity.ChatMessage
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.config.Constants
-import vip.qsos.app_chat.data.entity.*
+import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.MessageExtra
+import vip.qsos.app_chat.data.entity.Session
 import vip.qsos.app_chat.view.activity.ChatSessionActivity
 import vip.qsos.im.lib.AbsIMEventBroadcastReceiver
 import vip.qsos.im.lib.IMListenerManager
 import vip.qsos.im.lib.model.Message
 import vip.qsos.im.lib.model.ReplyBody
-import java.util.*
 
 /**
  * @author : 华清松
@@ -35,70 +36,53 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             ARouter.getInstance().build("/CHAT/LOGIN").navigation()
             return
         }
-        val messageBo = MessageBo.decode(message)
-        showNotify(context, messageBo)
-        notifyView(messageBo)
+        val msg = ChatMessageBo.decode(message)
+        val extra = MessageExtra.json(message.extra!!)
+        showNotify(context,
+                action = message.action ?: "0",
+                title = message.title ?: "新消息",
+                time = message.timestamp,
+                desc = msg.content.contentDesc)
+        notifyView(msg, extra)
     }
 
     /**消息广播*/
     @SuppressLint("TimberArgCount")
-    private fun showNotify(context: Context, msg: MessageBo) {
+    private fun showNotify(context: Context, action: String, title: String, time: Long, desc: String) {
         val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        var channelId = "normal"
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channelId = "system"
-            val channel = NotificationChannel(
-                    channelId, "message",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            )
+            val channel = NotificationChannel(action, action, NotificationManager.IMPORTANCE_DEFAULT)
             channel.enableLights(true)
             notificationManager.createNotificationChannel(channel)
         }
-        val title = msg.title
         val contentIntent = PendingIntent.getActivity(
                 context, 1, Intent(context, ChatSessionActivity::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val builder = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, action)
         builder.setAutoCancel(true)
         builder.setDefaults(Notification.DEFAULT_ALL)
-        builder.setWhen(msg.timestamp)
+        builder.setWhen(time)
         builder.setSmallIcon(R.drawable.ic_launcher)
         builder.setTicker(title)
         builder.setContentTitle(title)
-        builder.setContentText(msg.content.getContentDesc())
+        builder.setContentText(desc)
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
         builder.setContentIntent(contentIntent)
         notificationManager.notify(R.drawable.ic_launcher, builder.build())
     }
 
-    /**TODO 更新消息界面*/
-    private fun notifyView(msg: MessageBo) {
+    /**更新消息界面*/
+    private fun notifyView(msg: ChatMessage, extra: MessageExtra) {
         RxBus.send(MessageViewHelper.MessageEvent(
                 session = Session(
-                        id = msg.extra.sessionId.toString(),
-                        type = msg.extra.sessionType.key
+                        id = msg.sessionId,
+                        type = extra.sessionType.key
                 ),
-                message = arrayListOf(formatMessage(msg)),
+                message = arrayListOf(msg),
                 eventType = MessageViewHelper.EventType.SHOW_NEW)
-        )
-    }
-
-    private fun formatMessage(msg: MessageBo): MessageViewHelper.Message {
-        // TODO 通过IM账号获取用户信息-数据库
-        return ChatMessageBo(
-                user = AppUserBo(
-                        0, "临时账号", msg.sender,
-                        "http://www.qsos.vip/upload/2018/11/ic_launcher20181225044818498.png"
-                ),
-                createTime = DateUtils.format(date = Date()),
-                message = ChatMessage(
-                        sessionId = msg.extra.sessionId,
-                        messageId = msg.id,
-                        content = msg.content
-                )
         )
     }
 

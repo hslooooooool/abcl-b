@@ -2,10 +2,13 @@ package vip.qsos.app_chat.data.api
 
 import qsos.lib.netservice.data.BaseResponse
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
-import vip.qsos.app_chat.data.entity.MessageOfGroupBo
+import vip.qsos.app_chat.data.entity.ChatMessageSendBo
 
 /**
  * @author : 华清松
@@ -23,15 +26,14 @@ interface MessageApi {
             content: String,
             @Query("sender")
             sender: String
-            //TODO 消息对象错误 MessageOfGroupBo
-    ): Call<BaseResponse<MessageOfGroupBo>>
+    ): Call<BaseResponse<ChatMessageSendBo>>
 
-    @GET(value = "/api/app/chat/single/message/list/{sessionId}/{timeline}")
+    @GET(value = "/api/app/session/single/message/list")
     fun getMessageListBySessionIdAndTimeline(
-            @Path(value = "sessionId") sessionId: Long,
-            @Path(value = "timeline") timeline: Long = -1L,
-            @Query(value = "next") next: Boolean = true,
-            @Query(value = "size") size: Int = 20
+            @Query(value = "sessionId") sessionId: Long,
+            @Query(value = "timeline") timeline: Long = 1L,
+            @Query(value = "size") size: Int = 10,
+            @Query(value = "previous") previous: Boolean = true
     ): Call<BaseResponse<List<ChatMessageBo>>>
 
     @POST(value = "/api/app/chat/single/message/read")

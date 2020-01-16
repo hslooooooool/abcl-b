@@ -1,5 +1,7 @@
 package vip.qsos.app_chat.data.entity
 
+import qsos.base.core.base.LoginUser
+
 /**
  * @author : 华清松
  * 聊天用户
@@ -13,4 +15,12 @@ data class AppUserBo(
         var name: String,
         var imAccount: String,
         var avatar: String? = null
-)
+) {
+    companion object {
+        fun create(user: LoginUser): AppUserBo {
+            return AppUserBo(
+                    user.id, user.name, user.imAccount, user.avatar
+            )
+        }
+    }
+}

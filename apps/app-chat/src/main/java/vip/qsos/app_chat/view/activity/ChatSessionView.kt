@@ -1,8 +1,8 @@
 package vip.qsos.app_chat.view.activity
 
+import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.ChatContent
 import qsos.base.chat.data.entity.EnumChatMessageType
-import qsos.base.chat.api.MessageViewHelper
 import qsos.lib.netservice.file.HttpFileEntity
 
 /**

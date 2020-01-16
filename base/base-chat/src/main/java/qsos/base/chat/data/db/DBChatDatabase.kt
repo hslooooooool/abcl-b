@@ -87,10 +87,10 @@ abstract class DBChatDatabase : RoomDatabase() {
             }
         }
 
-        fun update(sessionId: Long, nowLastMessageId: Long, nowLastMessageTimeline: Long, result: (success: Boolean) -> Unit) {
+        fun update(sessionId: Long, lastTimeline: Long, result: (success: Boolean) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 LogUtil.d("会话数据库", "更新会话")
-                val line = getInstance(BaseApplication.appContext).chatSessionDao.update(sessionId, nowLastMessageId, nowLastMessageTimeline)
+                val line = getInstance(BaseApplication.appContext).chatSessionDao.update(sessionId, lastTimeline)
                 withContext(Dispatchers.Main) {
                     result.invoke(line == 1)
                 }

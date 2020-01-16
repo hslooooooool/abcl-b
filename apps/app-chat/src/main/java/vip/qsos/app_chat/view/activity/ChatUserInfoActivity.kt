@@ -82,7 +82,7 @@ class ChatUserInfoActivity(
     /**获取会话数据,发起聊天*/
     private fun findSession() {
         mUserInfoViewModel.getSessionOfSingle(
-                sender = BaseConfig.getLoginUserAccount(),
+                sender = BaseConfig.getLoginUser().imAccount,
                 receiver = mUserInfoViewModel.mChatUser.value!!.imAccount,
                 failed = {
                     ToastUtils.showToast(this, it)

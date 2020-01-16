@@ -36,20 +36,16 @@ class SessionListViewModelImpl(
                         DBChatDatabase.DefChatSessionDao.getChatSessionById(session.id) { oldSession ->
                             val newSession = DBChatSession(
                                     sessionId = session.id,
-                                    lastMessageId = null,
-                                    lastMessageTimeline = null,
-                                    nowFirstMessageId = oldSession?.nowFirstMessageId,
-                                    nowFirstMessageTimeline = oldSession?.nowFirstMessageTimeline,
-                                    nowLastMessageId = oldSession?.nowLastMessageId,
-                                    nowLastMessageTimeline = oldSession?.nowLastMessageTimeline
+                                    lastTimeline = session.timeline,
+                                    nowFirstTimeline = oldSession?.nowFirstTimeline
                             )
                             if (oldSession == null) {
                                 DBChatDatabase.DefChatSessionDao.insert(newSession) { ok ->
                                     LogUtil.d("会话更新", if (ok) "已增加" else "未增加")
                                 }
                             } else if (
-                                    newSession.lastMessageId != null
-                                    && oldSession.lastMessageId != newSession.lastMessageId
+                                    newSession.lastTimeline != null
+                                    && oldSession.lastTimeline != newSession.lastTimeline
                             ) {
                                 DBChatDatabase.DefChatSessionDao.update(newSession) { ok ->
                                     LogUtil.d("会话更新", if (ok) "已更新" else "未更新")

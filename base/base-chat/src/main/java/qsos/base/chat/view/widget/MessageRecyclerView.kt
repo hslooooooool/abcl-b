@@ -320,7 +320,7 @@ class MessageRecyclerView : RecyclerView, LifecycleObserver, IMessageListView {
         }, success = { message ->
             notifyMessage(message.messageId, message)
         })
-        LogUtil.d("聊天列表页", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.getContentDesc()}")
+        LogUtil.d("聊天列表页", "查看了消息adapterPosition=$adapterPosition ,desc=${data.content.contentDesc}")
     }
 
     override fun scrollToBottom() {

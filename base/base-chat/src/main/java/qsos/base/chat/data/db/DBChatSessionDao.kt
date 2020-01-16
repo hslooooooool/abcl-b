@@ -14,7 +14,7 @@ interface DBChatSessionDao {
     @Update(onConflict = OnConflictStrategy.ABORT)
     fun update(session: DBChatSession): Int
 
-    @Query("UPDATE chat_session SET now_last_message_id=:nowLastMessageId AND now_last_message_timeline=:nowLastMessageTimeline WHERE session_id=:sessionId ")
-    fun update(sessionId: Long, nowLastMessageId: Long, nowLastMessageTimeline: Long): Int
+    @Query("UPDATE chat_session SET last_timeline=:lastTimeline WHERE session_id=:sessionId ")
+    fun update(sessionId: Long, lastTimeline: Long): Int
 
 }

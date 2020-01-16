@@ -3,6 +3,7 @@ package qsos.base.chat.api
 import androidx.lifecycle.MutableLiveData
 import qsos.base.chat.api.MessageViewHelper.EventType.*
 import qsos.base.chat.data.entity.ChatContent
+import qsos.base.chat.data.entity.ChatContentBo
 import qsos.base.chat.data.entity.EnumChatSendStatus
 import qsos.base.chat.view.IMessageListView
 import qsos.lib.base.utils.rx.RxBus
@@ -79,7 +80,9 @@ interface MessageViewHelper {
         /**创建时间*/
         var createTime: String
         /**消息内容*/
-        val content: ChatContent
+        var content: ChatContent
+        /**拓展内容*/
+        var extra: String
         /**发送状态*/
         var sendStatus: EnumChatSendStatus?
         /**当前用户消息读取状态*/

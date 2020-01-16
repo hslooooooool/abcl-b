@@ -72,13 +72,13 @@ class SessionViewHelperImpl(private val activity: AppCompatActivity) : SessionVi
         inflater.inflate(R.menu.chat_message_item_click, popup.menu)
         popup.menu.removeGroup(R.id.menu_message_1)
         when {
-            message.sendUserAccount == BaseConfig.getLoginUserAccount() -> {
+            message.sendUserAccount == BaseConfig.getLoginUser().imAccount -> {
                 popup.menu.removeItem(R.id.menu_message_reply)
                 if (message.readNum >= 2) {
                     popup.menu.removeItem(R.id.menu_message_cancel)
                 }
             }
-            message.sendUserAccount != BaseConfig.getLoginUserAccount() -> {
+            message.sendUserAccount != BaseConfig.getLoginUser().imAccount -> {
                 popup.menu.removeItem(R.id.menu_message_cancel)
             }
         }
@@ -92,10 +92,10 @@ class SessionViewHelperImpl(private val activity: AppCompatActivity) : SessionVi
     override fun resendMessage(message: MessageViewHelper.Message, back: (file: HttpFileEntity?) -> Unit) {
         var needUpdate = false
         var file: File? = null
-        when (message.content.getContentType()) {
+        when (message.content.contentType) {
             EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType,
             EnumChatMessageType.AUDIO.contentType, EnumChatMessageType.FILE.contentType -> {
-                val url = message.content.fields["url"] as String
+                val url = message.content["url"] as String
                 file = File(url)
                 needUpdate = file.exists()
             }

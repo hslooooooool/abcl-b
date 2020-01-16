@@ -19,7 +19,7 @@ import qsos.lib.netservice.expand.retrofitWithSuccess
 import vip.qsos.app_chat.data.api.MessageApi
 import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatMessageReadStatusBo
-import vip.qsos.app_chat.data.entity.MessageOfGroupBo
+import vip.qsos.app_chat.data.entity.ChatMessageSendBo
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -39,17 +39,19 @@ class MessageViewHelperImpl(
     ) {
         DBChatDatabase.DefChatSessionDao.getChatSessionById(session.id.toLong()) { oldSession ->
             oldSession?.let {
-                val lastTimeline: Long = it.lastMessageTimeline ?: -1L
+                val lastTimeline: Long = it.lastTimeline ?: -1L
                 CoroutineScope(mJob).retrofitWithSuccess<BaseResponse<List<ChatMessageBo>>> {
                     /**获取此会话sessionId下最后一条消息lastTimeline及其以上20条数据*/
                     api = ApiEngine.createService(MessageApi::class.java).getMessageListBySessionIdAndTimeline(
-                            sessionId = session.id.toLong(), timeline = lastTimeline + 1, next = false, size = 20
+                            sessionId = session.id.toLong(), timeline = lastTimeline + 1
                     )
                     onSuccess { result ->
-
                         result?.data?.let { list ->
                             var mLastTime = ""
-                            list.sortedBy { msg ->
+                            val messages = list.map { bo ->
+                                bo.decode()
+                            }
+                            messages.sortedBy { msg ->
                                 msg.timeline
                             }.forEachIndexed { index, messageBo ->
                                 /**校对时间，第一条时间显示，其余时间以上一条显示的时间差度3分钟以内，忽略（不显示）*/
@@ -69,18 +71,14 @@ class MessageViewHelperImpl(
                             }
 
                             val array = arrayListOf<MessageViewHelper.Message>()
-                            array.addAll(list)
+                            array.addAll(messages)
                             /**更新当前会话消息时序记录*/
                             if (array.isEmpty()) {
-                                oldSession.nowFirstMessageId = null
-                                oldSession.nowFirstMessageTimeline = null
-                                oldSession.nowLastMessageId = null
-                                oldSession.nowLastMessageTimeline = null
+                                oldSession.lastTimeline = null
+                                oldSession.nowFirstTimeline = null
                             } else {
-                                oldSession.nowFirstMessageId = array.first().messageId.toLong()
-                                oldSession.nowFirstMessageTimeline = array.first().timeline
-                                oldSession.nowLastMessageId = array.last().messageId.toLong()
-                                oldSession.nowLastMessageTimeline = array.last().timeline
+                                oldSession.lastTimeline = array.last().timeline
+                                oldSession.nowFirstTimeline = array.first().timeline
                             }
                             DBChatDatabase.DefChatSessionDao.update(oldSession) { ok ->
                                 messageList.postValue(array)
@@ -104,12 +102,11 @@ class MessageViewHelperImpl(
             failed.invoke("发送失败，消息临时ID不能为空", message)
             return
         }
-        //TODO 消息对象错误 MessageOfGroupBo
-        CoroutineScope(mJob).retrofitByDef<MessageOfGroupBo> {
+        CoroutineScope(mJob).retrofitByDef<ChatMessageSendBo> {
             api = ApiEngine.createService(MessageApi::class.java).sendMessage(
                     sessionId = message.sessionId.toLong(),
-                    contentType = message.content.getContentType(),
-                    content = message.content.getContent(),
+                    contentType = message.content.contentType,
+                    content = message.content["content"].toString(),
                     sender = message.sendUserAccount
             )
             onFailed { _, msg, error ->
@@ -122,7 +119,7 @@ class MessageViewHelperImpl(
                     failed.invoke("发送失败", message)
                 } else {
                     message.updateSendState(it.messageId.toString(), it.timeline, EnumChatSendStatus.SUCCESS)
-                    DBChatDatabase.DefChatSessionDao.update(message.sessionId.toLong(), it.messageId, it.timeline) { ok ->
+                    DBChatDatabase.DefChatSessionDao.update(message.sessionId.toLong(), it.timeline) { ok ->
                         success.invoke(oldMessageId, message)
                         LogUtil.d("会话更新", (if (ok) "已" else "未") + "更新会话最新消息")
                     }

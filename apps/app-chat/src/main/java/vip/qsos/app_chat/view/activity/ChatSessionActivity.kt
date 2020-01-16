@@ -27,7 +27,6 @@ import qsos.base.core.config.BaseConfig
 import qsos.lib.base.callback.OnListItemClickListener
 import qsos.lib.base.callback.OnTListener
 import qsos.lib.base.utils.BaseUtils
-import qsos.lib.base.utils.DateUtils
 import qsos.lib.base.utils.LogUtil
 import qsos.lib.base.utils.ToastUtils
 import qsos.lib.base.utils.rx.RxBus
@@ -36,9 +35,8 @@ import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.data.entity.AppUserBo
-import vip.qsos.app_chat.data.entity.ChatMessage
-import vip.qsos.app_chat.data.entity.ChatMessageBo
 import vip.qsos.app_chat.data.entity.ChatSessionBo
+import vip.qsos.app_chat.data.entity.MessageExtra
 import vip.qsos.app_chat.data.model.ChatMessageViewModelImpl
 import vip.qsos.app_chat.data.model.MessageViewHelperImpl
 import vip.qsos.app_chat.data.model.SessionViewHelper
@@ -145,8 +143,10 @@ class ChatSessionActivity(
                 chat_message_edit.hint = "请输入内容"
                 BaseUtils.hideKeyboard(this)
             } else {
-                sendMessage(ChatContent().create(EnumChatMessageType.TEXT.contentType, content)
-                        .put("content", content), send = true, bottom = true)
+                sendMessage(
+                        ChatContent(EnumChatMessageType.TEXT.contentType)
+                                .add("content", content),
+                        send = true, bottom = true)
                 chat_message_edit.setText("")
             }
         }
@@ -250,19 +250,14 @@ class ChatSessionActivity(
     }
 
     override fun sendMessage(content: ChatContent, send: Boolean, bottom: Boolean): MessageViewHelper.Message {
-        val message = ChatMessageBo(
-                user = AppUserBo(
-                        BaseConfig.getLoginUserId(),
-                        BaseConfig.getLoginUser().name,
-                        BaseConfig.getLoginUserAccount(),
-                        BaseConfig.getLoginUser().avatar
-                ),
-                createTime = DateUtils.format(date = Date()),
-                message = ChatMessage(
+        val message = ChatMessage.createSendMessage(
+                sessionId = mChatSession.value!!.id.toString(),
+                content = content,
+                extra = MessageExtra(
+                        sessionType = EnumSessionType.SINGLE,
                         sessionId = mChatSession.value!!.id,
-                        messageId = UUID.randomUUID().hashCode().toLong(),
-                        content = content
-                )
+                        sender = AppUserBo.create(BaseConfig.getLoginUser())
+                ).toString()
         )
 
         RxBus.send(MessageViewHelper.MessageEvent(
@@ -283,23 +278,19 @@ class ChatSessionActivity(
 
     override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
         files.forEach { file ->
-            val content = ChatContent().create(type.contentType, file.filename ?: "文件")
-                    .put("name", file.filename)
-                    .put("url", file.path)
-                    .put("length", file.adjoin as Long?)
-            val message = ChatMessageBo(
-                    user = AppUserBo(
-                            BaseConfig.getLoginUserId(),
-                            BaseConfig.getLoginUser().name,
-                            BaseConfig.getLoginUser().imAccount,
-                            BaseConfig.getLoginUser().avatar
-                    ),
-                    createTime = DateUtils.format(date = Date()),
-                    message = ChatMessage(
+            val content = ChatContent(type.contentType, file.filename ?: "文件")
+                    .add("name", file.filename)
+                    .add("url", file.path)
+                    .add("length", file.adjoin as Long?)
+
+            val message = ChatMessage.createSendMessage(
+                    sessionId = mChatSession.value!!.id.toString(),
+                    content = content,
+                    extra = MessageExtra(
+                            sessionType = EnumSessionType.SINGLE,
                             sessionId = mChatSession.value!!.id,
-                            messageId = UUID.randomUUID().hashCode().toLong(),
-                            content = content
-                    )
+                            sender = AppUserBo.create(BaseConfig.getLoginUser())
+                    ).toString()
             )
 
             RxBus.send(MessageViewHelper.MessageEvent(
@@ -332,8 +323,7 @@ class ChatSessionActivity(
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
                         message.sendStatus = EnumChatSendStatus.SUCCESS
-                        message.content.put("url", file.url)
-                        message.content.put("avatar", file.avatar)
+                        message.content.add("url", file.url).add("avatar", file.avatar)
 
                         RxBus.send(MessageViewHelper.MessageEvent(
                                 session = mChatSession.value!!.getSession(),
@@ -404,7 +394,7 @@ class ChatSessionActivity(
                     mViewHelper.clickTextMessage(view, obj) {
                         when (it) {
                             R.id.menu_message_citations -> {
-                                chat_message_edit.append(obj.content.getContent())
+                                chat_message_edit.append(obj.content["content"].toString())
                             }
                             else -> {
                             }
@@ -437,7 +427,7 @@ class ChatSessionActivity(
             R.id.item_message_cancel_reedit -> {
                 if (
                         obj != null && obj is MessageViewHelper.Message
-                        && obj.content.getContentType() == EnumChatMessageType.TEXT.contentType
+                        && obj.content.contentType == EnumChatMessageType.TEXT.contentType
                 ) {
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
@@ -447,7 +437,7 @@ class ChatSessionActivity(
                                 eventType = MessageViewHelper.EventType.UPDATE_SHOWED
                         ))
 
-                        chat_message_edit.setText(obj.content.getContentDesc())
+                        chat_message_edit.setText(obj.content.contentDesc)
                     }
                 }
             }
@@ -469,7 +459,7 @@ class ChatSessionActivity(
                             }
                             R.id.menu_message_copy -> {
                                 val mClipData = ClipData.newPlainText(
-                                        applicationInfo.nonLocalizedLabel, obj.content.getContent()
+                                        applicationInfo.nonLocalizedLabel, obj.content["content"].toString()
                                 )
                                 (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip = mClipData
                             }

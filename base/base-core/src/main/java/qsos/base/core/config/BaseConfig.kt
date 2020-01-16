@@ -29,8 +29,4 @@ object BaseConfig {
         return user.id
     }
 
-    fun getLoginUserAccount(): String {
-        val user = getLoginUser()
-        return user.imAccount
-    }
 }
