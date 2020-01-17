@@ -66,6 +66,7 @@ object FormConfig : IFormConfig {
                                     filePath = it.absolutePath, fileType = it.extension,
                                     fileUrl = it.absolutePath, fileCover = it.absolutePath)
                             mFileModel.uploadFile(
+                                    Constants.FILE_UPLOAD_URL,
                                     HttpFileEntity(url = null, path = it.absolutePath, filename = it.name),
                                     object : OnTListener<HttpFileEntity> {
                                         override fun back(t: HttpFileEntity) {
@@ -108,6 +109,7 @@ object FormConfig : IFormConfig {
                             onSuccess.invoke(files)
                             // FIXME 文件上传测试
                             FileRepository(Dispatchers.Main + Job()).uploadFile(
+                                    Constants.FILE_UPLOAD_URL,
                                     it.map { file ->
                                         HttpFileEntity(url = null, path = file.absolutePath, filename = file.name)
                                     },
