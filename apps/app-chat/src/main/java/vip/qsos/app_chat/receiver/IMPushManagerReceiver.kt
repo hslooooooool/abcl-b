@@ -42,7 +42,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
                 action = message.action ?: "0",
                 title = message.title ?: "新消息",
                 time = message.timestamp,
-                desc = msg.content.desc)
+                desc = ChatMessage.getRealContentDesc(msg.content))
         notifyView(msg, extra)
     }
 

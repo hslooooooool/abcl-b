@@ -20,11 +20,8 @@ class SessionViewHolder(
         itemView.apply {
             data.run {
                 ImageLoaderUtils.display(context, item_chat_group_avatar, avatar)
-
                 item_chat_group_name.text = title
-
-                item_chat_group_desc.text = content
-
+                item_chat_group_desc.text = desc
                 setOnClickListener {
                     mClickListener.onItemClick(it, position, this)
                 }

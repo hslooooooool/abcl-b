@@ -67,5 +67,44 @@ class ChatMessage(
                     readNum = 1
             )
         }
+
+        /**获取真实消息内容对象*/
+        fun getRealContent(content: ChatContent): Any? {
+            val contentType: Int = content.type
+            return if (contentType == -1) null else {
+                val gson = Gson()
+                val json = content.data
+                val type = ChatMessageViewConfig.getContentType(contentType)
+                try {
+                    gson.fromJson<Any>(json, type)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+        }
+
+        /**获取真实消息内容摘要*/
+        fun getRealContentDesc(content: ChatContent): String {
+            return when (val data = getRealContent(content)) {
+                is MChatMessageText -> data.content
+
+                is MChatMessageImage -> data.name
+                is MChatMessageVideo -> data.name
+                is MChatMessageAudio -> data.name
+                is MChatMessageFile -> data.name
+
+                is MChatMessageLink -> data.name
+                is MChatMessageCard -> data.name
+                is MChatMessageLocation -> data.name
+                else -> ""
+            }
+        }
+
+        /**获取真实消息内容摘要*/
+        fun getRealContentDesc(json: String): String {
+            val data = ChatContent.json(json)
+            return getRealContentDesc(data)
+        }
     }
 }

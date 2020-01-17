@@ -39,6 +39,7 @@ data class ChatContent constructor(
 
     fun put(key: String, value: Any?): ChatContent {
         content[key] = value
+        data = getContent()
         return this
     }
 
@@ -51,7 +52,11 @@ data class ChatContent constructor(
 
     companion object {
         fun json(json: String): ChatContent {
-            return Gson().fromJson(json, ChatContent::class.java)
+            return try {
+                Gson().fromJson(json, ChatContent::class.java)
+            } catch (e: Exception) {
+                ChatContent()
+            }
         }
     }
 }

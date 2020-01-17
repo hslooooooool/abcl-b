@@ -1,5 +1,7 @@
 package vip.qsos.app_chat.data.entity
 
+import android.text.TextUtils
+import qsos.base.chat.data.entity.ChatMessage
 import qsos.base.chat.data.entity.EnumSessionType
 
 /**
@@ -23,4 +25,12 @@ data class ChatSessionBo(
     fun getSession(): Session {
         return Session("$id", type.key)
     }
+
+    var desc: String = ""
+        get() {
+            if (TextUtils.isEmpty(field)) {
+                field = ChatMessage.getRealContentDesc(content ?: "")
+            }
+            return field
+        }
 }

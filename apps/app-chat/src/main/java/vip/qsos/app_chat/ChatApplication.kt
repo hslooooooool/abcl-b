@@ -2,6 +2,7 @@ package vip.qsos.app_chat
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.*
+import qsos.base.chat.data.entity.AbsChatMessageFile
 import qsos.base.core.base.LoginUser
 import qsos.core.exception.GlobalException
 import qsos.core.exception.GlobalExceptionHelper
@@ -35,6 +36,8 @@ open class ChatApplication(
         super.onCreate()
 
         CoreConfig.DEBUG = true
+        /**文件HOST配置*/
+        AbsChatMessageFile.HOST = "http://192.168.2.103:8085/"
         /**BASE_URL配置*/
         CoreConfig.BASE_URL = "http://192.168.2.103:8085"
         CoreConfig.PROVIDER = applicationInfo.packageName + ".provider"

@@ -85,6 +85,7 @@
 			android:name="vip.qsos.im.lib.IMCacheProvider"
 			android:authorities="${applicationId}.provider"
 			android:exported="false"
+			android:grantUriPermissions="true"
 			android:process=":im_push">
 			
 			<meta-data

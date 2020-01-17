@@ -423,6 +423,7 @@ class ChatSessionActivity(
             R.id.item_message_view_audio -> {
                 if (obj is MessageViewHelper.Message) {
                     obj.getRealContent<MChatMessageAudio>()?.let {
+                        it.url = it.getHttpUrl(EnumChatSendStatus.SUCCESS == obj.sendStatus)
                         mViewHelper.playAudio(view, view.findViewById(R.id.item_message_audio_state), it)
                     }
                 }
