@@ -20,7 +20,7 @@ interface UserInfoApi {
             @Query(value = "userId") userId: Long
     ): Call<BaseResponse<AppUserBo>>
 
-    @POST("/api/app/user/friend.add")
+    @POST("/api/app/user/friend.put")
     fun addFriend(
             @Query(value = "userId") userId: Long,
             @Query(value = "friendId") friendId: Long

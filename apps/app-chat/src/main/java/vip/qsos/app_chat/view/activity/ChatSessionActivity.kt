@@ -34,6 +34,7 @@ import qsos.lib.netservice.file.FileRepository
 import qsos.lib.netservice.file.HttpFileEntity
 import qsos.lib.netservice.file.IFileModel
 import vip.qsos.app_chat.R
+import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.entity.AppUserBo
 import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.entity.MessageExtra
@@ -144,8 +145,8 @@ class ChatSessionActivity(
                 BaseUtils.hideKeyboard(this)
             } else {
                 sendMessage(
-                        ChatContent(EnumChatMessageType.TEXT.contentType)
-                                .add("content", content),
+                        ChatContent(EnumChatMessageType.TEXT.type)
+                                .put("content", content),
                         send = true, bottom = true)
                 chat_message_edit.setText("")
             }
@@ -278,10 +279,10 @@ class ChatSessionActivity(
 
     override fun sendFileMessage(type: EnumChatMessageType, files: ArrayList<HttpFileEntity>) {
         files.forEach { file ->
-            val content = ChatContent(type.contentType, file.filename ?: "文件")
-                    .add("name", file.filename)
-                    .add("url", file.path)
-                    .add("length", file.adjoin as Long?)
+            val content = ChatContent(type.type, file.filename ?: "文件")
+                    .put("name", file.filename)
+                    .put("url", file.path)
+                    .put("length", file.adjoin as Long?)
 
             val message = ChatMessage.createSendMessage(
                     sessionId = mChatSession.value!!.id.toString(),
@@ -308,7 +309,7 @@ class ChatSessionActivity(
     override fun uploadFile(files: ArrayList<HttpFileEntity>) {
         if (files.isNotEmpty()) {
             val file = files[0]
-            val message = file.adjoin as MessageViewHelper.Message
+            val message = file.adjoin as ChatMessage
 
             message.sendStatus = EnumChatSendStatus.SENDING
 
@@ -318,12 +319,14 @@ class ChatSessionActivity(
                     eventType = MessageViewHelper.EventType.UPDATE_SHOWED
             ))
 
-            mFileModel.uploadFile(file, object : OnTListener<HttpFileEntity> {
+            mFileModel.uploadFile(Constants.FILE_UPLOAD_URL, file, object : OnTListener<HttpFileEntity> {
                 override fun back(t: HttpFileEntity) {
                     if (t.loadSuccess) {
                         LogUtil.i("上传文件成功>>>>>" + t.filename)
                         message.sendStatus = EnumChatSendStatus.SUCCESS
-                        message.content.add("url", file.url).add("avatar", file.avatar)
+                        message.content
+                                .put("url", file.url)
+                                .put("avatar", file.avatar)
 
                         RxBus.send(MessageViewHelper.MessageEvent(
                                 session = mChatSession.value!!.getSession(),
@@ -394,7 +397,7 @@ class ChatSessionActivity(
                     mViewHelper.clickTextMessage(view, obj) {
                         when (it) {
                             R.id.menu_message_citations -> {
-                                chat_message_edit.append(obj.content["content"].toString())
+                                chat_message_edit.append(obj.content.get("content").toString())
                             }
                             else -> {
                             }
@@ -427,7 +430,7 @@ class ChatSessionActivity(
             R.id.item_message_cancel_reedit -> {
                 if (
                         obj != null && obj is MessageViewHelper.Message
-                        && obj.content.contentType == EnumChatMessageType.TEXT.contentType
+                        && obj.content.type == EnumChatMessageType.TEXT.type
                 ) {
                     obj.getRealContent<MChatMessageText>()?.let {
                         obj.sendStatus = EnumChatSendStatus.CANCEL_OK
@@ -437,7 +440,7 @@ class ChatSessionActivity(
                                 eventType = MessageViewHelper.EventType.UPDATE_SHOWED
                         ))
 
-                        chat_message_edit.setText(obj.content.contentDesc)
+                        chat_message_edit.setText(obj.content.desc)
                     }
                 }
             }
@@ -459,7 +462,7 @@ class ChatSessionActivity(
                             }
                             R.id.menu_message_copy -> {
                                 val mClipData = ClipData.newPlainText(
-                                        applicationInfo.nonLocalizedLabel, obj.content["content"].toString()
+                                        applicationInfo.nonLocalizedLabel, obj.content.get("content").toString()
                                 )
                                 (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip = mClipData
                             }

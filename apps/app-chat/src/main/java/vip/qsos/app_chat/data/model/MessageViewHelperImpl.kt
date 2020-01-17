@@ -105,8 +105,8 @@ class MessageViewHelperImpl(
         CoroutineScope(mJob).retrofitByDef<ChatMessageSendBo> {
             api = ApiEngine.createService(MessageApi::class.java).sendMessage(
                     sessionId = message.sessionId.toLong(),
-                    contentType = message.content.contentType,
-                    content = message.content["content"].toString(),
+                    contentType = message.content.type,
+                    data = message.content.getContent(),
                     sender = message.sendUserAccount
             )
             onFailed { _, msg, error ->

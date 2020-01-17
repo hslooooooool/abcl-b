@@ -5,6 +5,6 @@ package qsos.base.chat.data.entity
  * 消息内容-音频消息
  */
 class MChatMessageAudio : AbsChatMessageFile(), IMessageType {
-    override var contentDesc: String = EnumChatMessageType.AUDIO.contentDesc
-    override var contentType: Int = EnumChatMessageType.AUDIO.contentType
+    override var desc: String = EnumChatMessageType.AUDIO.desc
+    override var type: Int = EnumChatMessageType.AUDIO.type
 }

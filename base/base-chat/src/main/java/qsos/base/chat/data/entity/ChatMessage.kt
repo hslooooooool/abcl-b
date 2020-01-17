@@ -35,10 +35,10 @@ class ChatMessage(
     }
 
     override fun <T> getRealContent(): T? {
-        val contentType: Int = this.content.contentType
+        val contentType: Int = this.content.type
         return if (contentType == -1) null else {
             val gson = Gson()
-            val json = this.content.toString()
+            val json = this.content.data
             val type = ChatMessageViewConfig.getContentType(contentType)
             try {
                 gson.fromJson(json, type) as T?

@@ -1,35 +1,52 @@
 package qsos.base.chat.data.entity
 
+import android.text.TextUtils
 import com.google.gson.Gson
 
 /**
  * @author : 华清松
  * 聊天消息内容
  */
-class ChatContent : HashMap<String, Any?> {
-    var contentType: Int = 0
-    var contentDesc: String = ""
+data class ChatContent constructor(
+        var type: Int = 0,
+        var desc: String = ""
+) {
+    var data: String = ""
+        get() {
+            if (TextUtils.isEmpty(field)) {
+                field = getContent()
+            }
+            return field
+        }
 
-    constructor()
+    private var content: Content = Content()
 
-    /**
-     * @param contentType 消息类型
-     * @param contentDesc 消息摘要
-     * */
-    constructor(contentType: Int, contentDesc: String = "") {
-        this.contentType = contentType
-        this.contentDesc = contentDesc
-        add("contentType", contentType)
-        add("contentDesc", contentDesc)
+    fun getContent(): String {
+        return content.toString()
     }
 
-    fun add(key: String, value: Any?): ChatContent {
-        put(key, value)
+    class Content : HashMap<String, Any?>() {
+        override fun toString(): String {
+            return Gson().toJson(this)
+        }
+
+        companion object {
+            fun decode(data: String): Content {
+                return Gson().fromJson(data, Content::class.java)
+            }
+        }
+    }
+
+    fun put(key: String, value: Any?): ChatContent {
+        content[key] = value
         return this
     }
 
-    override fun toString(): String {
-        return Gson().toJson(this)
+    fun get(key: String): Any? {
+        if (content.isEmpty()) {
+            content = Content.decode(data)
+        }
+        return content[key]
     }
 
     companion object {

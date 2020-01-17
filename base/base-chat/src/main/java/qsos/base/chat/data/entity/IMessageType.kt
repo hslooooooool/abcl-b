@@ -6,8 +6,8 @@ package qsos.base.chat.data.entity
  */
 interface IMessageType {
     /**消息摘要*/
-    var contentDesc: String
+    var desc: String
     /**消息内容类型值
      * @see EnumChatMessageType*/
-    var contentType: Int
+    var type: Int
 }

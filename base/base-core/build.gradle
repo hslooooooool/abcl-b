@@ -5,7 +5,7 @@ apply from: '../../push.gradle'
 
 dependencies {
 
-    api('com.github.hslooooooool:abcl-c:1.9.5')
+    api('com.github.hslooooooool:abcl-c:1.9.6')
 
     api 'androidx.navigation:navigation-fragment-ktx:2.1.0'
     api 'androidx.navigation:navigation-ui-ktx:2.1.0'

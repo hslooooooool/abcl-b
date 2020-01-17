@@ -20,7 +20,7 @@ class ItemChatMessageCardViewHolder(session: MessageViewHelper.Session, view: Vi
             data.getRealContent<MChatMessageCard>()?.let {
                 ImageLoaderUtils.display(itemView.context, item_message_card_avatar, it.avatar)
                 item_message_card_name.text = it.name
-                item_message_card_desc.text = it.desc
+                item_message_card_desc.text = it.description
             }
         }
     }

@@ -5,6 +5,6 @@ package qsos.base.chat.data.entity
  * 消息内容-文件消息
  */
 open class MChatMessageFile : AbsChatMessageFile(), IMessageType {
-    override var contentDesc: String = EnumChatMessageType.FILE.contentDesc
-    override var contentType: Int = EnumChatMessageType.FILE.contentType
+    override var desc: String = EnumChatMessageType.FILE.desc
+    override var type: Int = EnumChatMessageType.FILE.type
 }

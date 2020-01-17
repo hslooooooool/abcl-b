@@ -49,7 +49,7 @@ class ChatMessageAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return data[position].content.contentType
+        return data[position].content.type
     }
 
     override fun onItemClick(view: View, position: Int, obj: Any?) {}

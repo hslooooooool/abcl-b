@@ -17,7 +17,7 @@ class ItemChatMessageLinkViewHolder(session: MessageViewHelper.Session, view: Vi
             item_message_view_link.visibility = View.VISIBLE
             data.getRealContent<MChatMessageLink>()?.let {
                 item_message_link_name.text = it.name
-                item_message_link_desc.text = it.desc
+                item_message_link_desc.text = it.description
                 item_message_link_url.text = it.url
             }
         }

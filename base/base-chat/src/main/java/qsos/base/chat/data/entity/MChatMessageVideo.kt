@@ -5,6 +5,6 @@ package qsos.base.chat.data.entity
  * 消息内容-视频消息
  */
 class MChatMessageVideo : AbsChatMessageFile(), IMessageType {
-    override var contentDesc: String = EnumChatMessageType.VIDEO.contentDesc
-    override var contentType: Int = EnumChatMessageType.VIDEO.contentType
+    override var desc: String = EnumChatMessageType.VIDEO.desc
+    override var type: Int = EnumChatMessageType.VIDEO.type
 }

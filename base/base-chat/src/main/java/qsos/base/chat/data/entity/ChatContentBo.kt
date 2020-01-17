@@ -25,7 +25,7 @@ data class ChatContentBo constructor(
 
     /**设置消息类型*/
     fun setContentType(contentType: Int): ChatContentBo {
-        this.fields["contentType"] = contentType
+        this.fields["type"] = contentType
         return this
     }
 
@@ -36,7 +36,7 @@ data class ChatContentBo constructor(
         if (length > 20) {
             desc = contentDesc.substring(0, 20) + "..."
         }
-        this.fields["contentDesc"] = desc
+        this.fields["description"] = desc
         return this
     }
 
@@ -44,8 +44,8 @@ data class ChatContentBo constructor(
     fun getContentType(): Int {
         var type: Int?
         try {
-            type = (this.fields["contentType"] as Number?)?.toInt()
-            this.fields["contentType"] = type
+            type = (this.fields["type"] as Number?)?.toInt()
+            this.fields["type"] = type
         } catch (e: Exception) {
             type = -1
         }
@@ -54,18 +54,18 @@ data class ChatContentBo constructor(
 
     /**获取消息摘要*/
     fun getContentDesc(): String {
-        var contentDesc: String = this.fields["contentDesc"]?.toString() ?: ""
+        var contentDesc: String = this.fields["description"]?.toString() ?: ""
         val length = contentDesc.length
         if (length > 20) {
             contentDesc = contentDesc.substring(0, 20) + "..."
         }
-        this.fields["contentDesc"] = contentDesc
+        this.fields["description"] = contentDesc
         return contentDesc
     }
 
     /**获取文本内容，仅文本消息有效*/
     fun getContent(): String {
-        return this.fields["content"]?.toString() ?: ""
+        return this.fields["data"]?.toString() ?: ""
     }
 
     override fun toString(): String {

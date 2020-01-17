@@ -33,14 +33,14 @@ object ChatMessageViewConfig : IMessageViewConfig {
 
     private fun getDefHolder(session: MessageViewHelper.Session, view: View, viewType: Int): ItemChatMessageBaseViewHolder {
         return when (viewType) {
-            EnumChatMessageType.TEXT.contentType -> ItemChatMessageTextViewHolder(session, view)
-            EnumChatMessageType.IMAGE.contentType -> ItemChatMessageImageViewHolder(session, view)
-            EnumChatMessageType.VIDEO.contentType -> ItemChatMessageVideoViewHolder(session, view)
-            EnumChatMessageType.AUDIO.contentType -> ItemChatMessageAudioViewHolder(session, view)
-            EnumChatMessageType.FILE.contentType -> ItemChatMessageFileViewHolder(session, view)
-            EnumChatMessageType.LINK.contentType -> ItemChatMessageLinkViewHolder(session, view)
-            EnumChatMessageType.CARD.contentType -> ItemChatMessageCardViewHolder(session, view)
-            EnumChatMessageType.LOCATION.contentType -> ItemChatMessageLocationViewHolder(session, view)
+            EnumChatMessageType.TEXT.type -> ItemChatMessageTextViewHolder(session, view)
+            EnumChatMessageType.IMAGE.type -> ItemChatMessageImageViewHolder(session, view)
+            EnumChatMessageType.VIDEO.type -> ItemChatMessageVideoViewHolder(session, view)
+            EnumChatMessageType.AUDIO.type -> ItemChatMessageAudioViewHolder(session, view)
+            EnumChatMessageType.FILE.type -> ItemChatMessageFileViewHolder(session, view)
+            EnumChatMessageType.LINK.type -> ItemChatMessageLinkViewHolder(session, view)
+            EnumChatMessageType.CARD.type -> ItemChatMessageCardViewHolder(session, view)
+            EnumChatMessageType.LOCATION.type -> ItemChatMessageLocationViewHolder(session, view)
             else -> {
                 ItemChatMessageTextViewHolder(session, view)
             }
@@ -49,14 +49,14 @@ object ChatMessageViewConfig : IMessageViewConfig {
 
     private fun getDefContentType(contentType: Int): Type {
         return when (contentType) {
-            EnumChatMessageType.TEXT.contentType -> object : TypeToken<MChatMessageText>() {}.type
-            EnumChatMessageType.IMAGE.contentType -> object : TypeToken<MChatMessageImage>() {}.type
-            EnumChatMessageType.VIDEO.contentType -> object : TypeToken<MChatMessageVideo>() {}.type
-            EnumChatMessageType.AUDIO.contentType -> object : TypeToken<MChatMessageAudio>() {}.type
-            EnumChatMessageType.FILE.contentType -> object : TypeToken<MChatMessageFile>() {}.type
-            EnumChatMessageType.LINK.contentType -> object : TypeToken<MChatMessageLink>() {}.type
-            EnumChatMessageType.CARD.contentType -> object : TypeToken<MChatMessageCard>() {}.type
-            EnumChatMessageType.LOCATION.contentType -> object : TypeToken<MChatMessageLocation>() {}.type
+            EnumChatMessageType.TEXT.type -> object : TypeToken<MChatMessageText>() {}.type
+            EnumChatMessageType.IMAGE.type -> object : TypeToken<MChatMessageImage>() {}.type
+            EnumChatMessageType.VIDEO.type -> object : TypeToken<MChatMessageVideo>() {}.type
+            EnumChatMessageType.AUDIO.type -> object : TypeToken<MChatMessageAudio>() {}.type
+            EnumChatMessageType.FILE.type -> object : TypeToken<MChatMessageFile>() {}.type
+            EnumChatMessageType.LINK.type -> object : TypeToken<MChatMessageLink>() {}.type
+            EnumChatMessageType.CARD.type -> object : TypeToken<MChatMessageCard>() {}.type
+            EnumChatMessageType.LOCATION.type -> object : TypeToken<MChatMessageLocation>() {}.type
             else -> String::class.java
         }
     }

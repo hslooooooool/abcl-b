@@ -20,10 +20,10 @@ interface MessageApi {
     fun sendMessage(
             @Query("sessionId")
             sessionId: Long,
-            @Query("contentType")
+            @Query("type")
             contentType: Int,
-            @Query("content")
-            content: String,
+            @Query("data")
+            data: String,
             @Query("sender")
             sender: String
     ): Call<BaseResponse<ChatMessageSendBo>>

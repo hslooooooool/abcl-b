@@ -92,15 +92,15 @@ class SessionViewHelperImpl(private val activity: AppCompatActivity) : SessionVi
     override fun resendMessage(message: MessageViewHelper.Message, back: (file: HttpFileEntity?) -> Unit) {
         var needUpdate = false
         var file: File? = null
-        when (message.content.contentType) {
-            EnumChatMessageType.IMAGE.contentType, EnumChatMessageType.VIDEO.contentType,
-            EnumChatMessageType.AUDIO.contentType, EnumChatMessageType.FILE.contentType -> {
-                val url = message.content["url"] as String
+        when (message.content.type) {
+            EnumChatMessageType.IMAGE.type, EnumChatMessageType.VIDEO.type,
+            EnumChatMessageType.AUDIO.type, EnumChatMessageType.FILE.type -> {
+                val url = message.content.get("url") as String
                 file = File(url)
                 needUpdate = file.exists()
             }
-            EnumChatMessageType.TEXT.contentType, EnumChatMessageType.LINK.contentType,
-            EnumChatMessageType.CARD.contentType, EnumChatMessageType.LOCATION.contentType -> {
+            EnumChatMessageType.TEXT.type, EnumChatMessageType.LINK.type,
+            EnumChatMessageType.CARD.type, EnumChatMessageType.LOCATION.type -> {
                 needUpdate = false
             }
         }
