@@ -28,4 +28,5 @@ dependencies {
 - [ABCL安卓快速开发框架之L层](https://github.com/hslooooooool/abcl-l)
 - [ABCL安卓快速开发框架之C层](https://github.com/hslooooooool/abcl-c)
 - [ABCL安卓快速开发框架之B层](https://github.com/hslooooooool/abcl-b)
-- [ABCL测试使用的后台代码](https://github.com/hslooooooool/ktorm-demo)
+- [ABCL-B-1.0测试使用的后台代码](https://github.com/hslooooooool/ktorm-demo)
+- [ABCL-B-2.0测试使用的后台代码](https://github.com/hslooooooool/im-netty-server/releases/tag/1.0)
