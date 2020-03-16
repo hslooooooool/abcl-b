@@ -9,12 +9,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.alibaba.android.arouter.launcher.ARouter
+import com.google.gson.Gson
 import qsos.base.chat.api.MessageViewHelper
 import qsos.base.chat.data.entity.ChatMessage
 import qsos.lib.base.utils.rx.RxBus
 import vip.qsos.app_chat.R
 import vip.qsos.app_chat.config.Constants
 import vip.qsos.app_chat.data.entity.ChatMessageBo
+import vip.qsos.app_chat.data.entity.ChatSessionBo
 import vip.qsos.app_chat.data.entity.MessageExtra
 import vip.qsos.app_chat.data.entity.Session
 import vip.qsos.app_chat.view.activity.ChatSessionActivity
@@ -38,17 +40,24 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         }
         val msg = ChatMessageBo.decode(message)
         val extra = MessageExtra.json(message.extra!!)
-        showNotify(context,
-                action = message.action ?: "0",
-                title = message.title ?: "新消息",
-                time = message.timestamp,
-                desc = ChatMessage.getRealContentDesc(msg.content))
+
+        showNotify(context, message, msg, extra)
+
         notifyView(msg, extra)
     }
 
     /**消息广播*/
     @SuppressLint("TimberArgCount")
-    private fun showNotify(context: Context, action: String, title: String, time: Long, desc: String) {
+    private fun showNotify(context: Context, message: Message, msg: ChatMessage, extra: MessageExtra) {
+        val action = message.action ?: "0"
+        val title = message.title ?: "新消息"
+        val content = ChatMessage.getRealContentDesc(msg.content)
+        val time = message.timestamp
+        val timeline = msg.timeline
+        val avatar = extra.sender?.avatar
+        val sessionId = extra.sessionId
+        val sessionType = extra.sessionType
+
         val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -57,8 +66,18 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
             channel.enableLights(true)
             notificationManager.createNotificationChannel(channel)
         }
+        val sessionIntent = Intent(context, ChatSessionActivity::class.java)
+        val mSessionBo = ChatSessionBo(
+                id = sessionId,
+                type = sessionType,
+                title = title,
+                timeline = timeline,
+                avatar = avatar,
+                content = content
+        )
+        sessionIntent.putExtra("/CHAT/SESSION_JSON", Gson().toJson(mSessionBo))
         val contentIntent = PendingIntent.getActivity(
-                context, 1, Intent(context, ChatSessionActivity::class.java),
+                context, 1, sessionIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
         val builder = NotificationCompat.Builder(context, action)
@@ -68,7 +87,7 @@ class IMPushManagerReceiver : AbsIMEventBroadcastReceiver() {
         builder.setSmallIcon(R.drawable.ic_launcher)
         builder.setTicker(title)
         builder.setContentTitle(title)
-        builder.setContentText(desc)
+        builder.setContentText(content)
         builder.setDefaults(Notification.DEFAULT_LIGHTS)
         builder.setContentIntent(contentIntent)
         notificationManager.notify(R.drawable.ic_launcher, builder.build())

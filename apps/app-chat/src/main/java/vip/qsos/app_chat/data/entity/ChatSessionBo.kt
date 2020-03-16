@@ -14,7 +14,7 @@ import qsos.base.chat.data.entity.EnumSessionType
  * @param content 消息内容
  * @param timeline 消息时序
  */
-data class ChatSessionBo(
+data class ChatSessionBo constructor(
         var id: Long,
         var type: EnumSessionType,
         var title: String,

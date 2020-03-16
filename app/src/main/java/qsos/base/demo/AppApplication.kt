@@ -36,7 +36,7 @@ open class AppApplication(
 
         CoreConfig.DEBUG = true
         /**BASE_URL配置*/
-        CoreConfig.BASE_URL = "http://192.168.2.103:8085"
+        CoreConfig.BASE_URL = "http://192.168.2.25:8085"
         CoreConfig.PROVIDER = "qsos.base.demo.provider"
         /**Timber 日志*/
         LogUtil.open(true, GlobalExceptionHelper.CrashReportingTree())

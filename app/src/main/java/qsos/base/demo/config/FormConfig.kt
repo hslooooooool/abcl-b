@@ -107,7 +107,6 @@ object FormConfig : IFormConfig {
                                         fileCover = f.absolutePath))
                             }
                             onSuccess.invoke(files)
-                            // FIXME 文件上传测试
                             FileRepository(Dispatchers.Main + Job()).uploadFile(
                                     Constants.FILE_UPLOAD_URL,
                                     it.map { file ->

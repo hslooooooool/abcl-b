@@ -43,7 +43,7 @@
 		<activity
 			android:name=".view.activity.SplashActivity"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:screenOrientation="portrait">
+			android:screenOrientation="fullSensor">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<action android:name="android.intent.action.VIEW" />
@@ -66,7 +66,7 @@
 			android:name="vip.qsos.app_chat.view.activity.ChatSessionActivity"
 			android:alwaysRetainTaskState="true"
 			android:launchMode="singleTask"
-			android:screenOrientation="portrait">
+			android:screenOrientation="fullSensor">
 			<intent-filter>
 				<action android:name="${applicationId}.look.notify" />
 				<category android:name="android.intent.category.DEFAULT" />

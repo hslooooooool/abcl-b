@@ -37,12 +37,12 @@ open class ChatApplication(
 
         CoreConfig.DEBUG = true
         /**文件HOST配置*/
-        AbsChatMessageFile.HOST = "http://192.168.2.103:8085/"
+        AbsChatMessageFile.HOST = "http://192.168.2.25:8085/"
         /**BASE_URL配置*/
-        CoreConfig.BASE_URL = "http://192.168.2.103:8085"
+        CoreConfig.BASE_URL = "http://192.168.2.25:8085"
         CoreConfig.PROVIDER = applicationInfo.packageName + ".provider"
         /**消息服务配置*/
-        Constants.IM_SERVER_HOST = "192.168.2.103"
+        Constants.IM_SERVER_HOST = "192.168.2.25"
         Constants.IM_SERVER_PORT = 23456
         /**Timber 日志*/
         LogUtil.open(true, GlobalExceptionHelper.CrashReportingTree())
